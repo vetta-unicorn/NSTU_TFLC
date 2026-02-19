@@ -13,8 +13,10 @@ namespace TFLC_sem6_lab1
         private string currentFilePath = "";
         private string fileText = "";
         ProcessFile processFile;
-        private string userHelpPath = @"C:\Users\lisal\source\repos\TFLC_sem6_lab1\TFLC_sem6_lab1\HTML-files\HelpForm.html";
-        private string aboutPath = @"C:\Users\lisal\source\repos\TFLC_sem6_lab1\TFLC_sem6_lab1\HTML-files\AboutForm.html";
+        private string userPath = @"Files\HelpForm.html";
+        private string abPath = @"Files\AboutForm.html";
+        string userHelpPath;
+        private string aboutPath;
         private System.Windows.Forms.ToolTip toolTip = new System.Windows.Forms.ToolTip();
         public MainForm()
         {
@@ -22,6 +24,9 @@ namespace TFLC_sem6_lab1
             processFile = new ProcessFile();
             OutputTextBox.Enabled = false;
             InputTextBox.Enabled = false;
+
+            userHelpPath = Path.Combine(Directory.GetCurrentDirectory(), userPath);
+            aboutPath = Path.Combine(Directory.GetCurrentDirectory(), abPath);
 
             SetEvent();
 
