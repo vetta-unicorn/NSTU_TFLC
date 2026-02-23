@@ -56,7 +56,7 @@ namespace TFLC_sem6_lab1.ButtonHandlers
 
         public void SaveTxtFileAs(RichTextBox InputTextBox, RichTextBox OutputTextBox, string currentFilePath, bool isOpened)
         {
-            if (!isOpened) { MessageBox.Show("Файл не открыт!"); return; }
+            if (!isOpened) { OutputTextBox.Text = "Файл не открыт!"; return; }
             using (SaveFileDialog saveFileDialog = new SaveFileDialog())
             {
                 saveFileDialog.Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*";

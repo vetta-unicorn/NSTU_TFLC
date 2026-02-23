@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Resources;
 using System.Text;
 using System.Windows.Forms;
 using TFLC_sem6_lab1.ButtonHandlers;
@@ -18,15 +20,29 @@ namespace TFLC_sem6_lab1
         string userHelpPath;
         private string aboutPath;
         private System.Windows.Forms.ToolTip toolTip = new System.Windows.Forms.ToolTip();
+        private FontDialog fontDialog1;
+
+        Label lblSampleText;
+        System.Windows.Forms.Button btnSelectFont;
+        private Panel passPanelContainer;
+        Font newFont;
+
+        private ResourceManager resourceManager;
+        private string currLang = "ru";
         public MainForm()
         {
             InitializeComponent();
+
+            resourceManager = new ResourceManager("TFLC_sem6_lab1.Resources",
+                                              typeof(MainForm).Assembly);
             processFile = new ProcessFile();
             OutputTextBox.Enabled = false;
             InputTextBox.Enabled = false;
 
             userHelpPath = Path.Combine(Directory.GetCurrentDirectory(), userPath);
             aboutPath = Path.Combine(Directory.GetCurrentDirectory(), abPath);
+
+            fontDialog1 = new FontDialog();
 
             SetEvent();
 
@@ -37,12 +53,63 @@ namespace TFLC_sem6_lab1
             }
         }
 
+
+        private void ApplyResourcesToMenu(ToolStripMenuItem item)
+        {
+            if (item.Tag != null && item.Tag is string resourceKey)
+            {
+                item.Text = resourceManager.GetString(resourceKey);
+            }
+            foreach (ToolStripMenuItem childItem in item.DropDownItems)
+            {
+                ApplyResourcesToMenu(childItem);
+            }
+        }
+
+        private void ApplyResourcesToMenu()
+        {
+            foreach (ToolStripMenuItem topLevelItem in MainMenu.Items)
+            {
+                ApplyResourcesToMenu(topLevelItem);
+            }
+        }
+
+        private void ApplyResourcesToInstrumentMenu(ToolStripMenuItem item)
+        {
+            if (item.Tag != null && item.Tag is string resourceKey)
+            {
+                item.ToolTipText = resourceManager.GetString(resourceKey);
+            }
+            foreach (ToolStripMenuItem childItem in item.DropDownItems)
+            {
+                ApplyResourcesToInstrumentMenu(childItem);
+            }
+        }
+
+        private void ApplyResourcesToInstrumentMenu()
+        {
+            foreach (ToolStripMenuItem topLevelItem in InstrumentMenu.Items)
+            {
+                ApplyResourcesToInstrumentMenu(topLevelItem);
+            }
+        }
+
+        private void ChangeLanguage(string cultureName)
+        {
+            CultureInfo newCulture = new CultureInfo(cultureName);
+            Thread.CurrentThread.CurrentUICulture = newCulture;
+            Thread.CurrentThread.CurrentCulture = newCulture;
+
+            ApplyResourcesToMenu();
+            ApplyResourcesToInstrumentMenu();
+        }
+
         private void MenuItem_MouseEnter(object sender, EventArgs e)
         {
             var menuItem = sender as ToolStripMenuItem;
-            if (menuItem?.Tag != null)
+            if (menuItem?.ToolTipText != null)
             {
-                toolTip.Show(menuItem.Tag.ToString(), this,
+                toolTip.Show(menuItem.ToolTipText.ToString(), this,
                     Control.MousePosition.X - this.Location.X,
                     Control.MousePosition.Y - this.Location.Y + 20);
             }
@@ -60,21 +127,22 @@ namespace TFLC_sem6_lab1
                 if (item.Text == "Файл") { FileHandler(item); }
                 else if (item.Text == "Правка") { EditionHandler(item); }
                 else if ( item.Text == "Справка") { HelpFormsHandler(item); }
+                else if (item.Text == "Настройки") { SettingsHandler(item); }
             }
 
             foreach (ToolStripMenuItem item in InstrumentMenu.Items)
             {
-                if (item.Tag == "Создать") { item.Click += CreateFile; }
-                else if (item.Tag == "Открыть") { item.Click += OpenFile; }
-                else if (item.Tag == "Сохранить") { item.Click += SaveFile; }
-                else if (item.Tag == "Отменить") { item.Click += UndoText; }
-                else if (item.Tag == "Повторить") { item.Click += RedoText; }
-                else if (item.Tag == "Копировать") { item.Click += CopyText; }
-                else if (item.Tag == "Вырезать") { item.Click += CutText; }
-                else if (item.Tag == "Вставить") { item.Click += PasteText; }
+                if (item.Name == "Создать") { item.Click += CreateFile; }
+                else if (item.Name == "Открыть") { item.Click += OpenFile; }
+                else if (item.Name == "Сохранить") { item.Click += SaveFile; }
+                else if (item.Name == "Отменить") { item.Click += UndoText; }
+                else if (item.Name == "Повторить") { item.Click += RedoText; }
+                else if (item.Name == "Копировать") { item.Click += CopyText; }
+                else if (item.Name == "Вырезать") { item.Click += CutText; }
+                else if (item.Name == "Вставить") { item.Click += PasteText; }
                 //else if (item.Tag == "Пуск") { item.Click += ; }
-                else if (item.Tag == "Справка") { item.Click += ShowHelpForm; }
-                else if (item.Tag == "О программе") { item.Click += ShowAboutForm; }
+                else if (item.Name == "Справка") { item.Click += ShowHelpForm; }
+                else if (item.Name == "О программе") { item.Click += ShowAboutForm; }
             }
         }
 
@@ -207,36 +275,81 @@ namespace TFLC_sem6_lab1
             }
         }
 
+        private void ChangeTextStyle(object sender, EventArgs e)
+        {
+            if (fontDialog1.ShowDialog() == DialogResult.OK)
+            {
+                ApplyFontToAllControls(this, fontDialog1.Font);
+            }
+        }
+
+        private void ApplyFontToAllControls(Control parent, Font newFont)
+        {
+            foreach (Control control in parent.Controls)
+            {
+                control.Font = newFont;
+
+                if (control.HasChildren)
+                {
+                    ApplyFontToAllControls(control, newFont);
+                }
+            }
+        }
+
+        private void SetLocalizeEng(object sender, EventArgs e)
+        {
+            ChangeLanguage("en");
+            MainMenu.Update();
+            InstrumentMenu.Update();
+            this.Invalidate(true);
+            currLang = "en";
+        }
+
+        private void SetLocalizeRu(object sender, EventArgs e)
+        {
+            ChangeLanguage("ru-RU");
+            MainMenu.Update();
+            InstrumentMenu.Update();
+            this.Invalidate(true);
+            currLang = "ru";
+        }
+
         private void FileHandler(ToolStripMenuItem item)
         {
             ToolStripMenuItem createItem = new ToolStripMenuItem();
             createItem.Text = "Создать";
             createItem.Click += CreateFile;
+            createItem.Tag = "CreateFile";
             item.DropDownItems.Add(createItem);
 
             ToolStripMenuItem openItem = new ToolStripMenuItem();
             openItem.Text = "Открыть";
             openItem.Click += OpenFile;
+            openItem.Tag = "OpenFile";
             item.DropDownItems.Add(openItem);
 
             ToolStripMenuItem saveItem = new ToolStripMenuItem();
             saveItem.Text = "Сохранить";
             saveItem.Click += SaveFile;
+            saveItem.Tag = "SaveFile";
             item.DropDownItems.Add(saveItem);
 
             ToolStripMenuItem saveAsItem = new ToolStripMenuItem();
             saveAsItem.Text = "Сохранить как";
             saveAsItem.Click += SaveAsFile;
+            saveAsItem.Tag = "SaveAsFile";
             item.DropDownItems.Add(saveAsItem);
 
             ToolStripMenuItem exitFileItem = new ToolStripMenuItem();
             exitFileItem.Text = "Закрыть файл";
             exitFileItem.Click += ExitFromFile;
+            exitFileItem.Tag = "CloseFile";
             item.DropDownItems.Add(exitFileItem);
 
             ToolStripMenuItem exitItem = new ToolStripMenuItem();
             exitItem.Text = "Выход";
             exitItem.Click += ExitFromProgram;
+            exitItem.Tag = "ExitFile";
             item.DropDownItems.Add(exitItem);
         }
 
@@ -245,36 +358,43 @@ namespace TFLC_sem6_lab1
             ToolStripMenuItem undoItem = new ToolStripMenuItem();
             undoItem.Text = "Отменить";
             undoItem.Click += UndoText;
+            undoItem.Tag = "UndoText";
             item.DropDownItems.Add(undoItem);
 
             ToolStripMenuItem redoItem = new ToolStripMenuItem();
             redoItem.Text = "Повторить";
             redoItem.Click += RedoText;
+            redoItem.Tag = "RedoText";
             item.DropDownItems.Add(redoItem);
 
             ToolStripMenuItem cutItem = new ToolStripMenuItem();
             cutItem.Text = "Вырезать";
             cutItem.Click += CutText;
+            cutItem.Tag = "CutText";
             item.DropDownItems.Add(cutItem);
 
             ToolStripMenuItem copyItem = new ToolStripMenuItem();
             copyItem.Text = "Копировать";
             copyItem.Click += CopyText;
+            copyItem.Tag = "CopyText";
             item.DropDownItems.Add(copyItem);
 
             ToolStripMenuItem pasteItem = new ToolStripMenuItem();
             pasteItem.Text = "Вставить";
             pasteItem.Click += PasteText;
+            pasteItem.Tag = "PasteText";
             item.DropDownItems.Add(pasteItem);
 
             ToolStripMenuItem deleteItem = new ToolStripMenuItem();
             deleteItem.Text = "Удалить";
             deleteItem.Click += DeleteText;
+            deleteItem.Tag = "DeleteText";
             item.DropDownItems.Add(deleteItem);
 
             ToolStripMenuItem selectItem = new ToolStripMenuItem();
             selectItem.Text = "Выделить все";
             selectItem.Click += SelectAllText;
+            selectItem.Tag = "SelectAllText";
             item.DropDownItems.Add(selectItem);
         }
 
@@ -283,12 +403,44 @@ namespace TFLC_sem6_lab1
             ToolStripMenuItem helpItem = new ToolStripMenuItem();
             helpItem.Text = "Вызов справки";
             helpItem.Click += ShowHelpForm;
+            helpItem.Tag = "ShowHelp";
             item.DropDownItems.Add(helpItem);
 
             ToolStripMenuItem aboutItem = new ToolStripMenuItem();
             aboutItem.Text = "О программе";
             aboutItem.Click += ShowAboutForm;
+            aboutItem.Tag = "ShowAbout";
             item.DropDownItems.Add(aboutItem);
+        }
+
+        private void SettingsHandler(ToolStripMenuItem item)
+        {
+            ToolStripMenuItem textItem = new ToolStripMenuItem();
+            textItem.Text = "Настройки шрифта";
+            textItem.Click += ChangeTextStyle;
+            textItem.Tag = "ChangeTextStyle";
+            item.DropDownItems.Add(textItem);
+
+            ToolStripMenuItem langItem = new ToolStripMenuItem();
+            langItem.Text = "Сменить язык";
+            langItem.Tag = "ChangeLang";
+
+            ToolStripMenuItem engItem = new ToolStripMenuItem();
+            engItem.Text = "Английский";
+            engItem.Click += SetLocalizeEng;
+            engItem.Tag = "SetLocalizeEng";
+            langItem.DropDownItems.Add(engItem);
+
+            ToolStripMenuItem ruItem = new ToolStripMenuItem();
+            ruItem.Text = "Русский";
+            ruItem.Click += SetLocalizeRu;
+            ruItem.Tag = "SetLocalizeRu";
+            langItem.DropDownItems.Add(ruItem);
+
+
+
+            item.DropDownItems.Add(langItem);
+            
         }
     }
 }
