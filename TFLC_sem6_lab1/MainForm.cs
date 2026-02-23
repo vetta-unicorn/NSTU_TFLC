@@ -38,6 +38,9 @@ namespace TFLC_sem6_lab1
         private ToolStripStatusLabel fileInfoLabel;
         private bool isTextModified = false;
 
+        private string[] keywords = { "class", "public", "private", "void", "int", "string", "if", "else", "for", "while" };
+        private Color keywordColor = Color.Purple;
+
         public MainForm()
         {
             InitializeComponent();
@@ -47,6 +50,7 @@ namespace TFLC_sem6_lab1
             processFile = new ProcessFile();
             OutputTextBox.Enabled = false;
             InputTextBox.Enabled = false;
+            InputTextBox.TextChanged += InputTextBox_IsChanged;
             CreateLineNumberedRichTextBox();
 
             userHelpPath = Path.Combine(Directory.GetCurrentDirectory(), userPath);
@@ -64,6 +68,61 @@ namespace TFLC_sem6_lab1
                 item.MouseEnter += MenuItem_MouseEnter;
                 item.MouseLeave += MenuItem_MouseLeave;
             }
+        }
+
+        private void InputTextBox_IsChanged(object sender, EventArgs e)
+        {
+            HighlightKeywords();
+        }
+
+        private void HighlightKeywords()
+        {
+            int selectionStart = InputTextBox.SelectionStart;
+            int selectionLength = InputTextBox.SelectionLength;
+
+            InputTextBox.SelectAll();
+            InputTextBox.SelectionColor = Color.Black;
+
+            foreach (string keyword in keywords)
+            {
+                int index = 0;
+                while (index < InputTextBox.TextLength)
+                {
+                    index = InputTextBox.Text.IndexOf(keyword, index, StringComparison.Ordinal);
+                    if (index == -1)
+                        break;
+
+                    if (IsWholeWord(index, keyword.Length))
+                    {
+                        InputTextBox.Select(index, keyword.Length);
+                        InputTextBox.SelectionColor = keywordColor;
+                    }
+
+                    index += keyword.Length;
+                }
+            }
+
+            InputTextBox.Select(selectionStart, selectionLength);
+            InputTextBox.SelectionColor = Color.Black;
+        }
+
+        private bool IsWholeWord(int index, int length)
+        {
+            if (index > 0)
+            {
+                char prevChar = InputTextBox.Text[index - 1];
+                if (char.IsLetterOrDigit(prevChar) || prevChar == '_')
+                    return false;
+            }
+
+            if (index + length < InputTextBox.TextLength)
+            {
+                char nextChar = InputTextBox.Text[index + length];
+                if (char.IsLetterOrDigit(nextChar) || nextChar == '_')
+                    return false;
+            }
+
+            return true;
         }
 
         private void InitializeStatusStrip()
