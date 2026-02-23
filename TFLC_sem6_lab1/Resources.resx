@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ChangeLang" xml:space="preserve">
-    <value>Сменить язык</value>
-  </data>
   <data name="ChangeTextStyle" xml:space="preserve">
     <value>Настройки шрифта</value>
   </data>
@@ -191,5 +188,35 @@
   </data>
   <data name="UndoText" xml:space="preserve">
     <value>Отменить</value>
+  </data>
+  <data name="ChangeLang" xml:space="preserve">
+    <value>Сменить язык</value>
+  </data>
+  <data name="OpenCompleted" xml:space="preserve">
+    <value>Файл успешно открыт</value>
+  </data>
+  <data name="SaveCompleted" xml:space="preserve">
+    <value>Файл был успешно сохранен</value>
+  </data>
+  <data name="FilterString" xml:space="preserve">
+    <value>Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*</value>
+  </data>
+  <data name="ChooseFile" xml:space="preserve">
+    <value>Выберите файл</value>
+  </data>
+  <data name="OpenError" xml:space="preserve">
+    <value>Не удалось открыть файл</value>
+  </data>
+  <data name="ErrorPrefix" xml:space="preserve">
+    <value>[ОШИБКА] {0}</value>
+  </data>
+  <data name="SaveTxt" xml:space="preserve">
+    <value>Сохранить файл</value>
+  </data>
+  <data name="SaveBeforeExit" xml:space="preserve">
+    <value>Сохраните файл перед выходом</value>
+  </data>
+  <data name="SaveError" xml:space="preserve">
+    <value>Ошибка при сохранении файла</value>
   </data>
 </root>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TFLC_sem6_lab1.Handlers;
 
 namespace TFLC_sem6_lab1.ButtonHandlers
 {
@@ -26,10 +27,13 @@ namespace TFLC_sem6_lab1.ButtonHandlers
                     }
                     catch (Exception ex)
                     {
-                        OutputTextBox.Text = ex.Message;
+                        //OutputTextBox.Text = ex.Message;
+                        OutputTextBox.LogLocalized("OpenError");
                     }
                     finally { currentFilePath = openFileDialog.FileName; }
                 }
+                //OutputTextBox.Text = "Файл успешно открыт!";
+                OutputTextBox.LogLocalized("OpenCompleted");
             }
             return currentFilePath;
         }
@@ -41,11 +45,13 @@ namespace TFLC_sem6_lab1.ButtonHandlers
                 try
                 {
                     File.WriteAllText(currentFilePath, InputTextBox.Text);
-                    OutputTextBox.Text = "Файл успешно сохранен!";
+                    //OutputTextBox.Text = "Файл успешно сохранен!";
+                    OutputTextBox.LogLocalized("SaveCompleted");
                 }
                 catch (Exception ex)
                 {
-                    OutputTextBox.Text = ex.Message;
+                    //OutputTextBox.Text = ex.Message;
+                    OutputTextBox.LogLocalized("SaveError");
                 }
             }
             else
@@ -73,11 +79,13 @@ namespace TFLC_sem6_lab1.ButtonHandlers
                         string textToSave = InputTextBox.Text;
 
                         File.WriteAllText(saveFileDialog.FileName, textToSave);
-                        OutputTextBox.Text = "Файл успешно сохранен!";
+                        //OutputTextBox.Text = "Файл успешно сохранен!";
+                        OutputTextBox.LogLocalized("SaveCompleted");
                     }
                     catch (Exception ex)
                     {
-                        OutputTextBox.Text = ex.Message;
+                        //OutputTextBox.Text = ex.Message;
+                        OutputTextBox.LogLocalized("SaveError");
                     }
                 }
             }

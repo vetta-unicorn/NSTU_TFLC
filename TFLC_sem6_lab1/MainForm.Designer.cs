@@ -57,6 +57,7 @@
             MenuStart = new ToolStripMenuItem();
             MenuHelp = new ToolStripMenuItem();
             MenuSettings = new ToolStripMenuItem();
+            statusStrip1 = new StatusStrip();
             InstrumentMenu.SuspendLayout();
             MainMenu.SuspendLayout();
             SuspendLayout();
@@ -294,11 +295,21 @@
             MenuSettings.Tag = "MenuSettings";
             MenuSettings.Text = "Настройки";
             // 
+            // statusStrip1
+            // 
+            statusStrip1.ImageScalingSize = new Size(20, 20);
+            statusStrip1.Location = new Point(0, 426);
+            statusStrip1.Name = "statusStrip1";
+            statusStrip1.Size = new Size(936, 24);
+            statusStrip1.TabIndex = 5;
+            statusStrip1.Text = "statusStrip1";
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(936, 450);
+            Controls.Add(statusStrip1);
             Controls.Add(OutputTextBox);
             Controls.Add(InputTextBox);
             Controls.Add(InstrumentMenu);
@@ -344,5 +355,6 @@
         private ToolStripMenuItem Справка;
         private ToolStripMenuItem ОПрограмме;
         private ToolStripMenuItem MenuSettings;
+        private StatusStrip statusStrip1;
     }
 }

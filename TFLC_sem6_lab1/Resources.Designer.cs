@@ -79,6 +79,15 @@ namespace TFLC_sem6_lab1 {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Выберите файл.
+        /// </summary>
+        internal static string ChooseFile {
+            get {
+                return ResourceManager.GetString("ChooseFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Закрыть файл.
         /// </summary>
         internal static string CloseFile {
@@ -124,11 +133,29 @@ namespace TFLC_sem6_lab1 {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на [ОШИБКА] {0}.
+        /// </summary>
+        internal static string ErrorPrefix {
+            get {
+                return ResourceManager.GetString("ErrorPrefix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Выход.
         /// </summary>
         internal static string ExitFile {
             get {
                 return ResourceManager.GetString("ExitFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*.
+        /// </summary>
+        internal static string FilterString {
+            get {
+                return ResourceManager.GetString("FilterString", resourceCulture);
             }
         }
         
@@ -187,6 +214,24 @@ namespace TFLC_sem6_lab1 {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Файл успешно открыт.
+        /// </summary>
+        internal static string OpenCompleted {
+            get {
+                return ResourceManager.GetString("OpenCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Не удалось открыть файл.
+        /// </summary>
+        internal static string OpenError {
+            get {
+                return ResourceManager.GetString("OpenError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Открыть.
         /// </summary>
         internal static string OpenFile {
@@ -223,11 +268,47 @@ namespace TFLC_sem6_lab1 {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Сохраните файл перед выходом.
+        /// </summary>
+        internal static string SaveBeforeExit {
+            get {
+                return ResourceManager.GetString("SaveBeforeExit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Файл был успешно сохранен.
+        /// </summary>
+        internal static string SaveCompleted {
+            get {
+                return ResourceManager.GetString("SaveCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ошибка при сохранении файла.
+        /// </summary>
+        internal static string SaveError {
+            get {
+                return ResourceManager.GetString("SaveError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Сохранить.
         /// </summary>
         internal static string SaveFile {
             get {
                 return ResourceManager.GetString("SaveFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Сохранить файл.
+        /// </summary>
+        internal static string SaveTxt {
+            get {
+                return ResourceManager.GetString("SaveTxt", resourceCulture);
             }
         }
         

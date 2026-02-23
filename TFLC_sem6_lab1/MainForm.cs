@@ -4,6 +4,7 @@ using System.Text;
 using System.Windows.Forms;
 using TFLC_sem6_lab1.ButtonHandlers;
 using TFLC_sem6_lab1.HelpForms;
+using TFLC_sem6_lab1.Handlers;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 
@@ -29,6 +30,14 @@ namespace TFLC_sem6_lab1
 
         private ResourceManager resourceManager;
         private string currLang = "ru";
+
+        private Panel lineNumberPanel;
+
+        private ToolStripStatusLabel statusLabel;
+        private ToolStripStatusLabel cursorPositionLabel;
+        private ToolStripStatusLabel fileInfoLabel;
+        private bool isTextModified = false;
+
         public MainForm()
         {
             InitializeComponent();
@@ -38,6 +47,7 @@ namespace TFLC_sem6_lab1
             processFile = new ProcessFile();
             OutputTextBox.Enabled = false;
             InputTextBox.Enabled = false;
+            CreateLineNumberedRichTextBox();
 
             userHelpPath = Path.Combine(Directory.GetCurrentDirectory(), userPath);
             aboutPath = Path.Combine(Directory.GetCurrentDirectory(), abPath);
@@ -46,6 +56,9 @@ namespace TFLC_sem6_lab1
 
             SetEvent();
 
+            InitializeStatusStrip();
+            AttachEvents();
+
             foreach (ToolStripMenuItem item in InstrumentMenu.Items)
             {
                 item.MouseEnter += MenuItem_MouseEnter;
@@ -53,6 +66,151 @@ namespace TFLC_sem6_lab1
             }
         }
 
+        private void InitializeStatusStrip()
+        {
+            statusLabel = new ToolStripStatusLabel("Готов к работе");
+            cursorPositionLabel = new ToolStripStatusLabel("Стр: 1, Стлб: 1");
+            fileInfoLabel = new ToolStripStatusLabel("Новый файл");
+
+            statusLabel.Spring = true;
+
+            var separator1 = new ToolStripStatusLabel(" | ");
+            var separator2 = new ToolStripStatusLabel(" | ");
+
+            statusStrip1.Items.Clear();
+            statusStrip1.Items.AddRange(new ToolStripItem[] {
+            statusLabel,
+            separator1,
+            cursorPositionLabel,
+            separator2,
+            fileInfoLabel
+        });
+        }
+
+        private void AttachEvents()
+        {
+            InputTextBox.SelectionChanged += UpdateCursorPosition;
+            InputTextBox.KeyUp += UpdateCursorPosition;
+            InputTextBox.MouseUp += UpdateCursorPosition;
+
+            InputTextBox.TextChanged += (s, e) =>
+            {
+                isTextModified = true;
+                UpdateFileInfo();
+                UpdateStatus("Текст изменен");
+            };
+        }
+
+        private void UpdateCursorPosition(object sender, EventArgs e)
+        {
+            int currentPosition = InputTextBox.SelectionStart;
+            int line = InputTextBox.GetLineFromCharIndex(currentPosition) + 1;
+            int column = currentPosition - InputTextBox.GetFirstCharIndexFromLine(line - 1) + 1;
+
+            cursorPositionLabel.Text = $"Стр: {line}, Стлб: {column}";
+        }
+
+        private void UpdateFileInfo()
+        {
+            if (string.IsNullOrEmpty(currentFilePath))
+            {
+                fileInfoLabel.Text = isTextModified ? "Новый файл*" : "Новый файл";
+            }
+            else
+            {
+                string fileName = Path.GetFileName(currentFilePath);
+                fileInfoLabel.Text = isTextModified ? $"{fileName}*" : fileName;
+            }
+        }
+
+        private void UpdateStatus(string message)
+        {
+            statusLabel.Text = message;
+            var timer = new System.Windows.Forms.Timer();
+            timer.Interval = 3000;
+            timer.Tick += (s, e) =>
+            {
+                statusLabel.Text = "Готов к работе";
+                timer.Stop();
+                timer.Dispose();
+            };
+            timer.Start();
+        }
+
+        private void CreateLineNumberedRichTextBox()
+        {
+            Point originalLocation = InputTextBox.Location;
+            Size originalSize = InputTextBox.Size;
+
+            lineNumberPanel = new Panel
+            {
+                Width = 40,
+                BackColor = Color.LightGray,
+                Location = new Point(originalLocation.X, originalLocation.Y),
+                Height = originalSize.Height,
+                Anchor = InputTextBox.Anchor
+            };
+            InputTextBox.Location = new Point(originalLocation.X + 40, originalLocation.Y);
+            InputTextBox.Width = originalSize.Width - 40;
+            InputTextBox.WordWrap = false;
+
+            lineNumberPanel.Paint += LineNumberPanel_Paint;
+            InputTextBox.VScroll += RichTextBox_Scroll;
+            InputTextBox.TextChanged += RichTextBox_TextChanged;
+            InputTextBox.FontChanged += RichTextBox_FontChanged;
+
+            this.Controls.Add(lineNumberPanel);
+
+            this.Controls.SetChildIndex(InputTextBox, 0);
+        }
+
+        private void LineNumberPanel_Paint(object sender, PaintEventArgs e)
+        {
+            DrawLineNumbers(e.Graphics);
+        }
+
+        private void DrawLineNumbers(Graphics g)
+        {
+            if (InputTextBox.Lines.Length == 0) return;
+
+            int firstCharIndex = InputTextBox.GetCharIndexFromPosition(new Point(0, 0));
+            int firstLine = InputTextBox.GetLineFromCharIndex(firstCharIndex);
+
+            int lastCharIndex = InputTextBox.GetCharIndexFromPosition(new Point(0, InputTextBox.ClientSize.Height));
+            int lastLine = InputTextBox.GetLineFromCharIndex(lastCharIndex);
+
+            for (int line = firstLine; line <= lastLine + 1 && line < InputTextBox.Lines.Length; line++)
+            {
+                int charIndex = InputTextBox.GetFirstCharIndexFromLine(line);
+                if (charIndex == -1) continue;
+
+                Point linePos = InputTextBox.GetPositionFromCharIndex(charIndex);
+
+                using (Brush brush = new SolidBrush(Color.Black))
+                {
+                    g.DrawString((line + 1).ToString(),
+                               InputTextBox.Font,
+                               brush,
+                               5,
+                               linePos.Y);
+                }
+            }
+        }
+
+        private void RichTextBox_Scroll(object sender, EventArgs e)
+        {
+            lineNumberPanel.Invalidate();
+        }
+
+        private void RichTextBox_TextChanged(object sender, EventArgs e)
+        {
+            lineNumberPanel.Invalidate();
+        }
+
+        private void RichTextBox_FontChanged(object sender, EventArgs e)
+        {
+            lineNumberPanel.Invalidate();
+        }
 
         private void ApplyResourcesToMenu(ToolStripMenuItem item)
         {
@@ -182,7 +340,8 @@ namespace TFLC_sem6_lab1
             OutputTextBox.Text = "";
             if (fileText != InputTextBox.Text)
             {
-                OutputTextBox.Text = "Для выхода сохраните файл!";
+                //OutputTextBox.Text = "Для выхода сохраните файл!";
+                OutputTextBox.LogLocalized("SaveBeforeExit");
                 return;
             }
             processFile.ExitFile(InputTextBox);
@@ -193,7 +352,8 @@ namespace TFLC_sem6_lab1
             OutputTextBox.Text = "";
             if (fileText != InputTextBox.Text)
             {
-                OutputTextBox.Text = "Для выхода сохраните файл!";
+                //OutputTextBox.Text = "Для выхода сохраните файл!";
+                OutputTextBox.LogLocalized("SaveBeforeExit");
                 return;
             }
             if (System.Windows.Forms.Application.MessageLoop)
@@ -302,7 +462,12 @@ namespace TFLC_sem6_lab1
             MainMenu.Update();
             InstrumentMenu.Update();
             this.Invalidate(true);
+            RichTextBoxExtensions.RefreshResources();
             currLang = "en";
+
+            statusLabel.Text = "Ready to work";
+            cursorPositionLabel.Text = "Line: 1, Column: 1";
+            fileInfoLabel.Text = "New file";
         }
 
         private void SetLocalizeRu(object sender, EventArgs e)
@@ -311,7 +476,13 @@ namespace TFLC_sem6_lab1
             MainMenu.Update();
             InstrumentMenu.Update();
             this.Invalidate(true);
+            RichTextBoxExtensions.RefreshResources();
             currLang = "ru";
+
+            statusLabel.Text = "Готов к работе";
+            cursorPositionLabel.Text = "Стр: 1, Стлб: 1";
+            fileInfoLabel.Text = "Новый файл";
+
         }
 
         private void FileHandler(ToolStripMenuItem item)
@@ -436,8 +607,6 @@ namespace TFLC_sem6_lab1
             ruItem.Click += SetLocalizeRu;
             ruItem.Tag = "SetLocalizeRu";
             langItem.DropDownItems.Add(ruItem);
-
-
 
             item.DropDownItems.Add(langItem);
             
