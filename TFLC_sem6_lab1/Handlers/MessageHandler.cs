@@ -4,24 +4,10 @@ using System.Linq;
 using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace TFLC_sem6_lab1.Handlers
 {
-    //public static class MessageHandler
-    //{
-    //    public static List<string> messages;
-    //    static MessageHandler()
-    //    {
-    //        messages = new List<string>
-    //        {
-    //            "SuccessOpen", "FilterString", "ChooseFile", 
-    //            "SuccessSave", "FileNotOpened", "SaveTxtFile",
-    //            "SaveBeforeExit"
-    //        };
-    //    }
-
-
-    //}
     public static class RichTextBoxExtensions
     {
         private static ResourceManager _resourceManager;
@@ -52,6 +38,56 @@ namespace TFLC_sem6_lab1.Handlers
                 message = string.Format(message, args);
             }
             rtb.AppendText((message ?? messageKey) + Environment.NewLine);
+        }
+    }
+
+    public class StatusStripHandler
+    {
+        public void InitializeStatusStrip(ToolStripStatusLabel statusLabel, 
+            ToolStripStatusLabel cursorPositionLabel, ToolStripStatusLabel fileInfoLabel,
+            StatusStrip statusStrip1)
+        {
+            
+            statusLabel.Spring = true;
+
+            var separator1 = new ToolStripStatusLabel(" | ");
+            var separator2 = new ToolStripStatusLabel(" | ");
+
+            statusStrip1.Items.Clear();
+            statusStrip1.Items.AddRange(new ToolStripItem[] {
+            statusLabel,
+            separator1,
+            cursorPositionLabel,
+            separator2,
+            fileInfoLabel
+        });
+        }
+        public void UpdateFileInfo(string currentFilePath, ToolStripStatusLabel fileInfoLabel,
+            bool isTextModified)
+        {
+            if (string.IsNullOrEmpty(currentFilePath))
+            {
+                fileInfoLabel.Text = isTextModified ? "Новый файл*" : "Новый файл";
+            }
+            else
+            {
+                string fileName = Path.GetFileName(currentFilePath);
+                fileInfoLabel.Text = isTextModified ? $"{fileName}*" : fileName;
+            }
+        }
+
+        public void UpdateStatus(string message, ToolStripStatusLabel statusLabel)
+        {
+            statusLabel.Text = message;
+            var timer = new System.Windows.Forms.Timer();
+            timer.Interval = 3000;
+            timer.Tick += (s, e) =>
+            {
+                statusLabel.Text = "Готов к работе";
+                timer.Stop();
+                timer.Dispose();
+            };
+            timer.Start();
         }
     }
 }

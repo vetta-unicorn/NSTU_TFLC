@@ -33,13 +33,19 @@ namespace TFLC_sem6_lab1
 
         private Panel lineNumberPanel;
 
-        private ToolStripStatusLabel statusLabel;
-        private ToolStripStatusLabel cursorPositionLabel;
-        private ToolStripStatusLabel fileInfoLabel;
+        private ToolStripStatusLabel statusLabel = new ToolStripStatusLabel("Готов к работе");
+        private ToolStripStatusLabel cursorPositionLabel = new ToolStripStatusLabel("Стр: 1, Стлб: 1");
+        private ToolStripStatusLabel fileInfoLabel = new ToolStripStatusLabel("Новый файл");
+
         private bool isTextModified = false;
 
         private string[] keywords = { "class", "public", "private", "void", "int", "string", "if", "else", "for", "while" };
         private Color keywordColor = Color.Purple;
+
+        KeyWords KeyWords = new KeyWords();
+        StatusStripHandler statusStripHandler = new StatusStripHandler();
+        DrawLines drawLines = new DrawLines();
+        LangHandler langHandler = new LangHandler();
 
         public MainForm()
         {
@@ -60,7 +66,8 @@ namespace TFLC_sem6_lab1
 
             SetEvent();
 
-            InitializeStatusStrip();
+            statusStripHandler.InitializeStatusStrip(statusLabel, cursorPositionLabel,
+                fileInfoLabel, statusStrip1);
             AttachEvents();
 
             foreach (ToolStripMenuItem item in InstrumentMenu.Items)
@@ -72,78 +79,7 @@ namespace TFLC_sem6_lab1
 
         private void InputTextBox_IsChanged(object sender, EventArgs e)
         {
-            HighlightKeywords();
-        }
-
-        private void HighlightKeywords()
-        {
-            int selectionStart = InputTextBox.SelectionStart;
-            int selectionLength = InputTextBox.SelectionLength;
-
-            InputTextBox.SelectAll();
-            InputTextBox.SelectionColor = Color.Black;
-
-            foreach (string keyword in keywords)
-            {
-                int index = 0;
-                while (index < InputTextBox.TextLength)
-                {
-                    index = InputTextBox.Text.IndexOf(keyword, index, StringComparison.Ordinal);
-                    if (index == -1)
-                        break;
-
-                    if (IsWholeWord(index, keyword.Length))
-                    {
-                        InputTextBox.Select(index, keyword.Length);
-                        InputTextBox.SelectionColor = keywordColor;
-                    }
-
-                    index += keyword.Length;
-                }
-            }
-
-            InputTextBox.Select(selectionStart, selectionLength);
-            InputTextBox.SelectionColor = Color.Black;
-        }
-
-        private bool IsWholeWord(int index, int length)
-        {
-            if (index > 0)
-            {
-                char prevChar = InputTextBox.Text[index - 1];
-                if (char.IsLetterOrDigit(prevChar) || prevChar == '_')
-                    return false;
-            }
-
-            if (index + length < InputTextBox.TextLength)
-            {
-                char nextChar = InputTextBox.Text[index + length];
-                if (char.IsLetterOrDigit(nextChar) || nextChar == '_')
-                    return false;
-            }
-
-            return true;
-        }
-
-        private void InitializeStatusStrip()
-        {
-            statusLabel = new ToolStripStatusLabel("Готов к работе");
-            cursorPositionLabel = new ToolStripStatusLabel("Стр: 1, Стлб: 1");
-            fileInfoLabel = new ToolStripStatusLabel("Новый файл");
-
-            statusLabel.Spring = true;
-
-            var separator1 = new ToolStripStatusLabel(" | ");
-            var separator2 = new ToolStripStatusLabel(" | ");
-
-            statusStrip1.Items.Clear();
-            statusStrip1.Items.AddRange(new ToolStripItem[] {
-            statusLabel,
-            separator1,
-            cursorPositionLabel,
-            separator2,
-            fileInfoLabel
-        });
+            KeyWords.HighlightKeywords(InputTextBox, keywords, keywordColor);
         }
 
         private void AttachEvents()
@@ -155,8 +91,8 @@ namespace TFLC_sem6_lab1
             InputTextBox.TextChanged += (s, e) =>
             {
                 isTextModified = true;
-                UpdateFileInfo();
-                UpdateStatus("Текст изменен");
+                statusStripHandler.UpdateFileInfo(currentFilePath, fileInfoLabel, isTextModified);
+                statusStripHandler.UpdateStatus("Текст изменен", statusLabel);
             };
         }
 
@@ -167,33 +103,6 @@ namespace TFLC_sem6_lab1
             int column = currentPosition - InputTextBox.GetFirstCharIndexFromLine(line - 1) + 1;
 
             cursorPositionLabel.Text = $"Стр: {line}, Стлб: {column}";
-        }
-
-        private void UpdateFileInfo()
-        {
-            if (string.IsNullOrEmpty(currentFilePath))
-            {
-                fileInfoLabel.Text = isTextModified ? "Новый файл*" : "Новый файл";
-            }
-            else
-            {
-                string fileName = Path.GetFileName(currentFilePath);
-                fileInfoLabel.Text = isTextModified ? $"{fileName}*" : fileName;
-            }
-        }
-
-        private void UpdateStatus(string message)
-        {
-            statusLabel.Text = message;
-            var timer = new System.Windows.Forms.Timer();
-            timer.Interval = 3000;
-            timer.Tick += (s, e) =>
-            {
-                statusLabel.Text = "Готов к работе";
-                timer.Stop();
-                timer.Dispose();
-            };
-            timer.Start();
         }
 
         private void CreateLineNumberedRichTextBox()
@@ -225,35 +134,7 @@ namespace TFLC_sem6_lab1
 
         private void LineNumberPanel_Paint(object sender, PaintEventArgs e)
         {
-            DrawLineNumbers(e.Graphics);
-        }
-
-        private void DrawLineNumbers(Graphics g)
-        {
-            if (InputTextBox.Lines.Length == 0) return;
-
-            int firstCharIndex = InputTextBox.GetCharIndexFromPosition(new Point(0, 0));
-            int firstLine = InputTextBox.GetLineFromCharIndex(firstCharIndex);
-
-            int lastCharIndex = InputTextBox.GetCharIndexFromPosition(new Point(0, InputTextBox.ClientSize.Height));
-            int lastLine = InputTextBox.GetLineFromCharIndex(lastCharIndex);
-
-            for (int line = firstLine; line <= lastLine + 1 && line < InputTextBox.Lines.Length; line++)
-            {
-                int charIndex = InputTextBox.GetFirstCharIndexFromLine(line);
-                if (charIndex == -1) continue;
-
-                Point linePos = InputTextBox.GetPositionFromCharIndex(charIndex);
-
-                using (Brush brush = new SolidBrush(Color.Black))
-                {
-                    g.DrawString((line + 1).ToString(),
-                               InputTextBox.Font,
-                               brush,
-                               5,
-                               linePos.Y);
-                }
-            }
+            drawLines.DrawLineNumbers(e.Graphics, InputTextBox);
         }
 
         private void RichTextBox_Scroll(object sender, EventArgs e)
@@ -269,56 +150,6 @@ namespace TFLC_sem6_lab1
         private void RichTextBox_FontChanged(object sender, EventArgs e)
         {
             lineNumberPanel.Invalidate();
-        }
-
-        private void ApplyResourcesToMenu(ToolStripMenuItem item)
-        {
-            if (item.Tag != null && item.Tag is string resourceKey)
-            {
-                item.Text = resourceManager.GetString(resourceKey);
-            }
-            foreach (ToolStripMenuItem childItem in item.DropDownItems)
-            {
-                ApplyResourcesToMenu(childItem);
-            }
-        }
-
-        private void ApplyResourcesToMenu()
-        {
-            foreach (ToolStripMenuItem topLevelItem in MainMenu.Items)
-            {
-                ApplyResourcesToMenu(topLevelItem);
-            }
-        }
-
-        private void ApplyResourcesToInstrumentMenu(ToolStripMenuItem item)
-        {
-            if (item.Tag != null && item.Tag is string resourceKey)
-            {
-                item.ToolTipText = resourceManager.GetString(resourceKey);
-            }
-            foreach (ToolStripMenuItem childItem in item.DropDownItems)
-            {
-                ApplyResourcesToInstrumentMenu(childItem);
-            }
-        }
-
-        private void ApplyResourcesToInstrumentMenu()
-        {
-            foreach (ToolStripMenuItem topLevelItem in InstrumentMenu.Items)
-            {
-                ApplyResourcesToInstrumentMenu(topLevelItem);
-            }
-        }
-
-        private void ChangeLanguage(string cultureName)
-        {
-            CultureInfo newCulture = new CultureInfo(cultureName);
-            Thread.CurrentThread.CurrentUICulture = newCulture;
-            Thread.CurrentThread.CurrentCulture = newCulture;
-
-            ApplyResourcesToMenu();
-            ApplyResourcesToInstrumentMenu();
         }
 
         private void MenuItem_MouseEnter(object sender, EventArgs e)
@@ -399,7 +230,6 @@ namespace TFLC_sem6_lab1
             OutputTextBox.Text = "";
             if (fileText != InputTextBox.Text)
             {
-                //OutputTextBox.Text = "Для выхода сохраните файл!";
                 OutputTextBox.LogLocalized("SaveBeforeExit");
                 return;
             }
@@ -411,7 +241,6 @@ namespace TFLC_sem6_lab1
             OutputTextBox.Text = "";
             if (fileText != InputTextBox.Text)
             {
-                //OutputTextBox.Text = "Для выхода сохраните файл!";
                 OutputTextBox.LogLocalized("SaveBeforeExit");
                 return;
             }
@@ -517,7 +346,7 @@ namespace TFLC_sem6_lab1
 
         private void SetLocalizeEng(object sender, EventArgs e)
         {
-            ChangeLanguage("en");
+            langHandler.ChangeLanguage("en", MainMenu, InstrumentMenu, resourceManager);
             MainMenu.Update();
             InstrumentMenu.Update();
             this.Invalidate(true);
@@ -531,7 +360,7 @@ namespace TFLC_sem6_lab1
 
         private void SetLocalizeRu(object sender, EventArgs e)
         {
-            ChangeLanguage("ru-RU");
+            langHandler.ChangeLanguage("ru-RU", MainMenu, InstrumentMenu, resourceManager);
             MainMenu.Update();
             InstrumentMenu.Update();
             this.Invalidate(true);
