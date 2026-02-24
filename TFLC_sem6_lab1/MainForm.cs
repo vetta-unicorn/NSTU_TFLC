@@ -75,6 +75,62 @@ namespace TFLC_sem6_lab1
                 item.MouseEnter += MenuItem_MouseEnter;
                 item.MouseLeave += MenuItem_MouseLeave;
             }
+
+            foreach (ToolStripMenuItem menuItem in MainMenu.Items)
+            {
+                ConfigureMenuHotkeys(menuItem);
+            }
+        }
+
+        private void ConfigureMenuHotkeys(ToolStripMenuItem menuItem)
+        {
+            switch (menuItem.Text)
+            {
+                case string s when s == Resources.CopyText:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.C;
+                    break;
+                case string s when s == Resources.CutText:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.X;
+                    break;
+                case string s when s == Resources.PasteText:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.V;
+                    break;
+                case string s when s == Resources.SelectAllText:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.A;
+                    break;
+                case string s when s == Resources.DeleteText:
+                    menuItem.ShortcutKeys = Keys.Delete;
+                    break;
+                case string s when s == Resources.CreateFile:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.N;
+                    break;
+                case string s when s == Resources.OpenFile:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.O;
+                    break;
+                case string s when s == Resources.CloseFile:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.F4;
+                    break;
+                case string s when s == Resources.ExitFile:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.F3;
+                    break;
+                case string s when s == Resources.RedoText:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.Right;
+                    break;
+                case string s when s == Resources.UndoText:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.Left;
+                    break;
+                case string s when s == Resources.ShowHelp:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.F1;
+                    break;
+                case string s when s == Resources.ShowAbout:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.H;
+                    break;
+            }
+
+            foreach (ToolStripMenuItem subItem in menuItem.DropDownItems.OfType<ToolStripMenuItem>())
+            {
+                ConfigureMenuHotkeys(subItem);
+            }
         }
 
         private void InputTextBox_IsChanged(object sender, EventArgs e)
