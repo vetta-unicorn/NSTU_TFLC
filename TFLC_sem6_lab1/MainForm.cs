@@ -48,6 +48,8 @@ namespace TFLC_sem6_lab1
         LangHandler langHandler = new LangHandler();
         HotKeys hotKeys = new HotKeys();
 
+        private Dictionary<TabPage, RichTextBox> tabEditors = new Dictionary<TabPage, RichTextBox>();
+
         public MainForm()
         {
             InitializeComponent();
@@ -215,7 +217,7 @@ namespace TFLC_sem6_lab1
             {
                 if (item.Text == "Файл") { FileHandler(item); }
                 else if (item.Text == "Правка") { EditionHandler(item); }
-                else if ( item.Text == "Справка") { HelpFormsHandler(item); }
+                else if (item.Text == "Справка") { HelpFormsHandler(item); }
                 else if (item.Text == "Настройки") { SettingsHandler(item); }
                 else if (item.Text == "Пуск") { item.Click += StartFile; }
             }
@@ -238,6 +240,7 @@ namespace TFLC_sem6_lab1
 
         private void StartFile(object sender, EventArgs e)
         {
+            OutputTextBox.Text = "";
             OutputTextBox.LogLocalizedError(Application.ExecutablePath, 1, 1, "Test Error");
             OutputTextBox.LogLocalizedError(aboutPath, 2, 1, "New Test Error");
         }
@@ -545,7 +548,7 @@ namespace TFLC_sem6_lab1
             langItem.DropDownItems.Add(ruItem);
 
             item.DropDownItems.Add(langItem);
-            
+
         }
     }
 }

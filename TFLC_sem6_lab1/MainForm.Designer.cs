@@ -41,7 +41,6 @@
             Пуск = new ToolStripMenuItem();
             Справка = new ToolStripMenuItem();
             ОПрограмме = new ToolStripMenuItem();
-            InputTextBox = new RichTextBox();
             OutputTextBox = new RichTextBox();
             MainMenu = new MenuStrip();
             MenuFile = new ToolStripMenuItem();
@@ -58,6 +57,7 @@
             MenuHelp = new ToolStripMenuItem();
             MenuSettings = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
+            InputTextBox = new RichTextBox();
             InstrumentMenu.SuspendLayout();
             MainMenu.SuspendLayout();
             SuspendLayout();
@@ -182,15 +182,6 @@
             ОПрограмме.Tag = "ShowAbout";
             ОПрограмме.ToolTipText = "О программе";
             // 
-            // InputTextBox
-            // 
-            InputTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            InputTextBox.Location = new Point(12, 111);
-            InputTextBox.Name = "InputTextBox";
-            InputTextBox.Size = new Size(863, 128);
-            InputTextBox.TabIndex = 2;
-            InputTextBox.Text = "";
-            // 
             // OutputTextBox
             // 
             OutputTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
@@ -304,6 +295,15 @@
             statusStrip1.TabIndex = 5;
             statusStrip1.Text = "statusStrip1";
             // 
+            // InputTextBox
+            // 
+            InputTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            InputTextBox.Location = new Point(12, 103);
+            InputTextBox.Name = "InputTextBox";
+            InputTextBox.Size = new Size(863, 128);
+            InputTextBox.TabIndex = 2;
+            InputTextBox.Text = "";
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -328,7 +328,6 @@
         #endregion
 
         private MenuStrip InstrumentMenu;
-        private RichTextBox InputTextBox;
         private RichTextBox OutputTextBox;
         private MenuStrip MainMenu;
         private ToolStripMenuItem Создать;
@@ -356,5 +355,9 @@
         private ToolStripMenuItem ОПрограмме;
         private ToolStripMenuItem MenuSettings;
         private StatusStrip statusStrip1;
+        private TabControl tabControl1;
+        private TabPage tabPage1;
+        private RichTextBox InputTextBox;
+        private TabPage tabPage2;
     }
 }
