@@ -81,6 +81,41 @@ namespace TFLC_sem6_lab1
             {
                 hotKeys.ConfigureMenuHotkeys(menuItem);
             }
+
+            this.AllowDrop = true;
+            this.DragEnter += Form1_DragEnter;
+            this.DragDrop += Form1_DragDrop;
+        }
+
+        private void Form1_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void Form1_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+            if (files != null && files.Length > 0)
+            {
+                string filePath = files[0];
+
+                if (System.IO.Path.GetExtension(filePath).ToLower() == ".txt")
+                {
+                    processFile.OpenDropFile(filePath, OutputTextBox, InputTextBox, currentFilePath);
+                }
+                else
+                {
+                    OutputTextBox.LogLocalized("OpenError");
+                }
+            }
         }
 
         private void InputTextBox_IsChanged(object sender, EventArgs e)

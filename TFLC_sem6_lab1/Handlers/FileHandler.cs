@@ -96,5 +96,21 @@ namespace TFLC_sem6_lab1.ButtonHandlers
             InputTextBox.Text = "";
             InputTextBox.Enabled = false;
         }
+
+        public void OpenDropFile(string filePath, RichTextBox OutputTextBox, 
+            RichTextBox InputTextBox, string currentFilePath)
+        {
+            OutputTextBox.Text = "";
+            try
+            {
+                string content = System.IO.File.ReadAllText(filePath, Encoding.Default);
+                InputTextBox.Text = content;
+                currentFilePath = filePath;
+            }
+            catch (Exception ex)
+            {
+                OutputTextBox.LogLocalized("OpenError");
+            }
+        }
     }
 }
