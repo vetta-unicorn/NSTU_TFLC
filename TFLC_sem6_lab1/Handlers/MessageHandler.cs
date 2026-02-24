@@ -11,6 +11,7 @@ namespace TFLC_sem6_lab1.Handlers
     public static class RichTextBoxExtensions
     {
         private static ResourceManager _resourceManager;
+        private static bool _headerAdded = false;
 
         static RichTextBoxExtensions()
         {
@@ -38,6 +39,48 @@ namespace TFLC_sem6_lab1.Handlers
                 message = string.Format(message, args);
             }
             rtb.AppendText((message ?? messageKey) + Environment.NewLine);
+        }
+
+      
+        public static void LogLocalizedError(this RichTextBox rtb, string filePath, int line, int column, string messageKey)
+        {
+            if (rtb.Font.Name != "Consolas")
+            {
+                rtb.Font = new Font("Consolas", 10, FontStyle.Regular);
+            }
+
+            string message = _resourceManager.GetString(messageKey) ?? messageKey;
+
+            string formattedMessage = string.Format("{0}\t{1}\t{2}\t{3}",
+                filePath,
+                line,
+                column,
+                message);
+
+            int start = rtb.TextLength;
+            rtb.AppendText(formattedMessage + Environment.NewLine);
+
+        }
+
+
+        public static void LogLocalizedError(this RichTextBox rtb, string filePath, int line, int column, string messageKey, params object[] args)
+        {
+            if (rtb.Font.Name != "Consolas")
+            {
+                rtb.Font = new Font("Consolas", 10, FontStyle.Regular);
+            }
+
+            string messageTemplate = _resourceManager.GetString(messageKey) ?? messageKey;
+            string message = args.Length > 0 ? string.Format(messageTemplate, args) : messageTemplate;
+
+            string formattedMessage = string.Format("{0}\t{1}\t{2}\t{3}",
+                filePath,
+                line,
+                column,
+                message);
+
+            int start = rtb.TextLength;
+            rtb.AppendText(formattedMessage + Environment.NewLine);
         }
     }
 
@@ -88,6 +131,60 @@ namespace TFLC_sem6_lab1.Handlers
                 timer.Dispose();
             };
             timer.Start();
+        }
+    }
+
+    public class HotKeys
+    {
+        public void ConfigureMenuHotkeys(ToolStripMenuItem menuItem)
+        {
+            switch (menuItem.Text)
+            {
+                case string s when s == Resources.CopyText:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.C;
+                    break;
+                case string s when s == Resources.CutText:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.X;
+                    break;
+                case string s when s == Resources.PasteText:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.V;
+                    break;
+                case string s when s == Resources.SelectAllText:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.A;
+                    break;
+                case string s when s == Resources.DeleteText:
+                    menuItem.ShortcutKeys = Keys.Delete;
+                    break;
+                case string s when s == Resources.CreateFile:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.N;
+                    break;
+                case string s when s == Resources.OpenFile:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.O;
+                    break;
+                case string s when s == Resources.CloseFile:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.F4;
+                    break;
+                case string s when s == Resources.ExitFile:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.F3;
+                    break;
+                case string s when s == Resources.RedoText:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.Right;
+                    break;
+                case string s when s == Resources.UndoText:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.Left;
+                    break;
+                case string s when s == Resources.ShowHelp:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.F1;
+                    break;
+                case string s when s == Resources.ShowAbout:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.H;
+                    break;
+            }
+
+            foreach (ToolStripMenuItem subItem in menuItem.DropDownItems.OfType<ToolStripMenuItem>())
+            {
+                ConfigureMenuHotkeys(subItem);
+            }
         }
     }
 }

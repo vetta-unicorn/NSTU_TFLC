@@ -46,6 +46,7 @@ namespace TFLC_sem6_lab1
         StatusStripHandler statusStripHandler = new StatusStripHandler();
         DrawLines drawLines = new DrawLines();
         LangHandler langHandler = new LangHandler();
+        HotKeys hotKeys = new HotKeys();
 
         public MainForm()
         {
@@ -78,58 +79,7 @@ namespace TFLC_sem6_lab1
 
             foreach (ToolStripMenuItem menuItem in MainMenu.Items)
             {
-                ConfigureMenuHotkeys(menuItem);
-            }
-        }
-
-        private void ConfigureMenuHotkeys(ToolStripMenuItem menuItem)
-        {
-            switch (menuItem.Text)
-            {
-                case string s when s == Resources.CopyText:
-                    menuItem.ShortcutKeys = Keys.Control | Keys.C;
-                    break;
-                case string s when s == Resources.CutText:
-                    menuItem.ShortcutKeys = Keys.Control | Keys.X;
-                    break;
-                case string s when s == Resources.PasteText:
-                    menuItem.ShortcutKeys = Keys.Control | Keys.V;
-                    break;
-                case string s when s == Resources.SelectAllText:
-                    menuItem.ShortcutKeys = Keys.Control | Keys.A;
-                    break;
-                case string s when s == Resources.DeleteText:
-                    menuItem.ShortcutKeys = Keys.Delete;
-                    break;
-                case string s when s == Resources.CreateFile:
-                    menuItem.ShortcutKeys = Keys.Control | Keys.N;
-                    break;
-                case string s when s == Resources.OpenFile:
-                    menuItem.ShortcutKeys = Keys.Control | Keys.O;
-                    break;
-                case string s when s == Resources.CloseFile:
-                    menuItem.ShortcutKeys = Keys.Control | Keys.F4;
-                    break;
-                case string s when s == Resources.ExitFile:
-                    menuItem.ShortcutKeys = Keys.Control | Keys.F3;
-                    break;
-                case string s when s == Resources.RedoText:
-                    menuItem.ShortcutKeys = Keys.Control | Keys.Right;
-                    break;
-                case string s when s == Resources.UndoText:
-                    menuItem.ShortcutKeys = Keys.Control | Keys.Left;
-                    break;
-                case string s when s == Resources.ShowHelp:
-                    menuItem.ShortcutKeys = Keys.Control | Keys.F1;
-                    break;
-                case string s when s == Resources.ShowAbout:
-                    menuItem.ShortcutKeys = Keys.Control | Keys.H;
-                    break;
-            }
-
-            foreach (ToolStripMenuItem subItem in menuItem.DropDownItems.OfType<ToolStripMenuItem>())
-            {
-                ConfigureMenuHotkeys(subItem);
+                hotKeys.ConfigureMenuHotkeys(menuItem);
             }
         }
 
@@ -232,6 +182,7 @@ namespace TFLC_sem6_lab1
                 else if (item.Text == "Правка") { EditionHandler(item); }
                 else if ( item.Text == "Справка") { HelpFormsHandler(item); }
                 else if (item.Text == "Настройки") { SettingsHandler(item); }
+                else if (item.Text == "Пуск") { item.Click += StartFile; }
             }
 
             foreach (ToolStripMenuItem item in InstrumentMenu.Items)
@@ -244,10 +195,16 @@ namespace TFLC_sem6_lab1
                 else if (item.Name == "Копировать") { item.Click += CopyText; }
                 else if (item.Name == "Вырезать") { item.Click += CutText; }
                 else if (item.Name == "Вставить") { item.Click += PasteText; }
-                //else if (item.Tag == "Пуск") { item.Click += ; }
+                else if (item.Name == "Пуск") { item.Click += StartFile; }
                 else if (item.Name == "Справка") { item.Click += ShowHelpForm; }
                 else if (item.Name == "О программе") { item.Click += ShowAboutForm; }
             }
+        }
+
+        private void StartFile(object sender, EventArgs e)
+        {
+            OutputTextBox.LogLocalizedError(Application.ExecutablePath, 1, 1, "Test Error");
+            OutputTextBox.LogLocalizedError(aboutPath, 2, 1, "New Test Error");
         }
 
         private void CreateFile(object sender, EventArgs e)
