@@ -234,7 +234,7 @@ namespace TFLC_sem6_lab1
                 else if (item.Name == "Вставить") { item.Click += PasteText; }
                 else if (item.Name == "Пуск") { item.Click += StartFile; }
                 else if (item.Name == "Справка") { item.Click += ShowHelpForm; }
-                else if (item.Name == "О программе") { item.Click += ShowAboutForm; }
+                else if (item.Name == "ОПрограмме") { item.Click += ShowAboutForm; }
             }
         }
 
