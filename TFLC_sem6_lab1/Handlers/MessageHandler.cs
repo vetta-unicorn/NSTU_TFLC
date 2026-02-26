@@ -161,6 +161,12 @@ namespace TFLC_sem6_lab1.Handlers
                 case string s when s == Resources.OpenFile:
                     menuItem.ShortcutKeys = Keys.Control | Keys.O;
                     break;
+                case string s when s == Resources.SaveFile:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.S;
+                    break;
+                case string s when s == Resources.SaveAsFile:
+                    menuItem.ShortcutKeys = Keys.Control | Keys.W;
+                    break;
                 case string s when s == Resources.CloseFile:
                     menuItem.ShortcutKeys = Keys.Control | Keys.F4;
                     break;
