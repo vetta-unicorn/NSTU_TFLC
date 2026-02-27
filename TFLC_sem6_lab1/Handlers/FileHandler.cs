@@ -91,7 +91,7 @@ namespace TFLC_sem6_lab1.ButtonHandlers
             InputTextBox.Enabled = false;
         }
 
-        public void OpenDropFile(string filePath, RichTextBox OutputTextBox, 
+        public void OpenDropFile(string filePath, RichTextBox OutputTextBox,
             RichTextBox InputTextBox, string currentFilePath)
         {
             OutputTextBox.Text = "";
@@ -104,6 +104,41 @@ namespace TFLC_sem6_lab1.ButtonHandlers
             catch (Exception ex)
             {
                 OutputTextBox.LogLocalized("OpenError");
+            }
+        }
+
+        public string LoadEmbeddedResource(string resourceName)
+        {
+            try
+            {
+                var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+                {
+                    if (stream == null)
+                    {
+                        string availableResources = string.Join("\n",
+                            assembly.GetManifestResourceNames());
+
+                        return $@"<html><body>
+                    <h1>Ресурс не найден</h1>
+                    <p>Искали: {resourceName}</p>
+                    <p>Доступные ресурсы:</p>
+                    <pre>{availableResources}</pre>
+                </body></html>";
+                    }
+
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        return reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return $@"<html><body>
+            <h1>Ошибка загрузки</h1>
+            <p>{ex.Message}</p>
+        </body></html>";
             }
         }
     }

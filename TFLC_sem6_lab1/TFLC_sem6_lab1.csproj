@@ -9,6 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="HTML\AboutForm.html" />
+    <None Remove="HTML\HelpForm.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="HTML\AboutForm.html" />
+    <EmbeddedResource Include="HTML\HelpForm.html" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

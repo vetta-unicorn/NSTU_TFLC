@@ -18,6 +18,9 @@ namespace TFLC_sem6_lab1
         ProcessFile processFile;
         private string userPath = @"Files\HelpForm.html";
         private string abPath = @"Files\AboutForm.html";
+        private string helpResourceName = "TFLC_sem6_lab1.HTML.HelpForm.html";
+        private string aboutResourceName = "TFLC_sem6_lab1.HTML.AboutForm.html";
+
         string userHelpPath;
         private string aboutPath;
         private System.Windows.Forms.ToolTip toolTip = new System.Windows.Forms.ToolTip();
@@ -360,18 +363,31 @@ namespace TFLC_sem6_lab1
 
         private void ShowHelpForm(object sender, EventArgs e)
         {
-            using (var helper = new HelpForm(userHelpPath))
+            string htmlContent = processFile.LoadEmbeddedResource(helpResourceName);
+            string tempFile = Path.Combine(Path.GetTempPath(), "HelpForm.html");
+            File.WriteAllText(tempFile, htmlContent);
+
+            using (var helper = new HelpForm(tempFile))
             {
                 helper.ShowDialog();
             }
+
+            try { File.Delete(tempFile); } catch { }
         }
 
         private void ShowAboutForm(object sender, EventArgs e)
         {
-            using (var helper = new HelpForm(aboutPath))
+            string htmlContent = processFile.LoadEmbeddedResource(aboutResourceName);
+
+            string tempFile = Path.Combine(Path.GetTempPath(), "AboutForm.html");
+            File.WriteAllText(tempFile, htmlContent);
+
+            using (var helper = new HelpForm(tempFile))
             {
                 helper.ShowDialog();
             }
+
+            try { File.Delete(tempFile); } catch { }
         }
 
         private void ChangeTextStyle(object sender, EventArgs e)

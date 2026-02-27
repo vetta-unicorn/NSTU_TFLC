@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Справка - Текстовый редактор</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 300;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .section h2 {
+            color: #4a5568;
+            font-size: 1.5em;
+            font-weight: 500;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section h2:before {
+            content: "";
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-right: 12px;
+            border-radius: 2px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .menu-item {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .menu-item h3 {
+            color: #4a5568;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .menu-item ul {
+            list-style: none;
+        }
+
+        .menu-item li {
+            color: #718096;
+            font-size: 0.95em;
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-item li:before {
+            content: "•";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .toolbar-section {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .toolbar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .toolbar-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toolbar-item span {
+            color: #4a5568;
+            font-size: 0.95em;
+        }
+
+        .toolbar-item .icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            opacity: 0.2;
+        }
+
+        .info-box {
+            background: #ebf4ff;
+            border-left: 4px solid #667eea;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .info-box p {
+            color: #4a5568;
+            margin: 5px 0;
+        }
+
+        .info-box strong {
+            color: #764ba2;
+        }
+
+        .footer {
+            background: #f8fafc;
+            padding: 20px;
+            text-align: center;
+            color: #718096;
+            font-size: 0.9em;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .toolbar-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Текстовый редактор</h1>
+            <p>Руководство пользователя</p>
+        </div>
+
+        <div class="content">
+            <!-- Общая информация -->
+            <div class="section">
+                <h2>О программе</h2>
+                <div class="info-box">
+                    <p><strong>Версия:</strong> 1.0</p>
+                    <p><strong>Назначение:</strong> Текстовый редактор с функциями языкового процессора</p>
+                    <p><strong>Разработчик:</strong> Учебный проект</p>
+                    <p><strong>Дисциплина:</strong> Теория формальных языков и компиляторов</p>
+                </div>
+            </div>
+
+            <!-- Главное меню -->
+            <div class="section">
+                <h2>Главное меню</h2>
+                <div class="menu-grid">
+                    <!-- Меню Файл -->
+                    <div class="menu-item">
+                        <h3>Файл</h3>
+                        <ul>
+                            <li>Создать</li>
+                            <li>Открыть</li>
+                            <li>Сохранить</li>
+                            <li>Сохранить как</li>
+                            <li>Выход</li>
+                        </ul>
+                    </div>
+
+                    <!-- Меню Правка -->
+                    <div class="menu-item">
+                        <h3>Правка</h3>
+                        <ul>
+                            <li>Отменить</li>
+                            <li>Повторить</li>
+                            <li>Вырезать</li>
+                            <li>Копировать</li>
+                            <li>Вставить</li>
+                            <li>Удалить</li>
+                            <li>Выделить все</li>
+                        </ul>
+                    </div>
+
+                    <!-- Меню Текст (будет реализовано позже) -->
+                    <div class="menu-item">
+                        <h3>Текст</h3>
+                        <ul>
+                            <li>Постановка задачи</li>
+                            <li>Грамматика</li>
+                            <li>Классификация грамматики</li>
+                            <li>Метод анализа</li>
+                            <li>Тестовый пример</li>
+                            <li>Список литературы</li>
+                            <li>Исходный код программы</li>
+                        </ul>
+                    </div>
+
+                    <!-- Меню Пуск и Справка -->
+                    <div class="menu-item">
+                        <h3>Пуск</h3>
+                        <ul>
+                            <li>Запуск анализатора</li>
+                        </ul>
+                        <h3 style="margin-top: 15px;">Справка</h3>
+                        <ul>
+                            <li>Вызов справки</li>
+                            <li>О программе</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Панель инструментов -->
+            <div class="section">
+                <h2>Панель инструментов</h2>
+                <div class="toolbar-section">
+                    <p style="color: #718096; margin-bottom: 15px;">Быстрый доступ к часто используемым функциям:</p>
+                    <div class="toolbar-grid">
+                        <div class="toolbar-item"><div class="icon"></div><span>Создать документ</span></div>
+                        <div class="toolbar-item"><div class="icon"></div><span>Открыть документ</span></div>
+                        <div class="toolbar-item"><div class="icon"></div><span>Сохранить</span></div>
+                        <div class="toolbar-item"><div class="icon"></div><span>Отмена</span></div>
+                        <div class="toolbar-item"><div class="icon"></div><span>Повтор</span></div>
+                        <div class="toolbar-item"><div class="icon"></div><span>Копировать</span></div>
+                        <div class="toolbar-item"><div class="icon"></div><span>Вырезать</span></div>
+                        <div class="toolbar-item"><div class="icon"></div><span>Вставить</span></div>
+                        <div class="toolbar-item"><div class="icon"></div><span>Запуск анализатора</span></div>
+                        <div class="toolbar-item"><div class="icon"></div><span>Справка</span></div>
+                        <div class="toolbar-item"><div class="icon"></div><span>О программе</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Рабочие области -->
+            <div class="section">
+                <h2>Интерфейс программы</h2>
+                <div class="info-box">
+                    <p><strong>Область редактирования:</strong> Основное окно для ввода и редактирования текста. Поддерживает все стандартные операции (копирование, вставка, вырезание, отмена действий).</p>
+                    <p style="margin-top: 10px;"><strong>Область результатов:</strong> Окно для отображения результатов работы языкового процессора. <em>(Ввод текста запрещен)</em></p>
+                </div>
+            </div>
+
+            <!-- Дополнительная информация -->
+            <div class="section">
+                <h2>Особенности работы</h2>
+                <div class="menu-grid">
+                    <div class="menu-item">
+                        <h3>Формат файлов</h3>
+                        <ul>
+                            <li>Поддерживается формат .txt</li>
+                            <li>Кодировка UTF-8</li>
+                            <li>Возможно расширение форматов</li>
+                        </ul>
+                    </div>
+                    <div class="menu-item">
+                        <h3>Навигация по ошибкам</h3>
+                        <ul>
+                            <li>Клик по сообщению об ошибке</li>
+                            <li>Автоматический переход к позиции</li>
+                            <li>Выделение ошибочного фрагмента</li>
+                        </ul>
+                    </div>
+                    <div class="menu-item">
+                        <h3>Дополнительные возможности</h3>
+                        <ul>
+                            <li>Подсветка синтаксиса</li>
+                            <li>Строка состояния</li>
+                            <li>Работа с несколькими файлами</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Текстовый редактор версия 1.0 | Учебный проект по разработке GUI для языкового процессора</p>
+            <p style="margin-top: 5px; font-size: 0.85em;">© 2026 Все права защищены</p>
+        </div>
+    </div>
+</body>
+</html>
