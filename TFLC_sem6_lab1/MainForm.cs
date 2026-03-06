@@ -7,6 +7,8 @@ using TFLC_sem6_lab1.HelpForms;
 using TFLC_sem6_lab1.Handlers;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
+using System.Runtime.InteropServices;
+
 
 namespace TFLC_sem6_lab1
 {
@@ -20,6 +22,14 @@ namespace TFLC_sem6_lab1
         private string abPath = @"Files\AboutForm.html";
         private string helpResourceName = "TFLC_sem6_lab1.HTML.HelpForm.html";
         private string aboutResourceName = "TFLC_sem6_lab1.HTML.AboutForm.html";
+
+        [DllImport("user32.dll")]
+        private static extern bool SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
+
+        private const int WM_UNDO = 0x304;
+        private const int EM_REDO = 0x437;
+
+
 
         string userHelpPath;
         private string aboutPath;
@@ -125,7 +135,7 @@ namespace TFLC_sem6_lab1
 
         private void InputTextBox_IsChanged(object sender, EventArgs e)
         {
-            KeyWords.HighlightKeywords(InputTextBox, keywords, keywordColor);
+            //KeyWords.HighlightKeywords(InputTextBox, keywords, keywordColor);
         }
 
         private void AttachEvents()
