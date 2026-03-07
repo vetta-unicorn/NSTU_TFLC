@@ -9,7 +9,7 @@ namespace TFLC_sem6_lab1.ButtonHandlers
 {
     public class ProcessFile
     {
-        public string OpenTxtFile(RichTextBox InputTextBox, RichTextBox OutputTextBox, string currentFilePath)
+        public string OpenTxtFile(RichTextBox InputTextBox, string currentFilePath)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
@@ -27,38 +27,38 @@ namespace TFLC_sem6_lab1.ButtonHandlers
                     }
                     catch (Exception ex)
                     {
-                        OutputTextBox.LogLocalized("OpenError");
+                        //OutputTextBox.LogLocalized("OpenError");
                     }
                     finally { currentFilePath = openFileDialog.FileName; }
                 }
-                OutputTextBox.LogLocalized("OpenCompleted");
+                //OutputTextBox.LogLocalized("OpenCompleted");
             }
             return currentFilePath;
         }
 
-        public void SaveTxtFile(RichTextBox InputTextBox, RichTextBox OutputTextBox, string currentFilePath, bool isOpened)
+        public void SaveTxtFile(RichTextBox InputTextBox, string currentFilePath, bool isOpened)
         {
             if (isOpened && !string.IsNullOrEmpty(currentFilePath))
             {
                 try
                 {
                     File.WriteAllText(currentFilePath, InputTextBox.Text);
-                    OutputTextBox.LogLocalized("SaveCompleted");
+                    //OutputTextBox.LogLocalized("SaveCompleted");
                 }
                 catch (Exception ex)
                 {
-                    OutputTextBox.LogLocalized("SaveError");
+                    //OutputTextBox.LogLocalized("SaveError");
                 }
             }
             else
             {
-                SaveTxtFileAs(InputTextBox, OutputTextBox, currentFilePath, isOpened);
+                SaveTxtFileAs(InputTextBox, currentFilePath, isOpened);
             }
         }
 
-        public void SaveTxtFileAs(RichTextBox InputTextBox, RichTextBox OutputTextBox, string currentFilePath, bool isOpened)
+        public void SaveTxtFileAs(RichTextBox InputTextBox, string currentFilePath, bool isOpened)
         {
-            if (!isOpened) { OutputTextBox.Text = "Файл не открыт!"; return; }
+            //if (!isOpened) { OutputTextBox.Text = "Файл не открыт!"; return; }
             using (SaveFileDialog saveFileDialog = new SaveFileDialog())
             {
                 saveFileDialog.Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*";
@@ -75,11 +75,11 @@ namespace TFLC_sem6_lab1.ButtonHandlers
                         string textToSave = InputTextBox.Text;
 
                         File.WriteAllText(saveFileDialog.FileName, textToSave);
-                        OutputTextBox.LogLocalized("SaveCompleted");
+                        //OutputTextBox.LogLocalized("SaveCompleted");
                     }
                     catch (Exception ex)
                     {
-                        OutputTextBox.LogLocalized("SaveError");
+                        //OutputTextBox.LogLocalized("SaveError");
                     }
                 }
             }
@@ -91,10 +91,10 @@ namespace TFLC_sem6_lab1.ButtonHandlers
             InputTextBox.Enabled = false;
         }
 
-        public void OpenDropFile(string filePath, RichTextBox OutputTextBox,
+        public void OpenDropFile(string filePath,
             RichTextBox InputTextBox, string currentFilePath)
         {
-            OutputTextBox.Text = "";
+            //OutputTextBox.Text = "";
             try
             {
                 string content = System.IO.File.ReadAllText(filePath, Encoding.Default);
@@ -103,7 +103,7 @@ namespace TFLC_sem6_lab1.ButtonHandlers
             }
             catch (Exception ex)
             {
-                OutputTextBox.LogLocalized("OpenError");
+                //OutputTextBox.LogLocalized("OpenError");
             }
         }
 

@@ -8,6 +8,7 @@ using TFLC_sem6_lab1.Handlers;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 using System.Runtime.InteropServices;
+using TFLC_sem6_lab1.Scanner;
 
 
 namespace TFLC_sem6_lab1
@@ -20,6 +21,7 @@ namespace TFLC_sem6_lab1
         ProcessFile processFile;
         private string userPath = @"Files\HelpForm.html";
         private string abPath = @"Files\AboutForm.html";
+        private string startPath = @"Files\Start.txt";
         private string helpResourceName = "TFLC_sem6_lab1.HTML.HelpForm.html";
         private string aboutResourceName = "TFLC_sem6_lab1.HTML.AboutForm.html";
 
@@ -63,6 +65,8 @@ namespace TFLC_sem6_lab1
 
         private Dictionary<TabPage, RichTextBox> tabEditors = new Dictionary<TabPage, RichTextBox>();
 
+        LexicalAnalyzer scanner = new LexicalAnalyzer();
+
         public MainForm()
         {
             InitializeComponent();
@@ -70,7 +74,7 @@ namespace TFLC_sem6_lab1
             resourceManager = new ResourceManager("TFLC_sem6_lab1.Resources",
                                               typeof(MainForm).Assembly);
             processFile = new ProcessFile();
-            OutputTextBox.Enabled = false;
+            OutputTable.Enabled = false;
             InputTextBox.Enabled = false;
             InputTextBox.TextChanged += InputTextBox_IsChanged;
             CreateLineNumberedRichTextBox();
@@ -100,6 +104,44 @@ namespace TFLC_sem6_lab1
             this.AllowDrop = true;
             this.DragEnter += Form1_DragEnter;
             this.DragDrop += Form1_DragDrop;
+
+            SetupDataGridView();
+        }
+
+        private void SetupDataGridView()
+        {
+            OutputTable.Dock = DockStyle.Fill;
+            OutputTable.Anchor = AnchorStyles.Top | AnchorStyles.Bottom |
+                                   AnchorStyles.Left | AnchorStyles.Right; 
+
+            OutputTable.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            OutputTable.AutoGenerateColumns = false;
+            OutputTable.Columns.Clear();
+
+            DataGridViewTextBoxColumn codeColumn = new DataGridViewTextBoxColumn();
+            codeColumn.HeaderText = "Условный код";
+            codeColumn.DataPropertyName = "code";
+            codeColumn.Width = 80;
+            OutputTable.Columns.Add(codeColumn);
+
+            DataGridViewTextBoxColumn typeColumn = new DataGridViewTextBoxColumn();
+            typeColumn.HeaderText = "Тип лексемы";
+            typeColumn.DataPropertyName = "type";
+            typeColumn.Width = 150;
+            OutputTable.Columns.Add(typeColumn);
+
+            DataGridViewTextBoxColumn tokenColumn = new DataGridViewTextBoxColumn();
+            tokenColumn.HeaderText = "Лексема";
+            tokenColumn.DataPropertyName = "token";
+            tokenColumn.Width = 100;
+            OutputTable.Columns.Add(tokenColumn);
+
+            DataGridViewTextBoxColumn locationColumn = new DataGridViewTextBoxColumn();
+            locationColumn.HeaderText = "Местоположение";
+            locationColumn.DataPropertyName = "Location";
+            locationColumn.Width = 120;
+            OutputTable.Columns.Add(locationColumn);
         }
 
         private void Form1_DragEnter(object sender, DragEventArgs e)
@@ -124,11 +166,11 @@ namespace TFLC_sem6_lab1
 
                 if (System.IO.Path.GetExtension(filePath).ToLower() == ".txt")
                 {
-                    processFile.OpenDropFile(filePath, OutputTextBox, InputTextBox, currentFilePath);
+                    processFile.OpenDropFile(filePath, InputTextBox, currentFilePath);
                 }
                 else
                 {
-                    OutputTextBox.LogLocalized("OpenError");
+                    //OutputTextBox.LogLocalized("OpenError");
                 }
             }
         }
@@ -232,7 +274,7 @@ namespace TFLC_sem6_lab1
                 else if (item.Text == "Правка") { EditionHandler(item); }
                 else if (item.Text == "Справка") { HelpFormsHandler(item); }
                 else if (item.Text == "Настройки") { SettingsHandler(item); }
-                else if (item.Text == "Пуск") { item.Click += StartFile; }
+                else if (item.Text == "Пуск") { item.Click += StartScanner; }
             }
 
             foreach (ToolStripMenuItem item in InstrumentMenu.Items)
@@ -245,22 +287,15 @@ namespace TFLC_sem6_lab1
                 else if (item.Name == "Копировать") { item.Click += CopyText; }
                 else if (item.Name == "Вырезать") { item.Click += CutText; }
                 else if (item.Name == "Вставить") { item.Click += PasteText; }
-                else if (item.Name == "Пуск") { item.Click += StartFile; }
+                else if (item.Name == "Пуск") { item.Click += StartScanner; }
                 else if (item.Name == "Справка") { item.Click += ShowHelpForm; }
                 else if (item.Name == "ОПрограмме") { item.Click += ShowAboutForm; }
             }
         }
 
-        private void StartFile(object sender, EventArgs e)
-        {
-            OutputTextBox.Text = "";
-            OutputTextBox.LogLocalizedError(Application.ExecutablePath, 1, 1, "Test Error");
-            OutputTextBox.LogLocalizedError(aboutPath, 2, 1, "New Test Error");
-        }
-
         private void CreateFile(object sender, EventArgs e)
         {
-            OutputTextBox.Text = "";
+            OutputTable.Text = "";
             isOpened = true;
             InputTextBox.Enabled = true;
             InputTextBox.Text = "";
@@ -268,33 +303,33 @@ namespace TFLC_sem6_lab1
 
         private void OpenFile(object sender, EventArgs e)
         {
-            OutputTextBox.Text = "";
+            OutputTable.Text = "";
             isOpened = true;
-            currentFilePath = processFile.OpenTxtFile(InputTextBox, OutputTextBox, currentFilePath);
+            currentFilePath = processFile.OpenTxtFile(InputTextBox, currentFilePath);
             InputTextBox.Enabled = true;
             fileText = InputTextBox.Text;
         }
 
         private void SaveFile(object sender, EventArgs e)
         {
-            OutputTextBox.Text = "";
-            processFile.SaveTxtFile(InputTextBox, OutputTextBox, currentFilePath, isOpened);
+            OutputTable.Text = "";
+            processFile.SaveTxtFile(InputTextBox, currentFilePath, isOpened);
             fileText = InputTextBox.Text;
         }
 
         private void SaveAsFile(object sender, EventArgs e)
         {
-            OutputTextBox.Text = "";
-            processFile.SaveTxtFileAs(InputTextBox, OutputTextBox, currentFilePath, isOpened);
+            OutputTable.Text = "";
+            processFile.SaveTxtFileAs(InputTextBox, currentFilePath, isOpened);
             fileText = InputTextBox.Text;
         }
 
         private void ExitFromFile(object sender, EventArgs e)
         {
-            OutputTextBox.Text = "";
+            //OutputTextBox.Text = "";
             if (fileText != InputTextBox.Text)
             {
-                OutputTextBox.LogLocalized("SaveBeforeExit");
+                //OutputTextBox.LogLocalized("SaveBeforeExit");
                 return;
             }
             processFile.ExitFile(InputTextBox);
@@ -302,10 +337,10 @@ namespace TFLC_sem6_lab1
 
         private void ExitFromProgram(object sender, EventArgs e)
         {
-            OutputTextBox.Text = "";
+            OutputTable.Text = "";
             if (fileText != InputTextBox.Text)
             {
-                OutputTextBox.LogLocalized("SaveBeforeExit");
+                //OutputTextBox.LogLocalized("SaveBeforeExit");
                 return;
             }
             if (System.Windows.Forms.Application.MessageLoop)
@@ -447,8 +482,42 @@ namespace TFLC_sem6_lab1
             statusLabel.Text = "Готов к работе";
             cursorPositionLabel.Text = "Стр: 1, Стлб: 1";
             fileInfoLabel.Text = "Новый файл";
-
         }
+
+        private void StartScanner(object sender, EventArgs e)
+        {
+            OutputTable.DataSource = null;
+            OutputTable.Rows.Clear();
+            LoadAndDisplayTokens(currentFilePath);
+        }
+
+        public void LoadAndDisplayTokens(string filePath)
+        {
+            try
+            {
+                List<TableLine> tokens = scanner.AnalyzeText(filePath);
+                var displayTokens = new List<TokenDisplay>();
+                foreach (var token in tokens)
+                {
+                    displayTokens.Add(new TokenDisplay
+                    {
+                        code = token.code,
+                        type = token.type,
+                        token = token.token,
+                        Location = $"строка {token.line_number + 1}, {token.start_pos + 1}-{token.end_pos}"
+                    });
+                }
+
+                OutputTable.DataSource = null;
+                OutputTable.DataSource = displayTokens;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке файла: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
 
         private void FileHandler(ToolStripMenuItem item)
         {

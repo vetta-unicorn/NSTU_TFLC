@@ -41,7 +41,6 @@
             Пуск = new ToolStripMenuItem();
             Справка = new ToolStripMenuItem();
             ОПрограмме = new ToolStripMenuItem();
-            OutputTextBox = new RichTextBox();
             MainMenu = new MenuStrip();
             MenuFile = new ToolStripMenuItem();
             MenuChange = new ToolStripMenuItem();
@@ -58,8 +57,10 @@
             MenuSettings = new ToolStripMenuItem();
             statusStrip1 = new StatusStrip();
             InputTextBox = new RichTextBox();
+            OutputTable = new DataGridView();
             InstrumentMenu.SuspendLayout();
             MainMenu.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)OutputTable).BeginInit();
             SuspendLayout();
             // 
             // InstrumentMenu
@@ -182,15 +183,6 @@
             ОПрограмме.Tag = "ShowAbout";
             ОПрограмме.ToolTipText = "О программе";
             // 
-            // OutputTextBox
-            // 
-            OutputTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            OutputTextBox.Location = new Point(12, 245);
-            OutputTextBox.Name = "OutputTextBox";
-            OutputTextBox.Size = new Size(863, 183);
-            OutputTextBox.TabIndex = 3;
-            OutputTextBox.Text = "";
-            // 
             // MainMenu
             // 
             MainMenu.ImageScalingSize = new Size(20, 20);
@@ -304,13 +296,23 @@
             InputTextBox.TabIndex = 2;
             InputTextBox.Text = "";
             // 
+            // OutputTable
+            // 
+            OutputTable.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            OutputTable.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            OutputTable.Location = new Point(12, 237);
+            OutputTable.Name = "OutputTable";
+            OutputTable.RowHeadersWidth = 51;
+            OutputTable.Size = new Size(863, 176);
+            OutputTable.TabIndex = 6;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(936, 450);
+            Controls.Add(OutputTable);
             Controls.Add(statusStrip1);
-            Controls.Add(OutputTextBox);
             Controls.Add(InputTextBox);
             Controls.Add(InstrumentMenu);
             Controls.Add(MainMenu);
@@ -321,6 +323,7 @@
             InstrumentMenu.PerformLayout();
             MainMenu.ResumeLayout(false);
             MainMenu.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)OutputTable).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -328,7 +331,6 @@
         #endregion
 
         private MenuStrip InstrumentMenu;
-        private RichTextBox OutputTextBox;
         private MenuStrip MainMenu;
         private ToolStripMenuItem Создать;
         private ToolStripMenuItem Открыть;
@@ -359,5 +361,6 @@
         private TabPage tabPage1;
         private RichTextBox InputTextBox;
         private TabPage tabPage2;
+        private DataGridView OutputTable;
     }
 }
