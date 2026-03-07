@@ -49,36 +49,31 @@ namespace TFLC_sem6_lab1.Scanner
                     while (Char.IsLetter(line[end_pos]) || line[end_pos] == '_' || Char.IsDigit(line[end_pos]))
                     {
                         end_pos++;
-                        tab = new TableLine(1, "Code 1", 
+                        tab = new TableLine(1, "id", 
                             line[start_pos..end_pos], lineNumber, start_pos, end_pos);
                     }
+                    tabs.Add(tab);
+                }
+                if (line.Contains("do"))
+                {
+                    start_pos = line.IndexOf("d");
+                    end_pos= start_pos + 2;
+                    TableLine tab = new TableLine(2, "do", line[start_pos..end_pos],
+                        lineNumber, start_pos, end_pos);
+                    tabs.Add(tab);
+                }
+                if (line.Contains("while"))
+                {
+                    start_pos = line.IndexOf("w");
+                    end_pos = start_pos + 5;
+                    TableLine tab = new TableLine(2, "while", line[start_pos..end_pos],
+                        lineNumber, start_pos, end_pos);
                     tabs.Add(tab);
                 }
                 lineNumber++;
             }
             return tabs;
         }
-
-        //public TableLine AnalyzeText(string text)
-        //{
-        //    int start_pos = -1;
-        //    int end_pos = -1;
-        //    TableLine tab = new TableLine();
-
-        //    // code 1 id
-        //    if (text.Contains("$"))
-        //    {
-        //        start_pos = text.IndexOf("$");
-        //        end_pos = start_pos;
-        //        while (Char.IsLetter(text[end_pos]) || text[end_pos] == '_' || Char.IsDigit(text[end_pos]))
-        //        {
-        //            end_pos++;
-        //        }
-                
-        //        //tab = new TableLine(1, "Code 1", "",);
-        //    }
-
-        //}
     }
 
     public class TokenDisplay
