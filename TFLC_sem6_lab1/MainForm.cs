@@ -25,6 +25,8 @@ namespace TFLC_sem6_lab1
         private string helpResourceName = "TFLC_sem6_lab1.HTML.HelpForm.html";
         private string aboutResourceName = "TFLC_sem6_lab1.HTML.AboutForm.html";
 
+        int exitCounter = 0;
+
         [DllImport("user32.dll")]
         private static extern bool SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
 
@@ -66,6 +68,8 @@ namespace TFLC_sem6_lab1
         private Dictionary<TabPage, RichTextBox> tabEditors = new Dictionary<TabPage, RichTextBox>();
 
         LexicalAnalyzer scanner = new LexicalAnalyzer();
+        Navigator navigator = new Navigator();
+        DisplayTokens tokenDisplayer = new DisplayTokens();
 
         public MainForm()
         {
@@ -112,6 +116,7 @@ namespace TFLC_sem6_lab1
         private void SetupDataGridView()
         {
             OutputTable.Enabled = true;
+            OutputTable.EditMode = DataGridViewEditMode.EditProgrammatically;
 
             OutputTable.Anchor = AnchorStyles.Left | AnchorStyles.Right;
 
@@ -153,6 +158,33 @@ namespace TFLC_sem6_lab1
             OutputTable.MouseEnter += (s, e) => {
                 OutputTable.Focus();
             };
+
+            OutputTable.CellClick += DataGridView_results_CellClick;
+        }
+
+        private void DataGridView_results_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                if (OutputTable.Columns.Count > 3)
+                {
+                    var conditionalCodeCell = OutputTable.Rows[e.RowIndex].Cells[0]; 
+
+                    if (conditionalCodeCell != null && conditionalCodeCell.Value != null)
+                    {
+                        if (conditionalCodeCell.Value.ToString() == "-1")
+                        {
+                            var locationCell = OutputTable.Rows[e.RowIndex].Cells[3]; 
+
+                            if (locationCell != null && locationCell.Value != null)
+                            {
+                                string location = locationCell.Value.ToString();
+                                navigator.NavigateToErrorLocation(location, InputTextBox);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private void Form1_DragEnter(object sender, DragEventArgs e)
@@ -181,7 +213,7 @@ namespace TFLC_sem6_lab1
                 }
                 else
                 {
-                    //OutputTextBox.LogLocalized("OpenError");
+                    MessageBox.Show("Open Error");
                 }
             }
         }
@@ -337,10 +369,9 @@ namespace TFLC_sem6_lab1
 
         private void ExitFromFile(object sender, EventArgs e)
         {
-            //OutputTextBox.Text = "";
             if (fileText != InputTextBox.Text)
             {
-                //OutputTextBox.LogLocalized("SaveBeforeExit");
+                MessageBox.Show("Сохраните перед выходом");
                 return;
             }
             processFile.ExitFile(InputTextBox);
@@ -351,7 +382,7 @@ namespace TFLC_sem6_lab1
             OutputTable.Text = "";
             if (fileText != InputTextBox.Text)
             {
-                //OutputTextBox.LogLocalized("SaveBeforeExit");
+                MessageBox.Show("Сохраните перед выходом");
                 return;
             }
             if (System.Windows.Forms.Application.MessageLoop)
@@ -499,37 +530,10 @@ namespace TFLC_sem6_lab1
         {
             OutputTable.DataSource = null;
             OutputTable.Rows.Clear();
-            LoadAndDisplayTokens(currentFilePath);
+            tokenDisplayer.LoadAndDisplayTokens(currentFilePath, scanner, OutputTable);
         }
 
-        public void LoadAndDisplayTokens(string filePath)
-        {
-            try
-            {
-                List<TableLine> tokens = scanner.AnalyzeText(filePath);
-                var displayTokens = new List<TokenDisplay>();
-                foreach (var token in tokens)
-                {
-                    displayTokens.Add(new TokenDisplay
-                    {
-                        code = token.code,
-                        type = token.type,
-                        token = token.token,
-                        Location = $"строка {token.line_number + 1}, {token.start_pos + 1}-{token.end_pos}"
-                    });
-                }
-
-                OutputTable.DataSource = null;
-                OutputTable.DataSource = displayTokens;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при загрузке файла: {ex.Message}", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-
+        
         private void FileHandler(ToolStripMenuItem item)
         {
             ToolStripMenuItem createItem = new ToolStripMenuItem();

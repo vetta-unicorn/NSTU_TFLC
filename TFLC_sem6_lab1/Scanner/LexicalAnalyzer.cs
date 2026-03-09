@@ -29,6 +29,37 @@ namespace TFLC_sem6_lab1.Scanner
         public TableLine() { }
     }
 
+    public class DisplayTokens
+    {
+        public void LoadAndDisplayTokens(string filePath, LexicalAnalyzer scanner, 
+            DataGridView OutputTable)
+        {
+            try
+            {
+                List<TableLine> tokens = scanner.AnalyzeText(filePath);
+                var displayTokens = new List<TokenDisplay>();
+                foreach (var token in tokens)
+                {
+                    displayTokens.Add(new TokenDisplay
+                    {
+                        code = token.code,
+                        type = token.type,
+                        token = token.token,
+                        Location = $"строка {token.line_number + 1}, {token.start_pos + 1}-{token.end_pos}"
+                    });
+                }
+
+                OutputTable.DataSource = null;
+                OutputTable.DataSource = displayTokens;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке файла: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+    }
+
     public class LexicalAnalyzer
     {
         public List<TableLine> AnalyzeText(string filePath)
