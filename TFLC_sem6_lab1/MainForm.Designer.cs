@@ -55,9 +55,9 @@
             MenuStart = new ToolStripMenuItem();
             MenuHelp = new ToolStripMenuItem();
             MenuSettings = new ToolStripMenuItem();
-            statusStrip1 = new StatusStrip();
             InputTextBox = new RichTextBox();
             OutputTable = new DataGridView();
+            statusStrip1 = new StatusStrip();
             InstrumentMenu.SuspendLayout();
             MainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)OutputTable).BeginInit();
@@ -278,15 +278,6 @@
             MenuSettings.Tag = "MenuSettings";
             MenuSettings.Text = "Настройки";
             // 
-            // statusStrip1
-            // 
-            statusStrip1.ImageScalingSize = new Size(20, 20);
-            statusStrip1.Location = new Point(0, 428);
-            statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(936, 22);
-            statusStrip1.TabIndex = 5;
-            statusStrip1.Text = "statusStrip1";
-            // 
             // InputTextBox
             // 
             InputTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Right;
@@ -298,21 +289,29 @@
             // 
             // OutputTable
             // 
-            OutputTable.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             OutputTable.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            OutputTable.Location = new Point(12, 237);
+            OutputTable.Location = new Point(12, 252);
             OutputTable.Name = "OutputTable";
             OutputTable.RowHeadersWidth = 51;
-            OutputTable.Size = new Size(863, 176);
+            OutputTable.Size = new Size(863, 161);
             OutputTable.TabIndex = 6;
+            // 
+            // statusStrip1
+            // 
+            statusStrip1.ImageScalingSize = new Size(20, 20);
+            statusStrip1.Location = new Point(0, 426);
+            statusStrip1.Name = "statusStrip1";
+            statusStrip1.Size = new Size(936, 24);
+            statusStrip1.TabIndex = 7;
+            statusStrip1.Text = "statusStrip1";
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(936, 450);
-            Controls.Add(OutputTable);
             Controls.Add(statusStrip1);
+            Controls.Add(OutputTable);
             Controls.Add(InputTextBox);
             Controls.Add(InstrumentMenu);
             Controls.Add(MainMenu);
@@ -356,11 +355,11 @@
         private ToolStripMenuItem Справка;
         private ToolStripMenuItem ОПрограмме;
         private ToolStripMenuItem MenuSettings;
-        private StatusStrip statusStrip1;
         private TabControl tabControl1;
         private TabPage tabPage1;
         private RichTextBox InputTextBox;
         private TabPage tabPage2;
         private DataGridView OutputTable;
+        private StatusStrip statusStrip1;
     }
 }

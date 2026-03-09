@@ -108,15 +108,17 @@ namespace TFLC_sem6_lab1
             SetupDataGridView();
         }
 
+
         private void SetupDataGridView()
         {
-            OutputTable.Dock = DockStyle.Fill;
-            OutputTable.Anchor = AnchorStyles.Top | AnchorStyles.Bottom |
-                                   AnchorStyles.Left | AnchorStyles.Right; 
+            OutputTable.Enabled = true;
+
+            OutputTable.Anchor = AnchorStyles.Left | AnchorStyles.Right;
 
             OutputTable.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
             OutputTable.AutoGenerateColumns = false;
+
             OutputTable.Columns.Clear();
 
             DataGridViewTextBoxColumn codeColumn = new DataGridViewTextBoxColumn();
@@ -142,6 +144,15 @@ namespace TFLC_sem6_lab1
             locationColumn.DataPropertyName = "Location";
             locationColumn.Width = 120;
             OutputTable.Columns.Add(locationColumn);
+
+            OutputTable.ScrollBars = ScrollBars.Both;
+            OutputTable.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            OutputTable.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.EnableResizing;
+            OutputTable.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.EnableResizing;
+            
+            OutputTable.MouseEnter += (s, e) => {
+                OutputTable.Focus();
+            };
         }
 
         private void Form1_DragEnter(object sender, DragEventArgs e)
@@ -645,5 +656,6 @@ namespace TFLC_sem6_lab1
             item.DropDownItems.Add(langItem);
 
         }
+
     }
 }
