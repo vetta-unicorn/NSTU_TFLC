@@ -178,8 +178,12 @@ namespace TFLC_sem6_lab1
 
                             if (locationCell != null && locationCell.Value != null)
                             {
+
                                 string location = locationCell.Value.ToString();
-                                navigator.NavigateToErrorLocation(location, InputTextBox);
+                                if (location != null)
+                                {
+                                    navigator.NavigateToErrorLocation(location, InputTextBox);
+                                }
                             }
                         }
                     }
@@ -189,13 +193,16 @@ namespace TFLC_sem6_lab1
 
         private void Form1_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            if (e != null && e.Data != null)
             {
-                e.Effect = DragDropEffects.Copy;
-            }
-            else
-            {
-                e.Effect = DragDropEffects.None;
+                if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                {
+                    e.Effect = DragDropEffects.Copy;
+                }
+                else
+                {
+                    e.Effect = DragDropEffects.None;
+                }
             }
         }
 
