@@ -576,7 +576,7 @@ namespace TFLC_sem6_lab1
             txtOutput.BringToFront();
             OutputTable.Visible = false;
             grammar.LoadDll();
-            grammar.ParseProgram(InputTextBox.Text, txtOutput);
+            grammar.ParseProgram(InputTextBox, txtOutput);
         }
 
         

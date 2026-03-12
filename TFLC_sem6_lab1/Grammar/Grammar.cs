@@ -49,8 +49,26 @@ namespace TFLC_sem6_lab1.Grammar
             }
         }
 
-        public void ParseProgram(string input, TextBox txtOutput)
+        public string ConvertTxbToStr(RichTextBox txb)
         {
+            string[] lines = txb.Lines;
+            var sb = new System.Text.StringBuilder();
+
+            foreach (string line in lines)
+            {
+                if (!string.IsNullOrEmpty(line))
+                {
+                    sb.Append(line + " ");
+                }
+            }
+
+            string result = sb.ToString().Trim();
+            return System.Text.RegularExpressions.Regex.Replace(result, @"\s+", " ");
+        }
+
+        public void ParseProgram(RichTextBox inputTxb, TextBox txtOutput)
+        {
+            string input = ConvertTxbToStr(inputTxb);
             if (string.IsNullOrEmpty(input))
             {
                 txtOutput.Text = "Please enter some code to parse.";
@@ -99,9 +117,9 @@ namespace TFLC_sem6_lab1.Grammar
                     }
                 }
 
-                output.AppendLine();
-                output.AppendLine("=== INPUT ===");
-                output.AppendLine(input);
+                //output.AppendLine();
+                //output.AppendLine("=== INPUT ===");
+                //output.AppendLine(input);
 
                 txtOutput.Text = output.ToString();
             }
