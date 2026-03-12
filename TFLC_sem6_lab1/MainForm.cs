@@ -9,6 +9,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 using System.Runtime.InteropServices;
 using TFLC_sem6_lab1.Scanner;
+using TFLC_sem6_lab1.Grammar;
 
 
 namespace TFLC_sem6_lab1
@@ -70,6 +71,20 @@ namespace TFLC_sem6_lab1
         LexicalAnalyzer scanner = new LexicalAnalyzer();
         Navigator navigator = new Navigator();
         DisplayTokens tokenDisplayer = new DisplayTokens();
+
+        //DLL
+        [DllImport("Grammar.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        private static extern int ParseString(string input);
+        [DllImport("Grammar.dll", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr GetLastParseError();
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern IntPtr LoadLibrary(string lpFileName);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool FreeLibrary(IntPtr hModule);
+        private IntPtr dllHandle;
+        private System.Windows.Forms.TextBox txtOutput;
+        GrammarHandle grammar = new GrammarHandle();
 
         public MainForm()
         {
@@ -324,7 +339,7 @@ namespace TFLC_sem6_lab1
                 else if (item.Text == "Правка") { EditionHandler(item); }
                 else if (item.Text == "Справка") { HelpFormsHandler(item); }
                 else if (item.Text == "Настройки") { SettingsHandler(item); }
-                else if (item.Text == "Пуск") { item.Click += StartScanner; }
+                else if (item.Text == "Пуск") { StartHandler(item); }
             }
 
             foreach (ToolStripMenuItem item in InstrumentMenu.Items)
@@ -540,6 +555,30 @@ namespace TFLC_sem6_lab1
             tokenDisplayer.LoadAndDisplayTokens(currentFilePath, scanner, OutputTable);
         }
 
+        private void StartGrammar(object sender, EventArgs e)
+        {
+            OutputTable.DataSource = null;
+            OutputTable.Rows.Clear();
+
+            txtOutput = new System.Windows.Forms.TextBox
+            {
+                Location = OutputTable.Location,
+                Size = OutputTable.Size,
+                Multiline = true,
+                ReadOnly = true,
+                Visible = true,
+                Font = new System.Drawing.Font("Consolas", 10),
+                ScrollBars = ScrollBars.Both,
+                BackColor = System.Drawing.Color.White
+            };
+            this.Controls.Add(txtOutput);
+
+            txtOutput.BringToFront();
+            OutputTable.Visible = false;
+            grammar.LoadDll();
+            grammar.ParseProgram(InputTextBox.Text, txtOutput);
+        }
+
         
         private void FileHandler(ToolStripMenuItem item)
         {
@@ -666,6 +705,30 @@ namespace TFLC_sem6_lab1
 
             item.DropDownItems.Add(langItem);
 
+        }
+
+        private void StartHandler(ToolStripMenuItem item)
+        {
+            ToolStripMenuItem startItem = new ToolStripMenuItem();
+            startItem.Text = "Пуск";
+            startItem.Click += StartScanner;
+            startItem.Tag = "StartScanner";
+            item.DropDownItems.Add(startItem);
+
+            ToolStripMenuItem grammarItem = new ToolStripMenuItem();
+            grammarItem.Text = "Проверка грамматики";
+            grammarItem.Click += StartGrammar;
+            grammarItem.Tag = "StartGrammar";
+            item.DropDownItems.Add(grammarItem);
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (dllHandle != IntPtr.Zero)
+            {
+                FreeLibrary(dllHandle);
+            }
+            base.OnFormClosing(e);
         }
 
     }
