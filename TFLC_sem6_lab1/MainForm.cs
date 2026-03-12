@@ -175,6 +175,20 @@ namespace TFLC_sem6_lab1
             };
 
             OutputTable.CellClick += DataGridView_results_CellClick;
+
+            txtOutput = new System.Windows.Forms.TextBox
+            {
+                Location = OutputTable.Location,
+                Size = OutputTable.Size,
+                Multiline = true,
+                ReadOnly = true,
+                Visible = true,
+                Font = new System.Drawing.Font("Consolas", 10),
+                ScrollBars = ScrollBars.Both,
+                BackColor = System.Drawing.Color.White
+            };
+            this.Controls.Add(txtOutput);
+            txtOutput.Visible = false;
         }
 
         private void DataGridView_results_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -360,6 +374,9 @@ namespace TFLC_sem6_lab1
 
         private void CreateFile(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             OutputTable.Text = "";
             isOpened = true;
             InputTextBox.Enabled = true;
@@ -368,6 +385,9 @@ namespace TFLC_sem6_lab1
 
         private void OpenFile(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             OutputTable.Text = "";
             isOpened = true;
             currentFilePath = processFile.OpenTxtFile(InputTextBox, currentFilePath);
@@ -377,6 +397,9 @@ namespace TFLC_sem6_lab1
 
         private void SaveFile(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             OutputTable.Text = "";
             processFile.SaveTxtFile(InputTextBox, currentFilePath, isOpened);
             fileText = InputTextBox.Text;
@@ -384,6 +407,9 @@ namespace TFLC_sem6_lab1
 
         private void SaveAsFile(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             OutputTable.Text = "";
             processFile.SaveTxtFileAs(InputTextBox, currentFilePath, isOpened);
             fileText = InputTextBox.Text;
@@ -391,6 +417,9 @@ namespace TFLC_sem6_lab1
 
         private void ExitFromFile(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             if (fileText != InputTextBox.Text)
             {
                 MessageBox.Show("Сохраните перед выходом");
@@ -401,6 +430,9 @@ namespace TFLC_sem6_lab1
 
         private void ExitFromProgram(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             OutputTable.Text = "";
             if (fileText != InputTextBox.Text)
             {
@@ -419,6 +451,9 @@ namespace TFLC_sem6_lab1
 
         private void UndoText(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             if (isOpened && InputTextBox.CanUndo)
             {
                 InputTextBox.Undo();
@@ -427,6 +462,9 @@ namespace TFLC_sem6_lab1
 
         private void RedoText(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             if (InputTextBox.CanRedo)
             {
                 InputTextBox.Redo();
@@ -435,6 +473,9 @@ namespace TFLC_sem6_lab1
 
         private void CutText(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             if (InputTextBox.SelectedText.Length > 0)
             {
                 InputTextBox.Cut();
@@ -443,6 +484,9 @@ namespace TFLC_sem6_lab1
 
         private void CopyText(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             if (InputTextBox.SelectedText.Length > 0)
             {
                 InputTextBox.Copy();
@@ -451,6 +495,9 @@ namespace TFLC_sem6_lab1
 
         private void PasteText(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             if (Clipboard.ContainsText())
             {
                 InputTextBox.Paste();
@@ -459,6 +506,9 @@ namespace TFLC_sem6_lab1
 
         private void DeleteText(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             if (InputTextBox.SelectedText.Length > 0)
             {
                 InputTextBox.SelectedText = "";
@@ -467,11 +517,17 @@ namespace TFLC_sem6_lab1
 
         private void SelectAllText(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             InputTextBox.SelectAll();
         }
 
         private void ShowHelpForm(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             string htmlContent = processFile.LoadEmbeddedResource(helpResourceName);
             string tempFile = Path.Combine(Path.GetTempPath(), "HelpForm.html");
             File.WriteAllText(tempFile, htmlContent);
@@ -486,6 +542,9 @@ namespace TFLC_sem6_lab1
 
         private void ShowAboutForm(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             string htmlContent = processFile.LoadEmbeddedResource(aboutResourceName);
 
             string tempFile = Path.Combine(Path.GetTempPath(), "AboutForm.html");
@@ -501,6 +560,9 @@ namespace TFLC_sem6_lab1
 
         private void ChangeTextStyle(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             if (fontDialog1.ShowDialog() == DialogResult.OK)
             {
                 ApplyFontToAllControls(this, fontDialog1.Font);
@@ -522,6 +584,9 @@ namespace TFLC_sem6_lab1
 
         private void SetLocalizeEng(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             langHandler.ChangeLanguage("en", MainMenu, InstrumentMenu, resourceManager);
             MainMenu.Update();
             InstrumentMenu.Update();
@@ -536,6 +601,9 @@ namespace TFLC_sem6_lab1
 
         private void SetLocalizeRu(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             langHandler.ChangeLanguage("ru-RU", MainMenu, InstrumentMenu, resourceManager);
             MainMenu.Update();
             InstrumentMenu.Update();
@@ -550,6 +618,9 @@ namespace TFLC_sem6_lab1
 
         private void StartScanner(object sender, EventArgs e)
         {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
             OutputTable.DataSource = null;
             OutputTable.Rows.Clear();
             tokenDisplayer.LoadAndDisplayTokens(currentFilePath, scanner, OutputTable);
@@ -560,21 +631,8 @@ namespace TFLC_sem6_lab1
             OutputTable.DataSource = null;
             OutputTable.Rows.Clear();
 
-            txtOutput = new System.Windows.Forms.TextBox
-            {
-                Location = OutputTable.Location,
-                Size = OutputTable.Size,
-                Multiline = true,
-                ReadOnly = true,
-                Visible = true,
-                Font = new System.Drawing.Font("Consolas", 10),
-                ScrollBars = ScrollBars.Both,
-                BackColor = System.Drawing.Color.White
-            };
-            this.Controls.Add(txtOutput);
-
-            txtOutput.BringToFront();
             OutputTable.Visible = false;
+            txtOutput.Visible = true;
             grammar.LoadDll();
             grammar.ParseProgram(InputTextBox, txtOutput);
         }
@@ -716,7 +774,7 @@ namespace TFLC_sem6_lab1
             item.DropDownItems.Add(startItem);
 
             ToolStripMenuItem grammarItem = new ToolStripMenuItem();
-            grammarItem.Text = "Проверка грамматики";
+            grammarItem.Text = "Проверить грамматику";
             grammarItem.Click += StartGrammar;
             grammarItem.Tag = "StartGrammar";
             item.DropDownItems.Add(grammarItem);

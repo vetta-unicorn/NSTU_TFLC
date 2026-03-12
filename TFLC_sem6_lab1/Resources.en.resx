@@ -219,4 +219,10 @@
   <data name="SaveError" xml:space="preserve">
     <value>Save Error</value>
   </data>
+  <data name="StartScanner" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="StartGrammar" xml:space="preserve">
+    <value>Check grammar</value>
+  </data>
 </root>

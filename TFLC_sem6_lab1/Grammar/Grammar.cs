@@ -29,23 +29,22 @@ namespace TFLC_sem6_lab1.Grammar
 
             if (!File.Exists(dllPath))
             {
-                MessageBox.Show($"DLL not found at: {dllPath}\n\n");
+                MessageBox.Show($"DLL не найдена: {dllPath}\n\n");
                 return;
             }
 
             try
             {
-                // Просто проверяем что DLL можно загрузить
                 dllHandle = LoadLibrary(dllPath);
                 if (dllHandle == IntPtr.Zero)
                 {
                     int error = Marshal.GetLastWin32Error();
-                    MessageBox.Show($"Failed to load DLL. Error code: {error}");
+                    MessageBox.Show($"Ошибка в загрузке DLL. Код ошибки: {error}");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}");
+                MessageBox.Show($"Ошибка: {ex.Message}");
             }
         }
 
@@ -71,7 +70,7 @@ namespace TFLC_sem6_lab1.Grammar
             string input = ConvertTxbToStr(inputTxb);
             if (string.IsNullOrEmpty(input))
             {
-                txtOutput.Text = "Please enter some code to parse.";
+                txtOutput.Text = "Введите код для проверки грамматики";
                 return;
             }
 
@@ -94,38 +93,33 @@ namespace TFLC_sem6_lab1.Grammar
                 catch {  }
 
                 TimeSpan elapsed = DateTime.Now - start;
-
                 StringBuilder output = new StringBuilder();
-                output.AppendLine($"Time: {elapsed.TotalMilliseconds:F2} ms");
+                output.AppendLine($"Время: {elapsed.TotalMilliseconds:F2} ms");
                 output.AppendLine();
 
                 if (result == 0)
                 {
-                    output.AppendLine("SUCCESS");
-                    output.AppendLine("The code is syntactically correct.");
+                    output.AppendLine("Успех!");
+                    output.AppendLine("Код синтаксически верный");
                 }
                 else
                 {
-                    output.AppendLine("FAILED");
+                    output.AppendLine("Ошибка!");
                     if (!string.IsNullOrEmpty(error))
                     {
-                        output.AppendLine($"Error: {error}");
+                        output.AppendLine($"Ошибка: {error}");
                     }
                     else
                     {
-                        output.AppendLine("Unknown error");
+                        output.AppendLine("Неизвестная ошибка");
                     }
                 }
-
-                //output.AppendLine();
-                //output.AppendLine("=== INPUT ===");
-                //output.AppendLine(input);
 
                 txtOutput.Text = output.ToString();
             }
             catch (Exception ex)
             {
-                txtOutput.Text = $"Exception: {ex.Message}";
+                txtOutput.Text = $"Исключение: {ex.Message}";
             }
         }
     }

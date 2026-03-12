@@ -358,6 +358,24 @@ namespace TFLC_sem6_lab1 {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Проверить грамматику.
+        /// </summary>
+        internal static string StartGrammar {
+            get {
+                return ResourceManager.GetString("StartGrammar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Пуск.
+        /// </summary>
+        internal static string StartScanner {
+            get {
+                return ResourceManager.GetString("StartScanner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Отменить.
         /// </summary>
         internal static string UndoText {

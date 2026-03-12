@@ -219,4 +219,10 @@
   <data name="SaveError" xml:space="preserve">
     <value>Ошибка при сохранении файла</value>
   </data>
+  <data name="StartScanner" xml:space="preserve">
+    <value>Пуск</value>
+  </data>
+  <data name="StartGrammar" xml:space="preserve">
+    <value>Проверить грамматику</value>
+  </data>
 </root>
