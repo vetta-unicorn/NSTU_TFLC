@@ -118,107 +118,15 @@ $z = $y++;
 
 **lexel.l**
 
-%option noyywrap
-%option nounput
-%option noinput
-%option case-insensitive
 
-%{
-#include "parser.tab.h"
-#include <stdlib.h>
-#include <string.h>
+<img width="604" height="759" alt="изображение" src="https://github.com/user-attachments/assets/dfc358dc-96af-4da3-ae50-3b0387a48bb9" />
 
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#define strdup _strdup
-#endif
-
-extern YYSTYPE yylval;
-%}
-
-%%
-
-"do"                    { return DO; }
-"while"                 { return WHILE; }
-"{"                     { return LBRACE; }
-"}"                     { return RBRACE; }
-"("                     { return LPAREN; }
-")"                     { return RPAREN; }
-";"                     { return SEMICOLON; }
-"="                     { return ASSIGN; }
-"++"                    { return INC; }
-"+"                     { return PLUS; }
-"-"                     { return MINUS; }
-"*"                     { return MULT; }
-"/"                     { return DIV; }
-"<"                     { return LT; }
-">"                     { return GT; }
-"<="                    { return LE; }
-">="                    { return GE; }
-"=="                    { return EQ; }
-"!="                    { return NE; }
-"$"[a-zA-Z][a-zA-Z0-9_]* { 
-    yylval.string = _strdup(yytext); 
-    return VARIABLE; 
-}
-[0-9]+                  { 
-    yylval.number = atoi(yytext); 
-    return NUMBER; 
-}
-[ \t\n]                 {  }
-.                       { return yytext[0]; }
-
-%%
 
 **parser.y**
 
-%token DO WHILE
-%token LBRACE RBRACE LPAREN RPAREN SEMICOLON
-%token ASSIGN INC
-%token PLUS MINUS MULT DIV
-%token LT GT LE GE EQ NE
-%token <string> VARIABLE
-%token <number> NUMBER
 
-%type <number> expr
+<img width="511" height="859" alt="изображение" src="https://github.com/user-attachments/assets/fe016a28-98a0-44fe-96d9-68a6f6a1c1a7" />
 
-%left LT GT LE GE EQ NE
-%left PLUS MINUS
-%left MULT DIV
-
-%start program
-
-%%
-
-program: statements
-;
-
-statements: statements statement | statement
-;
-
-statement: 
-      DO LBRACE statements RBRACE WHILE LPAREN expr RPAREN SEMICOLON
-    | VARIABLE ASSIGN expr SEMICOLON
-    | VARIABLE INC SEMICOLON
-    | LBRACE statements RBRACE
-;
-
-expr: NUMBER                        { $$ = $1; }
-    | VARIABLE                       { free($1); $$ = 0; }
-    | expr PLUS expr                 { $$ = $1 + $3; }
-    | expr MINUS expr                 { $$ = $1 - $3; }
-    | expr MULT expr                 { $$ = $1 * $3; }
-    | expr DIV expr                   { $$ = $3 ? $1 / $3 : 0; }
-    | expr LT expr                    { $$ = $1 < $3; }
-    | expr GT expr                    { $$ = $1 > $3; }
-    | expr LE expr                    { $$ = $1 <= $3; }
-    | expr GE expr                    { $$ = $1 >= $3; }
-    | expr EQ expr                    { $$ = $1 == $3; }
-    | expr NE expr                    { $$ = $1 != $3; }
-    | LPAREN expr RPAREN              { $$ = $2; }
-;
-
-%%
 
 **Классификация грамматики:**
 Разработанная грамматика является контекстно-свободной
