@@ -125,7 +125,7 @@ $z = $y++;
 **parser.y**
 
 
-<img width="511" height="859" alt="изображение" src="https://github.com/user-attachments/assets/fe016a28-98a0-44fe-96d9-68a6f6a1c1a7" />
+<img width="521" height="719" alt="изображение" src="https://github.com/user-attachments/assets/c0ba2fe8-e73c-49fd-ab7e-3e5aba8ae838" />
 
 
 **Классификация грамматики:**
