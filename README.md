@@ -77,6 +77,151 @@ $z = $y++;
 
 <img width="888" height="176" alt="изображение" src="https://github.com/user-attachments/assets/60df52fa-b185-4019-adc0-2ac0714a5289" />
 
+**Грамматика BNF**
+
+<оператор do while> ::= "do" <блок> "while" "(" <условие> ")" ";"
+
+<блок> ::= "{" <список операторов> "}" | <оператор>
+
+<список операторов> ::= <оператор> | <список операторов> <оператор>
+
+<оператор присваивания> ::= <токен> "=" <условие> ";"
+
+<оператор инкремента> ::= <токен> "++" ";"
+
+<оператор декремента> ::= <токен> "--" ";"
+
+<токен> ::= "$" <идентификатор>
+
+<условие> ::= <сравнение>
+
+<сравнение> ::= <арифметическое выражение> | 
+<арифметическое выражение> "<" <арифметическое выражение> | <арифметическое выражение> ">" <арифметическое выражение> | <арифметическое выражение> "<=" <арифметическое выражение> | <арифметическое выражение> ">=" <арифметическое выражение> | <арифметическое выражение> "==" <арифметическое выражение> | <арифметическое выражение> "!=" <арифметическое выражение>
+
+<арифметическое выражение> ::= <слагаемое> | 
+<арифметическое выражение> "+" <слагаемое> | 
+<арифметическое выражение> "-" <слагаемое>
+
+<слагаемое> ::= <множитель> | <слагаемое> "*" <множитель> | <слагаемое> "/" <множитель>
+
+<множитель> ::= <число> | <переменная> | "(" <выражение> ")"
+
+<идентификатор> ::= <буква> { <буква> | <ц> | "_" }
+
+<число> ::= <ц> { <ц> }
+
+<буква> ::= "a" | "b" | ... | "z" | "A" | ... | "Z"
+
+<ц> ::= "0" | "1" | ... | "9"
+
+**Грамматика FLEX&BISON**
+
+**lexel.l**
+
+%option noyywrap
+%option nounput
+%option noinput
+%option case-insensitive
+
+%{
+#include "parser.tab.h"
+#include <stdlib.h>
+#include <string.h>
+
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#define strdup _strdup
+#endif
+
+extern YYSTYPE yylval;
+%}
+
+%%
+
+"do"                    { return DO; }
+"while"                 { return WHILE; }
+"{"                     { return LBRACE; }
+"}"                     { return RBRACE; }
+"("                     { return LPAREN; }
+")"                     { return RPAREN; }
+";"                     { return SEMICOLON; }
+"="                     { return ASSIGN; }
+"++"                    { return INC; }
+"+"                     { return PLUS; }
+"-"                     { return MINUS; }
+"*"                     { return MULT; }
+"/"                     { return DIV; }
+"<"                     { return LT; }
+">"                     { return GT; }
+"<="                    { return LE; }
+">="                    { return GE; }
+"=="                    { return EQ; }
+"!="                    { return NE; }
+"$"[a-zA-Z][a-zA-Z0-9_]* { 
+    yylval.string = _strdup(yytext); 
+    return VARIABLE; 
+}
+[0-9]+                  { 
+    yylval.number = atoi(yytext); 
+    return NUMBER; 
+}
+[ \t\n]                 {  }
+.                       { return yytext[0]; }
+
+%%
+
+**parser.y**
+
+%token DO WHILE
+%token LBRACE RBRACE LPAREN RPAREN SEMICOLON
+%token ASSIGN INC
+%token PLUS MINUS MULT DIV
+%token LT GT LE GE EQ NE
+%token <string> VARIABLE
+%token <number> NUMBER
+
+%type <number> expr
+
+%left LT GT LE GE EQ NE
+%left PLUS MINUS
+%left MULT DIV
+
+%start program
+
+%%
+
+program: statements
+;
+
+statements: statements statement | statement
+;
+
+statement: 
+      DO LBRACE statements RBRACE WHILE LPAREN expr RPAREN SEMICOLON
+    | VARIABLE ASSIGN expr SEMICOLON
+    | VARIABLE INC SEMICOLON
+    | LBRACE statements RBRACE
+;
+
+expr: NUMBER                        { $$ = $1; }
+    | VARIABLE                       { free($1); $$ = 0; }
+    | expr PLUS expr                 { $$ = $1 + $3; }
+    | expr MINUS expr                 { $$ = $1 - $3; }
+    | expr MULT expr                 { $$ = $1 * $3; }
+    | expr DIV expr                   { $$ = $3 ? $1 / $3 : 0; }
+    | expr LT expr                    { $$ = $1 < $3; }
+    | expr GT expr                    { $$ = $1 > $3; }
+    | expr LE expr                    { $$ = $1 <= $3; }
+    | expr GE expr                    { $$ = $1 >= $3; }
+    | expr EQ expr                    { $$ = $1 == $3; }
+    | expr NE expr                    { $$ = $1 != $3; }
+    | LPAREN expr RPAREN              { $$ = $2; }
+;
+
+%%
+
+**Классификация грамматики:**
+Разработанная грамматика является контекстно-свободной
 
 **Тестовые примеры (грамматика)**
 
