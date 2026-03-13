@@ -10,6 +10,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 using System.Runtime.InteropServices;
 using TFLC_sem6_lab1.Scanner;
 using TFLC_sem6_lab1.Grammar;
+using System.Reflection;
 
 
 namespace TFLC_sem6_lab1
@@ -73,10 +74,13 @@ namespace TFLC_sem6_lab1
         DisplayTokens tokenDisplayer = new DisplayTokens();
 
         //DLL
-        [DllImport("Grammar.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        [DllImport("Grammar.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern int ParseString(string input);
+
         [DllImport("Grammar.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr GetLastParseError();
+
+
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern IntPtr LoadLibrary(string lpFileName);
 
@@ -84,7 +88,7 @@ namespace TFLC_sem6_lab1
         private static extern bool FreeLibrary(IntPtr hModule);
         private IntPtr dllHandle;
         private System.Windows.Forms.TextBox txtOutput;
-        GrammarHandle grammar = new GrammarHandle();
+        GrammarHandle grammar;
 
         public MainForm()
         {
@@ -130,6 +134,16 @@ namespace TFLC_sem6_lab1
 
         private void SetupDataGridView()
         {
+            try
+            {
+                grammar = new GrammarHandle();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка инициализации: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
             OutputTable.Enabled = true;
             OutputTable.EditMode = DataGridViewEditMode.EditProgrammatically;
 
@@ -439,6 +453,8 @@ namespace TFLC_sem6_lab1
                 MessageBox.Show("Сохраните перед выходом");
                 return;
             }
+            grammar.Dispose();
+
             if (System.Windows.Forms.Application.MessageLoop)
             {
                 System.Windows.Forms.Application.Exit();
@@ -633,11 +649,20 @@ namespace TFLC_sem6_lab1
 
             OutputTable.Visible = false;
             txtOutput.Visible = true;
-            grammar.LoadDll();
-            grammar.ParseProgram(InputTextBox, txtOutput);
+
+            if (grammar != null)
+            {
+                grammar.ParseProgram(InputTextBox, txtOutput);
+            }
         }
 
-        
+        //protected override void OnFormClosing(FormClosingEventArgs e)
+        //{
+        //    grammar.Dispose();
+        //    base.OnFormClosing(e);
+        //}
+
+
         private void FileHandler(ToolStripMenuItem item)
         {
             ToolStripMenuItem createItem = new ToolStripMenuItem();
@@ -778,15 +803,6 @@ namespace TFLC_sem6_lab1
             grammarItem.Click += StartGrammar;
             grammarItem.Tag = "StartGrammar";
             item.DropDownItems.Add(grammarItem);
-        }
-
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            if (dllHandle != IntPtr.Zero)
-            {
-                FreeLibrary(dllHandle);
-            }
-            base.OnFormClosing(e);
         }
 
     }

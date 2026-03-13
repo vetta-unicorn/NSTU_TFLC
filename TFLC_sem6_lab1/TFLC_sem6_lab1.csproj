@@ -9,11 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Grammar\Grammar.dll" />
     <None Remove="HTML\AboutForm.html" />
     <None Remove="HTML\HelpForm.html" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Grammar\Grammar.dll" />
     <EmbeddedResource Include="HTML\AboutForm.html" />
     <EmbeddedResource Include="HTML\HelpForm.html" />
   </ItemGroup>
