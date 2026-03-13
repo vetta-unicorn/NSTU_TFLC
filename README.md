@@ -50,7 +50,35 @@
 
 <img width="591" height="1159" alt="ТФЯК_ЛР2 drawio(2)" src="https://github.com/user-attachments/assets/1ef7a2da-fc07-495c-b658-116d87f075a3" />
 
-**Тестовые примеры**
+**Тестовые примеры (сканер)**
+
+1) $x = 5 + 10;
+
+<img width="870" height="178" alt="изображение" src="https://github.com/user-attachments/assets/43ffaf1b-ed39-4f28-b3ff-a0ab9b1d961a" />
+
+2) x = 5 + 10;
+$y = $x * 2;
+$z = $y++;
+
+
+<img width="881" height="184" alt="изображение" src="https://github.com/user-attachments/assets/7983914c-078c-4079-80d7-4607b7bcdaa5" />
+
+3) do {
+    $x = $x + 1;
+    $y = $y * 2;
+} while ($x < 10);
+
+<img width="886" height="188" alt="изображение" src="https://github.com/user-attachments/assets/d62c6eaa-1438-47f3-a9a4-be27e241491c" />
+
+4) do {
+    $x = $x + 1;
+    $y = $y * 2;
+} whil ($x < 10);
+
+<img width="888" height="176" alt="изображение" src="https://github.com/user-attachments/assets/60df52fa-b185-4019-adc0-2ac0714a5289" />
+
+
+**Тестовые примеры (грамматика)**
 
 <img width="1106" height="589" alt="изображение" src="https://github.com/user-attachments/assets/d5d034a9-a51f-4acd-b93e-0797b03a04f4" />
 
