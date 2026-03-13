@@ -116,7 +116,7 @@ $z = $y++;
 
 **Грамматика FLEX&BISON**
 
-**lexel.l**
+**lexer.l**
 
 
 <img width="604" height="759" alt="изображение" src="https://github.com/user-attachments/assets/dfc358dc-96af-4da3-ae50-3b0387a48bb9" />
