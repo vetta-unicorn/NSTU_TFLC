@@ -99,7 +99,8 @@ namespace TFLC_sem6_lab1.Scanner
                     }
 
                     // code 2 do
-                    else if (pos + 1 < line.Length && line.Substring(pos, 2) == "do")
+                    else if (pos + 1 < line.Length && line.Substring(pos, 2) == "do"
+                        && line[pos + 2] == ' ')
                     {
                         tabs.Add(new TableLine(2, "do", "do", lineNumber, pos, pos + 2));
                         pos += 2;
@@ -107,7 +108,8 @@ namespace TFLC_sem6_lab1.Scanner
                     }
 
                     // code 3 while
-                    else if (pos + 4 < line.Length && line.Substring(pos, 5) == "while")
+                    else if (pos + 4 < line.Length && line.Substring(pos, 5) == "while"
+                        && line[pos + 5] == ' ')
                     {
                         tabs.Add(new TableLine(3, "while", "while", lineNumber, pos, pos + 5));
                         pos += 5;
