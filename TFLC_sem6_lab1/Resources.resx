@@ -222,7 +222,7 @@
   <data name="StartScanner" xml:space="preserve">
     <value>Пуск</value>
   </data>
-  <data name="StartGrammar" xml:space="preserve">
-    <value>Проверить грамматику</value>
+  <data name="StartGrammar_FlexBison" xml:space="preserve">
+    <value>Проверить грамматику Flex&amp;Bison</value>
   </data>
 </root>

@@ -358,11 +358,11 @@ namespace TFLC_sem6_lab1 {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Проверить грамматику.
+        ///   Ищет локализованную строку, похожую на Проверить грамматику Flex&amp;Bison.
         /// </summary>
-        internal static string StartGrammar {
+        internal static string StartGrammar_FlexBison {
             get {
-                return ResourceManager.GetString("StartGrammar", resourceCulture);
+                return ResourceManager.GetString("StartGrammar_FlexBison", resourceCulture);
             }
         }
         

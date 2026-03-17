@@ -90,6 +90,8 @@ namespace TFLC_sem6_lab1
         private System.Windows.Forms.TextBox txtOutput;
         GrammarHandle grammar;
 
+        DataGridView SyntaxTable;
+
         public MainForm()
         {
             InitializeComponent();
@@ -203,6 +205,79 @@ namespace TFLC_sem6_lab1
             };
             this.Controls.Add(txtOutput);
             txtOutput.Visible = false;
+
+            SetupSyntaxDataGridView();
+        }
+
+        private void SetupSyntaxDataGridView()
+        {
+            SyntaxTable = new DataGridView
+            {
+                Location = OutputTable.Location,
+                Size = OutputTable.Size,
+                Visible = false,
+                Font = new System.Drawing.Font("Consolas", 10),
+                ScrollBars = ScrollBars.Both,
+                BackColor = System.Drawing.Color.White
+            };
+            this.Controls.Add(SyntaxTable);
+
+            SyntaxTable.EditMode = DataGridViewEditMode.EditProgrammatically;
+
+            SyntaxTable.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+
+            SyntaxTable.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            SyntaxTable.AutoGenerateColumns = false;
+
+            SyntaxTable.Columns.Clear();
+
+            DataGridViewTextBoxColumn messageColumn = new DataGridViewTextBoxColumn();
+            messageColumn.HeaderText = "Сообщение";
+            messageColumn.DataPropertyName = "message";
+            messageColumn.Width = 200;
+            SyntaxTable.Columns.Add(messageColumn);
+
+            DataGridViewTextBoxColumn locationColumn = new DataGridViewTextBoxColumn();
+            locationColumn.HeaderText = "Местоположение";
+            locationColumn.DataPropertyName = "Location";
+            locationColumn.Width = 200;
+            SyntaxTable.Columns.Add(locationColumn);
+
+            SyntaxTable.ScrollBars = ScrollBars.Both;
+            SyntaxTable.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            SyntaxTable.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.EnableResizing;
+            SyntaxTable.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.EnableResizing;
+
+            SyntaxTable.MouseEnter += (s, e) =>
+            {
+                SyntaxTable.Focus();
+            };
+
+            SyntaxTable.CellClick += SyntaxTable_CellClick;
+        }
+
+        private void SyntaxTable_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                try
+                {
+                    var messageCell = SyntaxTable.Rows[e.RowIndex].Cells[0];
+                    var locationCell = SyntaxTable.Rows[e.RowIndex].Cells[1];
+
+                    if (messageCell != null && messageCell.Value != null &&
+                        locationCell != null && locationCell.Value != null)
+                    {
+                        string location = locationCell.Value.ToString();
+                        navigator.NavigateToErrorLocation(location, InputTextBox);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при переходе к ошибке: {ex.Message}");
+                }
+            }
         }
 
         private void DataGridView_results_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -211,13 +286,13 @@ namespace TFLC_sem6_lab1
             {
                 if (OutputTable.Columns.Count > 3)
                 {
-                    var conditionalCodeCell = OutputTable.Rows[e.RowIndex].Cells[0]; 
+                    var conditionalCodeCell = OutputTable.Rows[e.RowIndex].Cells[0];
 
                     if (conditionalCodeCell != null && conditionalCodeCell.Value != null)
                     {
                         if (conditionalCodeCell.Value.ToString() == "-1")
                         {
-                            var locationCell = OutputTable.Rows[e.RowIndex].Cells[3]; 
+                            var locationCell = OutputTable.Rows[e.RowIndex].Cells[3];
 
                             if (locationCell != null && locationCell.Value != null)
                             {
@@ -233,6 +308,7 @@ namespace TFLC_sem6_lab1
                 }
             }
         }
+
 
         private void Form1_DragEnter(object sender, DragEventArgs e)
         {
@@ -642,7 +718,7 @@ namespace TFLC_sem6_lab1
             tokenDisplayer.LoadAndDisplayTokens(currentFilePath, scanner, OutputTable);
         }
 
-        private void StartGrammar(object sender, EventArgs e)
+        private void StartGrammarFlexBison(object sender, EventArgs e)
         {
             OutputTable.DataSource = null;
             OutputTable.Rows.Clear();
@@ -656,12 +732,64 @@ namespace TFLC_sem6_lab1
             }
         }
 
-        //protected override void OnFormClosing(FormClosingEventArgs e)
-        //{
-        //    grammar.Dispose();
-        //    base.OnFormClosing(e);
-        //}
+        private void StartGrammar(object sender, EventArgs e)
+        {
+            SyntaxTable.DataSource = null;
+            SyntaxTable.Rows.Clear();
 
+            SyntaxTable.Visible = true;
+            txtOutput.Visible = false;
+            OutputTable.Visible = false;
+
+            List<TableLine> tokens = scanner.AnalyzeText(currentFilePath);
+
+            Parser parser = new Parser(tokens);
+            var errors = parser.Parse();
+
+            if (errors.Count == 0)
+            {
+                MessageBox.Show("Синтаксических ошибок не найдено!", "Успех",
+                              MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                DisplayErrors(errors);
+            }
+        }
+
+        private void DisplayErrors(List<ParseError> errors)
+        {
+            SyntaxTable.Rows.Clear();
+
+            foreach (var error in errors)
+            {
+                DataGridViewRow row = new DataGridViewRow();
+
+                row.CreateCells(SyntaxTable,
+                    error.Message,
+                    $"строка {error.Line}, {error.StartPosition}-{error.EndPosition}" // Измененный формат
+                );
+
+                SyntaxTable.Rows.Add(row);
+            }
+        }
+
+        //private void DisplayErrors(List<ParseError> errors)
+        //{
+        //    SyntaxTable.Rows.Clear();
+
+        //    foreach (var error in errors)
+        //    {
+        //        DataGridViewRow row = new DataGridViewRow();
+
+        //        row.CreateCells(SyntaxTable,
+        //            error.Message,
+        //            $"Строка: {error.Line}, {error.StartPosition}-{error.EndPosition}"
+        //        );
+
+        //        SyntaxTable.Rows.Add(row);
+        //    }
+        //}
 
         private void FileHandler(ToolStripMenuItem item)
         {
@@ -797,6 +925,12 @@ namespace TFLC_sem6_lab1
             startItem.Click += StartScanner;
             startItem.Tag = "StartScanner";
             item.DropDownItems.Add(startItem);
+
+            ToolStripMenuItem grammarFBItem = new ToolStripMenuItem();
+            grammarFBItem.Text = "Проверить грамматику Flex&Bison";
+            grammarFBItem.Click += StartGrammarFlexBison;
+            grammarFBItem.Tag = "StartGrammar_FlexBison";
+            item.DropDownItems.Add(grammarFBItem);
 
             ToolStripMenuItem grammarItem = new ToolStripMenuItem();
             grammarItem.Text = "Проверить грамматику";
