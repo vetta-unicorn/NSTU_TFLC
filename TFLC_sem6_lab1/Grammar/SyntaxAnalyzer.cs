@@ -14,12 +14,15 @@ namespace TFLC_sem6_lab1.Grammar
         private int _currentPos;
         private TableLine _currentToken;
         private List<ParseError> _errors;
+        private TokenDict _tokenDict;
+        private int[] relation_operation = new int[] { 13, 14, 15, 16, 19, 20 };
 
         public Parser(List<TableLine> tokens)
         {
             _tokens = tokens;
             _currentPos = 0;
             _errors = new List<ParseError>();
+            _tokenDict = new TokenDict();
             _currentToken = _tokens.Count > 0 ? _tokens[0] : null;
         }
 
@@ -54,6 +57,65 @@ namespace TFLC_sem6_lab1.Grammar
                 EndPosition = end_position
             });
         }
+
+        private void ExpectToken(int code)
+        {
+            if (_currentToken.code == code)
+            {
+                NextToken();
+            }
+            else
+            {
+                AddError($"Ожидается {_tokenDict.tokens[code]}",
+                    _currentToken.line_number,
+                    _currentToken.start_pos, _currentToken.end_pos);
+                Neutralize(code);
+            }
+        }
+
+        private void ExpectToken(int[] codes)
+        {
+            bool found = false;
+            foreach (int code in codes)
+            {
+                if (_currentToken.code == code)
+                {
+                    NextToken();
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                AddError($"Ожидается {_tokenDict.tokens[codes[0]]}",
+                    _currentToken.line_number,
+                    _currentToken.start_pos, _currentToken.end_pos);
+                Neutralize(codes[0]);
+            }
+        }
+
+        private void Neutralize(int code)
+        {
+            bool _found = false;
+            for (int i = _currentPos; i < _tokens.Count && i < _currentPos + 5; i++)
+            {
+                if (_tokens[i].code == code)
+                {
+                    _currentPos = i;
+                    _currentToken = _tokens[_currentPos];
+                    NextToken();
+                    _found = true;
+                    return;
+                }
+            }
+            if (!_found)
+            {
+                _tokens.Insert(_currentPos, new TableLine(code,
+                    _currentToken.line_number, _currentToken.start_pos,
+                    _currentToken.end_pos));
+                NextToken();
+            }
+        }
         private void Program()
         {
             DoWhileStatement();
@@ -61,182 +123,66 @@ namespace TFLC_sem6_lab1.Grammar
 
         private void DoWhileStatement()
         {
-            if (_currentToken.code == 2)
-            {
-                NextToken();
-            }
-            else
-            {
-                AddError("Ожидается do",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                return;
-            }
+            if (_currentPos >= _tokens.Count) return;
+            if (_currentToken == null) return;
+
+            ExpectToken(3); // do
 
             Block();
+            if (_currentPos > _tokens.Count) return;
 
-            if (_currentToken.code == 3)
-            {
-                NextToken();
-            }
-            else
-            {
-                AddError("Ожидается while",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                return;
-            }
+            ExpectToken(2); // while
 
             Condition();
+            if (_currentPos > _tokens.Count) return;
 
-            if (_currentToken.code == 17)
-            {
-                NextToken();
-            }
-            else
-            {
-                AddError($"Ожидается ;",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                return;
-            }
+            ExpectToken(17); // ;
         }
+
 
         private void Condition()
         {
-            if (_currentToken.code == 11)
-            {
-                NextToken();
-            }
-            else
-            {
-                AddError("Ожидается (",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                return;
-            }
+            if (_currentPos >= _tokens.Count) return;
+            if (_currentToken == null) return;
 
-            if (_currentToken.code == 1)
-            {
-                NextToken();
-            }
-            else
-            {
-                AddError("Ожидается id",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                return;
-            }
+            ExpectToken(11); // (
 
-            if (_currentToken.code == 13 || _currentToken.code == 14 ||
-                _currentToken.code == 15 || _currentToken.code == 16 ||
-                _currentToken.code == 19 || _currentToken.code == 20)
-            {
-                NextToken();
-            }
-            else
-            {
-                AddError("Ожидается relation operation",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                return;
-            }
+            ExpectToken(1); // id
 
-            if (_currentToken.code == 4)
-            {
-                NextToken();
-            }
-            else
-            {
-                AddError("Ожидается число",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                return;
-            }
+            ExpectToken(relation_operation); // relation operation 
 
-            if (_currentToken.code == 12)
-            {
-                NextToken();
-            }
-            else
-            {
-                AddError("Ожидается )",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                return;
-            }
+            ExpectToken(4); //digit
+
+            ExpectToken(12); // )
         }
 
         private void Block()
         {
-            if (_currentToken.code == 9)
-            {
-                NextToken();
-            }
-            else
-            {
-                AddError("Ожидается {", 
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                return;
-            }
+            if (_currentPos >= _tokens.Count) return;
+            if (_currentToken == null) return;
+
+            ExpectToken(9); // {
 
             Statement();
+            if (_currentPos > _tokens.Count) return;
 
-            if (_currentToken.code == 10)
-            {
-                NextToken();
-            }
-            else
-            {
-                AddError("Ожидается }",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                return;
-            }
+            ExpectToken(10); // }
 
         }
+
 
         private void Statement()
         {
-            if (_currentToken.code == 1)
-            {
-                NextToken();
-            }
-            else
-            {
-                AddError("Ожидается id",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                return;
-            }
+            if (_currentPos >= _tokens.Count) return;
+            if (_currentToken == null) return;
 
-            if (_currentToken.code == 6 || _currentToken.code == 8)
-            {
-                NextToken();
-            }
-            else
-            {
-                AddError($"Ожидается ++ или --",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                return;
-            }
+            ExpectToken(1); // id
 
-            if (_currentToken.code == 17)
-            {
-                NextToken();
-            }
-            else
-            {
-                AddError($"Ожидается ;",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                return;
-            }
+            ExpectToken(6); // -- ++
+
+            ExpectToken(17); // ;
 
         }
-
     }
 
     public class ParseError
