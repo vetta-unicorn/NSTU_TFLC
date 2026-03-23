@@ -48,27 +48,8 @@
 
 **Разработка грамматики**
 
-1)	<START> -> ‘do’ <DO>
-2)	<DO> -> ‘{‘ <LBRACE>
-3)	<LBRACE> -> '$' <ID_INSIDE>
-4)	<ID_INSIDE> -> letter <ID_INSIDE>
-5)	<ID_INSIDE> -> letter <ID_INSIDE> | digit <ID_INSIDE> | ‘_’ <ID_INSIDE> | <INCREMENT_EXPRESSION>
-6)	<INCREMENT_EXPRESSION> -> ‘++’ <INCREMENT> | ‘--’ <DECREMENT>
-7)	<INCREMENT_EXPRESSION>  -> ‘;’ <SEMICOLON>
-8)	<SEMICOLON> -> ‘}’ <RBRACE>
-9)	<RBRACE> -> ‘while’ <WHILE>
-10)	<WHILE> -> ‘(‘ <LPARENTHESIS>
-11)	<LPARENTHESIS> -> '$' <ID_OUTSIDE>
-12)	<ID_OUTSIDE> -> letter <ID_OUTSIDE>
-13)	<ID_OUTSIDE> -> letter <ID_OUTSIDE> | digit <ID_OUTSIDE> | ‘_’ <ID_OUTSIDE> | <RELATION_OPERATION>
-14)	<RELATION_OPERATION> -> ‘<’ <SMALLER> | ‘>’ <BIGGER> | ‘<=’ <SMALLER_OR_EQUAL> | ‘>=’ <BIGGER_OR_EQUAL> | ‘==’ <EQUAL> | ‘!=’ <NOT_EQUAL>
-15)	<RELATION_OPERATION> -> '$' <ID_OUTSIDE*>
-16)	<ID_OUTSIDE*> -> letter <ID_OUTSIDE*>
-17)	<ID_OUTSIDE*> -> letter <ID_OUTSIDE*> | digit <ID_OUTSIDE*> | ‘_’ <ID_OUTSIDE*>
-18)	<ID_OUTSIDE*> -> <OPERAND> | ‘)’ <RPARENTHESIS>
-19)	<OPERAND> -> ‘&&’ <OPERAND_AND> | ‘||’ <OPERAND_OR>
-20)	<OPERAND> -> <ID_OUTSIDE>
-21)	<RPARENTHESIS> -> ‘;’ <SEMICOLON>
+<img width="707" height="686" alt="изображение" src="https://github.com/user-attachments/assets/8dc3b356-fd1a-481a-abd3-2bd881a2f1fc" />
+
 
 **Классификация грамматики по Хомскому**: 
 Контекстно-свободная грамматика
