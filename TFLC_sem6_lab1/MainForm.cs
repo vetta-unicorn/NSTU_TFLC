@@ -185,8 +185,9 @@ namespace TFLC_sem6_lab1
             OutputTable.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             OutputTable.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.EnableResizing;
             OutputTable.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.EnableResizing;
-            
-            OutputTable.MouseEnter += (s, e) => {
+
+            OutputTable.MouseEnter += (s, e) =>
+            {
                 OutputTable.Focus();
             };
 
@@ -754,6 +755,7 @@ namespace TFLC_sem6_lab1
             else
             {
                 DisplayErrors(errors);
+                statusLabel.Text = $"Количество ошибок: {errors.Count}";
             }
         }
 
