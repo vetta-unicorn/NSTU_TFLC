@@ -17,8 +17,8 @@ namespace TFLC_sem6_lab1.Grammar
         private List<ParseError> _errors;
         private TokenDict _tokenDict;
         private int[] relation_operation = new int[] { 13, 14, 15, 16, 19, 20 };
-        private int[] increment_operation = new int[] { 6, 8 }; // ++ and --
-        private int[] expression_start = new int[] { 1, 4 }; // id or digit
+        private int[] increment_operation = new int[] { 6, 8 }; 
+        private int[] expression_start = new int[] { 1, 4 }; 
         private bool _errorReported;
 
         public Parser(List<TableLine> tokens)
