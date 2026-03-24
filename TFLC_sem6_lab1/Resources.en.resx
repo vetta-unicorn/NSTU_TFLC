@@ -220,9 +220,15 @@
     <value>Save Error</value>
   </data>
   <data name="StartScanner" xml:space="preserve">
-    <value>Start</value>
+    <value>Lexical Analyzer</value>
   </data>
   <data name="StartGrammar_FlexBison" xml:space="preserve">
-    <value>Check grammar</value>
+    <value>Check grammar Flex&amp;Bison</value>
+  </data>
+  <data name="StartGrammar_ANTLR" xml:space="preserve">
+    <value>Check grammar ANTLR</value>
+  </data>
+  <data name="StartGrammar" xml:space="preserve">
+    <value>Syntax Analyzer</value>
   </data>
 </root>

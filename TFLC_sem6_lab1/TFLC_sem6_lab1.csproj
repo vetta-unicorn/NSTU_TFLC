@@ -9,15 +9,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Grammar\Grammar.dll" />
+    <None Remove="Grammar\ANTLR_DLL.dll" />
+    <None Remove="Grammar\FlexBisonGrammar.dll" />
     <None Remove="HTML\AboutForm.html" />
     <None Remove="HTML\HelpForm.html" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Grammar\Grammar.dll" />
+    <EmbeddedResource Include="Grammar\ANTLR_DLL.dll" />
+    <EmbeddedResource Include="Grammar\FlexBisonGrammar.dll" />
     <EmbeddedResource Include="HTML\AboutForm.html" />
     <EmbeddedResource Include="HTML\HelpForm.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
   <ItemGroup>

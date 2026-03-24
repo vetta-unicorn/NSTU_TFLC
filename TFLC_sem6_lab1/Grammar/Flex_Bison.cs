@@ -9,7 +9,6 @@ namespace TFLC_sem6_lab1.Grammar
 {
     public class GrammarHandle
     {
-        // Импортируем функции из kernel32 для загрузки библиотеки
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern IntPtr LoadLibrary(string lpFileName);
 
@@ -19,7 +18,6 @@ namespace TFLC_sem6_lab1.Grammar
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern IntPtr GetProcAddress(IntPtr hModule, string lpProcName);
 
-        // Делегаты для функций из нашей DLL
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         private delegate int ParseStringDelegate(string input);
 
@@ -44,7 +42,6 @@ namespace TFLC_sem6_lab1.Grammar
                 throw new Exception("DLL не найдена. Убедитесь, что Program.ExtractDllFromResources() был вызван.");
             }
 
-            // Загружаем DLL
             _dllHandle = LoadLibrary(dllPath);
             if (_dllHandle == IntPtr.Zero)
             {
@@ -52,7 +49,6 @@ namespace TFLC_sem6_lab1.Grammar
                 throw new Exception($"Не удалось загрузить DLL. Код ошибки: {error}");
             }
 
-            // Получаем адреса функций
             IntPtr parseStringAddr = GetProcAddress(_dllHandle, "ParseString");
             IntPtr getLastErrorAddr = GetProcAddress(_dllHandle, "GetLastParseError");
 
@@ -62,7 +58,6 @@ namespace TFLC_sem6_lab1.Grammar
                 throw new Exception("Не удалось найти функции в DLL");
             }
 
-            // Создаем делегаты
             _parseString = (ParseStringDelegate)Marshal.GetDelegateForFunctionPointer(
                 parseStringAddr, typeof(ParseStringDelegate));
 
@@ -104,7 +99,6 @@ namespace TFLC_sem6_lab1.Grammar
             {
                 DateTime start = DateTime.Now;
 
-                // Используем делегаты для вызова функций
                 int result = _parseString(input);
 
                 string error = "";
@@ -149,7 +143,6 @@ namespace TFLC_sem6_lab1.Grammar
             }
         }
 
-        // Освобождаем ресурсы
         public void Dispose()
         {
             if (_dllHandle != IntPtr.Zero)

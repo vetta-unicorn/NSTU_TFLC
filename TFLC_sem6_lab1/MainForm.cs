@@ -73,12 +73,14 @@ namespace TFLC_sem6_lab1
         Navigator navigator = new Navigator();
         DisplayTokens tokenDisplayer = new DisplayTokens();
 
-        //DLL
-        [DllImport("Grammar.dll", CallingConvention = CallingConvention.Cdecl)]
+        // Flex&Bison DLL
+        [DllImport("FlexBisonGrammar.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern int ParseString(string input);
 
-        [DllImport("Grammar.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("FlexBisonGrammar.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr GetLastParseError();
+
+        private dynamic _antlrParser; // ANTLR 
 
 
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -399,6 +401,8 @@ namespace TFLC_sem6_lab1
 
             this.Controls.SetChildIndex(InputTextBox, 0);
         }
+
+
 
         private void LineNumberPanel_Paint(object sender, PaintEventArgs e)
         {
@@ -725,6 +729,7 @@ namespace TFLC_sem6_lab1
             OutputTable.Rows.Clear();
 
             OutputTable.Visible = false;
+            SyntaxTable.Visible = false;
             txtOutput.Visible = true;
 
             if (grammar != null)
@@ -755,58 +760,77 @@ namespace TFLC_sem6_lab1
             }
             else
             {
-                DisplayErrors(errors);
+                parser.DisplayErrors(errors, SyntaxTable);
                 statusLabel.Text = $"Количество ошибок: {errors.Count}";
             }
         }
 
-        //private void DisplayErrors(List<ParseError> errors)
-        //{
-        //    SyntaxTable.Rows.Clear();
-
-        //    foreach (var error in errors)
-        //    {
-        //        DataGridViewRow row = new DataGridViewRow();
-
-        //        row.CreateCells(SyntaxTable,
-        //            error.Message,
-        //            $"строка {error.Line + 1}, {error.StartPosition}-{error.EndPosition}" // Измененный формат
-        //        );
-
-        //        SyntaxTable.Rows.Add(row);
-        //    }
-        //}
-
-        private void DisplayErrors(List<ParseError> errors)
+        private void StartAntlr(object sender, EventArgs e)
         {
-            SyntaxTable.Rows.Clear();
+            AntlrClass antlrClass = new AntlrClass();
+            _antlrParser = Program.CreateAntlrParser();
+            antlrClass.InitializeAntlrParser(_antlrParser);
 
-            foreach (var error in errors)
+            try
             {
-                string locationText = "";
-
-                // Проверяем, что позиции валидны
-                if (error.StartPosition >= 0 && error.EndPosition >= error.StartPosition)
+                if (_antlrParser == null)
                 {
-                    locationText = $"строка {error.Line + 1}, {error.StartPosition}-{error.EndPosition}";
+                    MessageBox.Show("ANTLR парсер не инициализирован", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
-                else if (error.Line >= 0)
+
+                if (OutputTable != null)
                 {
-                    // Если позиции некорректны, показываем только строку
-                    locationText = $"строка {error.Line + 1}";
+                    OutputTable.DataSource = null;
+                    OutputTable.Rows.Clear();
+                    OutputTable.Visible = false;
+                }
+
+                if (txtOutput != null)
+                {
+                    txtOutput.Visible = true;
+                    txtOutput.Clear();
+                }
+
+                string code = InputTextBox.Text;
+
+                if (string.IsNullOrWhiteSpace(code))
+                {
+                    MessageBox.Show("Введите код для парсинга", "Предупреждение",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var result = _antlrParser.ParseWithDetails(code);
+
+                if (result.IsValid)
+                {
+                    string json = Newtonsoft.Json.JsonConvert.SerializeObject(result.Ast,
+                        Newtonsoft.Json.Formatting.Indented);
+
+                    txtOutput.Text = json;
+
+                    MessageBox.Show("ANTLR парсинг успешно завершен!", "Успех",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
-                    locationText = "местоположение не определено";
+                    txtOutput.Text = "Ошибки парсинга:\n" + string.Join("\n", result.Errors);
+
+                    MessageBox.Show("Ошибки при парсинге", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при выполнении ANTLR парсера: {ex.Message}", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                DataGridViewRow row = new DataGridViewRow();
-                row.CreateCells(SyntaxTable,
-                    error.Message,
-                    locationText
-                );
-
-                SyntaxTable.Rows.Add(row);
+                if (txtOutput != null)
+                {
+                    txtOutput.Text = $"Ошибка: {ex.Message}\n\n{ex.StackTrace}";
+                }
             }
         }
 
@@ -956,6 +980,12 @@ namespace TFLC_sem6_lab1
             grammarFBItem.Click += StartGrammarFlexBison;
             grammarFBItem.Tag = "StartGrammar_FlexBison";
             item.DropDownItems.Add(grammarFBItem);
+
+            ToolStripMenuItem grammarAntlrItem = new ToolStripMenuItem();
+            grammarAntlrItem.Text = "Проверить грамматику ANTLR";
+            grammarAntlrItem.Click += StartAntlr;
+            grammarAntlrItem.Tag = "StartGrammar_ANTLR";
+            item.DropDownItems.Add(grammarAntlrItem);
         }
 
     }

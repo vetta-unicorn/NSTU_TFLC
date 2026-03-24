@@ -358,6 +358,24 @@ namespace TFLC_sem6_lab1 {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Синтаксический анализатор.
+        /// </summary>
+        internal static string StartGrammar {
+            get {
+                return ResourceManager.GetString("StartGrammar", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Проверить грамматику ANTLR.
+        /// </summary>
+        internal static string StartGrammar_ANTLR {
+            get {
+                return ResourceManager.GetString("StartGrammar_ANTLR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Проверить грамматику Flex&amp;Bison.
         /// </summary>
         internal static string StartGrammar_FlexBison {
@@ -367,7 +385,7 @@ namespace TFLC_sem6_lab1 {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Пуск.
+        ///   Ищет локализованную строку, похожую на Лексический анализатор.
         /// </summary>
         internal static string StartScanner {
             get {

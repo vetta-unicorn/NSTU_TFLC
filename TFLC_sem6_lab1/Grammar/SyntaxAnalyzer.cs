@@ -8,7 +8,7 @@ using TFLC_sem6_lab1.Scanner;
 
 namespace TFLC_sem6_lab1.Grammar
 {
-
+    
     public class Parser
     {
         private List<TableLine> _tokens;
@@ -31,6 +31,36 @@ namespace TFLC_sem6_lab1.Grammar
             _tokenDict = new TokenDict();
             _currentToken = _tokens.Count > 0 ? _tokens[0] : null;
             _errorReported = false;
+        }
+
+        public void DisplayErrors(List<ParseError> errors, DataGridView SyntaxTable)
+        {
+            SyntaxTable.Rows.Clear();
+
+            foreach (var error in errors)
+            {
+                string locationText = "";
+                if (error.StartPosition >= 0 && error.EndPosition >= error.StartPosition)
+                {
+                    locationText = $"строка {error.Line + 1}, {error.StartPosition}-{error.EndPosition}";
+                }
+                else if (error.Line >= 0)
+                {
+                    locationText = $"строка {error.Line + 1}";
+                }
+                else
+                {
+                    locationText = "местоположение не определено";
+                }
+
+                DataGridViewRow row = new DataGridViewRow();
+                row.CreateCells(SyntaxTable,
+                    error.Message,
+                    locationText
+                );
+
+                SyntaxTable.Rows.Add(row);
+            }
         }
 
         public List<ParseError> Parse()

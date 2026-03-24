@@ -220,9 +220,15 @@
     <value>Ошибка при сохранении файла</value>
   </data>
   <data name="StartScanner" xml:space="preserve">
-    <value>Пуск</value>
+    <value>Лексический анализатор</value>
   </data>
   <data name="StartGrammar_FlexBison" xml:space="preserve">
     <value>Проверить грамматику Flex&amp;Bison</value>
+  </data>
+  <data name="StartGrammar_ANTLR" xml:space="preserve">
+    <value>Проверить грамматику ANTLR</value>
+  </data>
+  <data name="StartGrammar" xml:space="preserve">
+    <value>Синтаксический анализатор</value>
   </data>
 </root>
