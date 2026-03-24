@@ -739,6 +739,7 @@ namespace TFLC_sem6_lab1
             SyntaxTable.Rows.Clear();
 
             SyntaxTable.Visible = true;
+            SyntaxTable.Enabled = true;
             txtOutput.Visible = false;
             OutputTable.Visible = false;
 
@@ -759,23 +760,6 @@ namespace TFLC_sem6_lab1
             }
         }
 
-        private void DisplayErrors(List<ParseError> errors)
-        {
-            SyntaxTable.Rows.Clear();
-
-            foreach (var error in errors)
-            {
-                DataGridViewRow row = new DataGridViewRow();
-
-                row.CreateCells(SyntaxTable,
-                    error.Message,
-                    $"строка {error.Line}, {error.StartPosition}-{error.EndPosition}" // Измененный формат
-                );
-
-                SyntaxTable.Rows.Add(row);
-            }
-        }
-
         //private void DisplayErrors(List<ParseError> errors)
         //{
         //    SyntaxTable.Rows.Clear();
@@ -786,12 +770,45 @@ namespace TFLC_sem6_lab1
 
         //        row.CreateCells(SyntaxTable,
         //            error.Message,
-        //            $"Строка: {error.Line}, {error.StartPosition}-{error.EndPosition}"
+        //            $"строка {error.Line + 1}, {error.StartPosition}-{error.EndPosition}" // Измененный формат
         //        );
 
         //        SyntaxTable.Rows.Add(row);
         //    }
         //}
+
+        private void DisplayErrors(List<ParseError> errors)
+        {
+            SyntaxTable.Rows.Clear();
+
+            foreach (var error in errors)
+            {
+                string locationText = "";
+
+                // Проверяем, что позиции валидны
+                if (error.StartPosition >= 0 && error.EndPosition >= error.StartPosition)
+                {
+                    locationText = $"строка {error.Line + 1}, {error.StartPosition}-{error.EndPosition}";
+                }
+                else if (error.Line >= 0)
+                {
+                    // Если позиции некорректны, показываем только строку
+                    locationText = $"строка {error.Line + 1}";
+                }
+                else
+                {
+                    locationText = "местоположение не определено";
+                }
+
+                DataGridViewRow row = new DataGridViewRow();
+                row.CreateCells(SyntaxTable,
+                    error.Message,
+                    locationText
+                );
+
+                SyntaxTable.Rows.Add(row);
+            }
+        }
 
         private void FileHandler(ToolStripMenuItem item)
         {
@@ -923,22 +940,22 @@ namespace TFLC_sem6_lab1
         private void StartHandler(ToolStripMenuItem item)
         {
             ToolStripMenuItem startItem = new ToolStripMenuItem();
-            startItem.Text = "Пуск";
+            startItem.Text = "Лексический анализатор";
             startItem.Click += StartScanner;
             startItem.Tag = "StartScanner";
             item.DropDownItems.Add(startItem);
+
+            ToolStripMenuItem grammarItem = new ToolStripMenuItem();
+            grammarItem.Text = "Синтаксический анализатор";
+            grammarItem.Click += StartGrammar;
+            grammarItem.Tag = "StartGrammar";
+            item.DropDownItems.Add(grammarItem);
 
             ToolStripMenuItem grammarFBItem = new ToolStripMenuItem();
             grammarFBItem.Text = "Проверить грамматику Flex&Bison";
             grammarFBItem.Click += StartGrammarFlexBison;
             grammarFBItem.Tag = "StartGrammar_FlexBison";
             item.DropDownItems.Add(grammarFBItem);
-
-            ToolStripMenuItem grammarItem = new ToolStripMenuItem();
-            grammarItem.Text = "Проверить грамматику";
-            grammarItem.Click += StartGrammar;
-            grammarItem.Tag = "StartGrammar";
-            item.DropDownItems.Add(grammarItem);
         }
 
     }

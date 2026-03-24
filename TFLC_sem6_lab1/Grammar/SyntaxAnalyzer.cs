@@ -21,6 +21,8 @@ namespace TFLC_sem6_lab1.Grammar
         private int[] expression_start = new int[] { 1, 4 }; 
         private bool _errorReported;
 
+        private bool endFlag = false;
+
         public Parser(List<TableLine> tokens)
         {
             _tokens = tokens;
@@ -124,12 +126,14 @@ namespace TFLC_sem6_lab1.Grammar
                 _currentToken?.end_pos ?? 0);
         }
 
-        private void SkipToToken(int code)
+        private bool SkipToToken(int code)
         {
             while (IsValidToken() && _currentToken.code != code)
             {
                 NextToken();
+                return true;
             }
+            return false;
         }
 
         private void SkipToSynchronizingToken()
@@ -176,11 +180,19 @@ namespace TFLC_sem6_lab1.Grammar
 
             ExpectToken(3, "В конструкции do-while");
 
-            if (!IsValidToken()) return;
+            if (!IsValidToken() || _tokens.Count == 1) return;
 
             Block();
+            if (endFlag) return;
 
-            if (!IsValidToken()) return;
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается ключевое слово while",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                return;
+            }
 
             if (_currentToken.code == 2)
             {
@@ -192,24 +204,50 @@ namespace TFLC_sem6_lab1.Grammar
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
 
-                SkipToToken(2);
+                bool Flag = SkipToToken(2);
+                if (!Flag) NextToken();
                 if (IsValidToken() && _currentToken.code == 2)
                 {
                     NextToken();
                 }
             }
 
-            if (!IsValidToken()) return;
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается (",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return;
+            }
 
             Condition();
 
+            if (endFlag) return;
+
             if (IsValidToken() && _currentToken.code == 17)
                 NextToken();
+            else
+            {
+                AddError($"Ожидается завершающая точка с запятой",
+                   _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+            }
         }
 
         private void Condition()
         {
-            if (!IsValidToken()) return;
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается открывающая круглая скобка",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return;
+            }
 
             if (_currentToken.code == 11)
             {
@@ -217,14 +255,22 @@ namespace TFLC_sem6_lab1.Grammar
             }
             else
             {
-                AddError($"В условном выражении: ожидается (",
+                AddError($"В условном выражении: ожидается открывающая круглая скобка",
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
                 SkipToSynchronizingToken();
                 return;
             }
 
-            if (!IsValidToken()) return;
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается идентификатор или число",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return;
+            }
 
             if (_currentToken.code == 1 || _currentToken.code == 4)
             {
@@ -239,7 +285,15 @@ namespace TFLC_sem6_lab1.Grammar
                 return;
             }
 
-            if (!IsValidToken()) return;
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается оператор сравнения",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return;
+            }
 
             if (relation_operation.Contains(_currentToken.code))
             {
@@ -254,7 +308,15 @@ namespace TFLC_sem6_lab1.Grammar
                 return;
             }
 
-            if (!IsValidToken()) return;
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается идентификатор или число",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return;
+            }
 
             if (_currentToken.code == 1 || _currentToken.code == 4)
             {
@@ -269,7 +331,15 @@ namespace TFLC_sem6_lab1.Grammar
                 return;
             }
 
-            if (!IsValidToken()) return;
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается )",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos, 
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return;
+            }
 
             if (_currentToken.code == 12)
             {
@@ -277,7 +347,7 @@ namespace TFLC_sem6_lab1.Grammar
             }
             else
             {
-                AddError($"В условном выражении: ожидается )",
+                AddError($"В условном выражении: ожидается закрывающая круглая скобка",
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
                 SkipToSynchronizingToken();
@@ -286,7 +356,15 @@ namespace TFLC_sem6_lab1.Grammar
 
         private void Block()
         {
-            if (!IsValidToken()) return;
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается открывающая круглая скобка",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return;
+            }
 
             _errorReported = false;
 
@@ -302,6 +380,17 @@ namespace TFLC_sem6_lab1.Grammar
                 _errorReported = true;
             }
 
+
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается идентификатор",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return;
+            }
+
             while (IsValidToken() && _currentToken.code != 10 && _currentToken.code != 2)
             {
                 if (IsErrorToken())
@@ -313,6 +402,16 @@ namespace TFLC_sem6_lab1.Grammar
                     continue;
                 }
                 Statement();
+            }
+
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается закрывающая фигурная скобка",
+                        _tokens[_currentPos - 1].line_number,
+                        _tokens[_currentPos - 1].start_pos,
+                        _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return;
             }
 
             if (IsValidToken())
@@ -330,6 +429,12 @@ namespace TFLC_sem6_lab1.Grammar
                             _currentToken.start_pos, _currentToken.end_pos);
                     }
                 }
+                else
+                {
+                    AddError($"В блоке: ожидается закрывающая фигурная скоба",
+                        _currentToken.line_number - 1,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                }
             }
             else if (!_errorReported)
             {
@@ -338,11 +443,23 @@ namespace TFLC_sem6_lab1.Grammar
                     _currentToken?.start_pos ?? 0,
                     _currentToken?.end_pos ?? 0);
             }
+
+            else
+            {
+                if (!IsValidToken())
+                {
+                    endFlag = true;
+                }
+            }
         }
 
         private void Statement()
         {
-            if (!IsValidToken()) return;
+            if (!IsValidToken())
+            {
+                endFlag = true;
+                return;
+            }
 
             if (IsErrorToken())
             {
@@ -377,7 +494,7 @@ namespace TFLC_sem6_lab1.Grammar
                 return;
             }
 
-            if (IsValidToken() && (_currentToken.code == 6 || _currentToken.code == 8)) // ++ or --
+            if (IsValidToken() && (_currentToken.code == 6 || _currentToken.code == 8)) // ++ или --
             {
                 NextToken();
             }
@@ -415,194 +532,15 @@ namespace TFLC_sem6_lab1.Grammar
                         NextToken();
                     }
                 }
+                else
+                {
+                    AddError($"Ожидается точка с запятой", 
+                        _currentToken.line_number, 
+                        _currentToken.start_pos, _currentToken.end_pos);
+                }
             }
         }
     }
-
-    //public class Parser
-    //{
-    //    private List<TableLine> _tokens;
-    //    private int _currentPos;
-    //    private TableLine _currentToken;
-    //    private List<ParseError> _errors;
-    //    private TokenDict _tokenDict;
-    //    private int[] relation_operation = new int[] { 13, 14, 15, 16, 19, 20 };
-
-    //    private int _errorPos;
-
-    //    public Parser(List<TableLine> tokens)
-    //    {
-    //        _tokens = tokens;
-    //        _currentPos = 0;
-    //        _errorPos = -1;
-    //        _errors = new List<ParseError>();
-    //        _tokenDict = new TokenDict();
-    //        _currentToken = _tokens.Count > 0 ? _tokens[0] : null;
-    //    }
-
-    //    public List<ParseError> Parse()
-    //    {
-    //        try
-    //        {
-    //            Program();
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            AddError($"Критическая ошибка: {ex.Message}", 0, 0, 0);
-    //        }
-
-    //        return _errors;
-    //    }
-
-    //    private void NextToken()
-    //    {
-    //        _currentPos++;
-    //        if (_currentPos < _tokens.Count)
-    //            _currentToken = _tokens[_currentPos];
-    //    }
-
-    //    private void AddError(string message, int line, int start_position, int end_position)
-    //    {
-    //        _errors.Add(new ParseError
-    //        {
-    //            Message = message,
-    //            Line = line,
-    //            StartPosition = start_position,
-    //            EndPosition = end_position
-    //        });
-    //    }
-
-    //    private void ExpectToken(int code)
-    //    {
-    //        if (_currentToken.code == code)
-    //        {
-    //            NextToken();
-    //        }
-    //        else
-    //        {
-    //            AddError($"Ожидается {_tokenDict.tokens[code]}",
-    //                _currentToken.line_number,
-    //                _currentToken.start_pos, _currentToken.end_pos);
-    //            Neutralize(code);
-    //        }
-    //    }
-
-    //    private void ExpectToken(int[] codes)
-    //    {
-    //        bool found = false;
-    //        foreach (int code in codes)
-    //        {
-    //            if (_currentToken.code == code)
-    //            {
-    //                NextToken();
-    //                found = true;
-    //                break;
-    //            }
-    //        }
-    //        if (!found)
-    //        {
-    //            AddError($"Ожидается {_tokenDict.tokens[codes[0]]}",
-    //                _currentToken.line_number,
-    //                _currentToken.start_pos, _currentToken.end_pos);
-    //            Neutralize(codes[0]);
-    //        }
-    //    }
-
-    //    private void Neutralize(int code)
-    //    {
-    //        _errorPos = _currentPos;
-    //        int foundPos = -1;
-    //        int i = _currentPos;
-    //        while (i < _tokens.Count)
-    //        {
-    //            if (_tokens[i].code == code)
-    //            {
-    //                foundPos = i;
-    //            }
-    //            i++;
-    //        }
-    //        if (foundPos == -1)
-    //        {
-    //            _tokens.Insert(_currentPos, new TableLine(code, _currentToken.line_number,
-    //                _currentToken.start_pos, _currentToken.end_pos));
-    //            NextToken();
-    //            return;
-    //        }
-    //        else
-    //        {
-    //            _currentPos = foundPos;
-    //            _currentToken = _tokens[_currentPos];
-    //        }
-    //    }
-
-    //    private void Program()
-    //    {
-    //        DoWhileStatement();
-    //    }
-
-    //    private void DoWhileStatement()
-    //    {
-    //        if (_currentPos >= _tokens.Count) return;
-    //        if (_currentToken == null) return;
-
-    //        ExpectToken(3); // do
-
-    //        Block();
-    //        if (_currentPos > _tokens.Count) return;
-
-    //        ExpectToken(2); // while
-
-    //        Condition();
-    //        if (_currentPos > _tokens.Count) return;
-
-    //        ExpectToken(17); // ;
-    //    }
-
-
-    //    private void Condition()
-    //    {
-    //        if (_currentPos >= _tokens.Count) return;
-    //        if (_currentToken == null) return;
-
-    //        ExpectToken(11); // (
-
-    //        ExpectToken(1); // id
-
-    //        ExpectToken(relation_operation); // relation operation 
-
-    //        ExpectToken(4); //digit
-
-    //        ExpectToken(12); // )
-    //    }
-
-    //    private void Block()
-    //    {
-    //        if (_currentPos >= _tokens.Count) return;
-    //        if (_currentToken == null) return;
-
-    //        ExpectToken(9); // {
-
-    //        Statement();
-    //        if (_currentPos > _tokens.Count) return;
-
-    //        ExpectToken(10); // }
-
-    //    }
-
-
-    //    private void Statement()
-    //    {
-    //        if (_currentPos >= _tokens.Count) return;
-    //        if (_currentToken == null) return;
-
-    //        ExpectToken(1); // id
-
-    //        ExpectToken(6); // -- ++
-
-    //        ExpectToken(17); // ;
-
-    //    }
-    //}
 
     public class ParseError
     {

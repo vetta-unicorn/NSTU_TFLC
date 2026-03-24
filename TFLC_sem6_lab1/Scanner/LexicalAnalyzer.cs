@@ -178,15 +178,6 @@ namespace TFLC_sem6_lab1.Scanner
                             found = true;
                         }
 
-                        // code 5 +
-                        else if (pos < line.Length && line.Substring(pos, 1) == "+"
-                            && line.Substring(pos, 2) != "++")
-                        {
-                            tabs.Add(new TableLine(5, tokenDict.tokens[5], "+", lineNumber, pos, pos + 1));
-                            pos += 1;
-                            found = true;
-                        }
-
                         // code 6 ++
                         else if (pos + 1 < line.Length && line.Substring(pos, 2) == "++")
                         {
@@ -195,11 +186,10 @@ namespace TFLC_sem6_lab1.Scanner
                             found = true;
                         }
 
-                        // code 7 -
-                        else if (pos < line.Length && line.Substring(pos, 1) == "-"
-                            && line.Substring(pos, 2) != "--")
+                        // code 5 +
+                        else if (pos < line.Length && line.Substring(pos, 1) == "+")
                         {
-                            tabs.Add(new TableLine(7, tokenDict.tokens[7], "-", lineNumber, pos, pos + 1));
+                            tabs.Add(new TableLine(5, tokenDict.tokens[5], "+", lineNumber, pos, pos + 1));
                             pos += 1;
                             found = true;
                         }
@@ -209,6 +199,14 @@ namespace TFLC_sem6_lab1.Scanner
                         {
                             tabs.Add(new TableLine(8, tokenDict.tokens[8], "--", lineNumber, pos, pos + 2));
                             pos += 2;
+                            found = true;
+                        }
+
+                        // code 7 -
+                        else if (pos < line.Length && line.Substring(pos, 1) == "-")
+                        {
+                            tabs.Add(new TableLine(7, tokenDict.tokens[7], "-", lineNumber, pos, pos + 1));
+                            pos += 1;
                             found = true;
                         }
 
