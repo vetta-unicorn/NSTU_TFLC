@@ -120,6 +120,8 @@
 
 **Диаграмма состояний**
 
+letter - латинская буква, digit - цифра от 0 до 9
+
 <img width="591" height="1159" alt="ТФЯК_ЛР2 drawio(2)" src="https://github.com/user-attachments/assets/1ef7a2da-fc07-495c-b658-116d87f075a3" />
 
 **Тестовые примеры (сканер)**
