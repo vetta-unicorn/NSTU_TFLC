@@ -463,6 +463,7 @@ namespace TFLC_sem6_lab1.Grammar
                 return;
             }
 
+
             if (IsValidToken())
             {
                 if (_currentToken.code == 10)
