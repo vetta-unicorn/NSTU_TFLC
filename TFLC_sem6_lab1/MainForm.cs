@@ -11,6 +11,10 @@ using System.Runtime.InteropServices;
 using TFLC_sem6_lab1.Scanner;
 using TFLC_sem6_lab1.Grammar;
 using System.Reflection;
+using TFLC_sem6_lab1.RegularExpressions;
+using static TFLC_sem6_lab1.RegularExpressions.Expression;
+using Antlr4.Runtime;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace TFLC_sem6_lab1
@@ -29,13 +33,8 @@ namespace TFLC_sem6_lab1
 
         int exitCounter = 0;
 
-        [DllImport("user32.dll")]
-        private static extern bool SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
-
         private const int WM_UNDO = 0x304;
         private const int EM_REDO = 0x437;
-
-
 
         string userHelpPath;
         private string aboutPath;
@@ -73,22 +72,6 @@ namespace TFLC_sem6_lab1
         Navigator navigator = new Navigator();
         DisplayTokens tokenDisplayer = new DisplayTokens();
 
-        // Flex&Bison DLL
-        [DllImport("FlexBisonGrammar.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int ParseString(string input);
-
-        [DllImport("FlexBisonGrammar.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr GetLastParseError();
-
-        private dynamic _antlrParser; // ANTLR 
-
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern IntPtr LoadLibrary(string lpFileName);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool FreeLibrary(IntPtr hModule);
-        private IntPtr dllHandle;
         private System.Windows.Forms.TextBox txtOutput;
         GrammarHandle grammar;
 
@@ -103,7 +86,6 @@ namespace TFLC_sem6_lab1
             processFile = new ProcessFile();
             OutputTable.Enabled = false;
             InputTextBox.Enabled = false;
-            InputTextBox.TextChanged += InputTextBox_IsChanged;
             CreateLineNumberedRichTextBox();
 
             userHelpPath = Path.Combine(Directory.GetCurrentDirectory(), userPath);
@@ -345,11 +327,6 @@ namespace TFLC_sem6_lab1
                     MessageBox.Show("Open Error");
                 }
             }
-        }
-
-        private void InputTextBox_IsChanged(object sender, EventArgs e)
-        {
-            //KeyWords.HighlightKeywords(InputTextBox, keywords, keywordColor);
         }
 
         private void AttachEvents()
@@ -723,22 +700,34 @@ namespace TFLC_sem6_lab1
             tokenDisplayer.LoadAndDisplayTokens(currentFilePath, scanner, OutputTable);
         }
 
-        private void StartGrammarFlexBison(object sender, EventArgs e)
+        private void StartGrammar(object sender, EventArgs e)
         {
-            OutputTable.DataSource = null;
-            OutputTable.Rows.Clear();
+            //SyntaxTable.DataSource = null;
+            //SyntaxTable.Rows.Clear();
 
-            OutputTable.Visible = false;
-            SyntaxTable.Visible = false;
-            txtOutput.Visible = true;
+            //SyntaxTable.Visible = true;
+            //SyntaxTable.Enabled = true;
+            //txtOutput.Visible = false;
+            //OutputTable.Visible = false;
 
-            if (grammar != null)
-            {
-                grammar.ParseProgram(InputTextBox, txtOutput);
-            }
+            //List<TableLine> tokens = scanner.AnalyzeText(currentFilePath);
+
+            //Parser parser = new Parser(tokens);
+            //var errors = parser.Parse();
+
+            //if (errors.Count == 0)
+            //{
+            //    MessageBox.Show("Синтаксических ошибок не найдено!", "Успех",
+            //                  MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //}
+            //else
+            //{
+            //    parser.DisplayErrors(errors, SyntaxTable);
+            //    statusLabel.Text = $"Количество ошибок: {errors.Count}";
+            //}
         }
 
-        private void StartGrammar(object sender, EventArgs e)
+        private void FindFileNames(object sender, EventArgs e)
         {
             SyntaxTable.DataSource = null;
             SyntaxTable.Rows.Clear();
@@ -748,89 +737,65 @@ namespace TFLC_sem6_lab1
             txtOutput.Visible = false;
             OutputTable.Visible = false;
 
-            List<TableLine> tokens = scanner.AnalyzeText(currentFilePath);
+            RegexSearcher regex = new RegexSearcher();
+            List<Expression> expressions = regex.FindFiles(currentFilePath);
 
-            Parser parser = new Parser(tokens);
-            var errors = parser.Parse();
-
-            if (errors.Count == 0)
+            if (expressions.Count == 0)
             {
-                MessageBox.Show("Синтаксических ошибок не найдено!", "Успех",
-                              MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Нет совпадений");
             }
             else
             {
-                parser.DisplayErrors(errors, SyntaxTable);
-                statusLabel.Text = $"Количество ошибок: {errors.Count}";
+                regex.DisplayExpressions(expressions, SyntaxTable);
+                statusLabel.Text = $"Количество совпадений: {expressions.Count}";
             }
         }
 
-        private void StartAntlr(object sender, EventArgs e)
+        private void FindNumbers(object sender, EventArgs e)
         {
-            AntlrClass antlrClass = new AntlrClass();
-            _antlrParser = Program.CreateAntlrParser();
-            antlrClass.InitializeAntlrParser(_antlrParser);
+            SyntaxTable.DataSource = null;
+            SyntaxTable.Rows.Clear();
 
-            try
+            SyntaxTable.Visible = true;
+            SyntaxTable.Enabled = true;
+            txtOutput.Visible = false;
+            OutputTable.Visible = false;
+
+            RegexSearcher regex = new RegexSearcher();
+            List<Expression> expressions = regex.FindNumbers(currentFilePath);
+
+            if (expressions.Count == 0)
             {
-                if (_antlrParser == null)
-                {
-                    MessageBox.Show("ANTLR парсер не инициализирован", "Ошибка",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                if (OutputTable != null)
-                {
-                    OutputTable.DataSource = null;
-                    OutputTable.Rows.Clear();
-                    OutputTable.Visible = false;
-                }
-
-                if (txtOutput != null)
-                {
-                    txtOutput.Visible = true;
-                    txtOutput.Clear();
-                }
-
-                string code = InputTextBox.Text;
-
-                if (string.IsNullOrWhiteSpace(code))
-                {
-                    MessageBox.Show("Введите код для парсинга", "Предупреждение",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                var result = _antlrParser.ParseWithDetails(code);
-
-                if (result.IsValid)
-                {
-                    string json = Newtonsoft.Json.JsonConvert.SerializeObject(result.Ast,
-                        Newtonsoft.Json.Formatting.Indented);
-
-                    txtOutput.Text = json;
-
-                    MessageBox.Show("ANTLR парсинг успешно завершен!", "Успех",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    txtOutput.Text = "Ошибки парсинга:\n" + string.Join("\n", result.Errors);
-
-                    MessageBox.Show("Ошибки при парсинге", "Ошибка",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                MessageBox.Show("Нет совпадений");
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Ошибка при выполнении ANTLR парсера: {ex.Message}", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                regex.DisplayExpressions(expressions, SyntaxTable);
+                statusLabel.Text = $"Количество совпадений: {expressions.Count}";
+            }
+        }
 
-                if (txtOutput != null)
-                {
-                    txtOutput.Text = $"Ошибка: {ex.Message}\n\n{ex.StackTrace}";
-                }
+        private void CheckPasswords(object sender, EventArgs e)
+        {
+            SyntaxTable.DataSource = null;
+            SyntaxTable.Rows.Clear();
+
+            SyntaxTable.Visible = true;
+            SyntaxTable.Enabled = true;
+            txtOutput.Visible = false;
+            OutputTable.Visible = false;
+
+            RegexSearcher regex = new RegexSearcher();
+            List<Expression> expressions = regex.FindStrongPasswords(currentFilePath);
+
+            if (expressions.Count == 0)
+            {
+                MessageBox.Show("Нет совпадений");
+            }
+            else
+            {
+                regex.DisplayExpressions(expressions, SyntaxTable);
+                statusLabel.Text = $"Количество совпадений: {expressions.Count}";
             }
         }
 
@@ -975,17 +940,28 @@ namespace TFLC_sem6_lab1
             grammarItem.Tag = "StartGrammar";
             item.DropDownItems.Add(grammarItem);
 
-            ToolStripMenuItem grammarFBItem = new ToolStripMenuItem();
-            grammarFBItem.Text = "Проверить грамматику Flex&Bison";
-            grammarFBItem.Click += StartGrammarFlexBison;
-            grammarFBItem.Tag = "StartGrammar_FlexBison";
-            item.DropDownItems.Add(grammarFBItem);
+            ToolStripMenuItem regularItem = new ToolStripMenuItem();
+            regularItem.Text = "Регулярные выражения";
+            regularItem.Tag = "StartRegularExpression";
+            item.DropDownItems.Add(regularItem);
 
-            ToolStripMenuItem grammarAntlrItem = new ToolStripMenuItem();
-            grammarAntlrItem.Text = "Проверить грамматику ANTLR";
-            grammarAntlrItem.Click += StartAntlr;
-            grammarAntlrItem.Tag = "StartGrammar_ANTLR";
-            item.DropDownItems.Add(grammarAntlrItem);
+            ToolStripMenuItem regularFileItem = new ToolStripMenuItem();
+            regularFileItem.Text = "Поиск имен файлов";
+            regularFileItem.Tag = "FindFileName";
+            regularFileItem.Click += FindFileNames;
+            regularItem.DropDownItems.Add(regularFileItem);
+
+            ToolStripMenuItem regularNumberItem = new ToolStripMenuItem();
+            regularNumberItem.Text = "Поиск чисел с плавающей точкой";
+            regularNumberItem.Tag = "FindNumbers";
+            regularNumberItem.Click += FindNumbers;
+            regularItem.DropDownItems.Add(regularNumberItem);
+
+            ToolStripMenuItem regularPasswordItem = new ToolStripMenuItem();
+            regularPasswordItem.Text = "Проверка надежности пароля";
+            regularPasswordItem.Tag = "CheckPassword";
+            regularPasswordItem.Click += CheckPasswords;
+            regularItem.DropDownItems.Add(regularPasswordItem);
         }
 
     }
