@@ -161,7 +161,7 @@ namespace TFLC_sem6_lab1.Grammar
             while (IsValidToken() && _currentToken.code != code)
             {
                 NextToken();
-                return true;
+                if (_currentToken.code == code) return true;
             }
             return false;
         }
@@ -207,6 +207,25 @@ namespace TFLC_sem6_lab1.Grammar
         private void DoWhileStatement()
         {
             if (!IsValidToken()) return;
+
+            if (!MatchToken(3))
+            {
+                AddError("Ошибочный токен в начале строки",
+                    _tokens[_currentPos].line_number,
+                    _tokens[_currentPos].start_pos,
+                    _tokens[_currentPos].end_pos);
+                SkipToToken(3);
+            }
+
+            if (!IsValidToken())
+            {
+                AddError("В конструкции do-while ожидается do",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return;
+            }
 
             ExpectToken(3, "В конструкции do-while");
 
