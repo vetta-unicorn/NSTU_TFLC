@@ -158,11 +158,17 @@ namespace TFLC_sem6_lab1.Grammar
 
         private bool SkipToToken(int code)
         {
+            int pos = _currentPos;
             while (IsValidToken() && _currentToken.code != code)
             {
                 NextToken();
-                if (_currentToken.code == code) return true;
+                if (_currentToken != null)
+                {
+                    if (_currentToken.code == code) return true;
+                }
             }
+            _currentPos = pos;
+            _currentToken = _tokens[pos];
             return false;
         }
 
@@ -208,7 +214,7 @@ namespace TFLC_sem6_lab1.Grammar
         {
             if (!IsValidToken()) return;
 
-            if (!MatchToken(3))
+            if (_currentToken.code != 3)
             {
                 AddError("Ошибочный токен в начале строки",
                     _tokens[_currentPos].line_number,
@@ -252,13 +258,7 @@ namespace TFLC_sem6_lab1.Grammar
                 AddError($"В конструкции do-while: ожидается ключевое слово while",
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
-
-                bool Flag = SkipToToken(2);
-                if (!Flag) NextToken();
-                if (IsValidToken() && _currentToken.code == 2)
-                {
-                    NextToken();
-                }
+                SkipToToken(2);
             }
 
             if (!IsValidToken())
@@ -407,7 +407,7 @@ namespace TFLC_sem6_lab1.Grammar
         {
             if (!IsValidToken())
             {
-                AddError("В условном выражении: ожидается открывающая круглая скобка",
+                AddError("В условном выражении: ожидается открывающая фигурная скобка",
                     _tokens[_currentPos - 1].line_number,
                     _tokens[_currentPos - 1].start_pos,
                     _tokens[_currentPos - 1].end_pos);
