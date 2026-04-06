@@ -79,6 +79,15 @@ namespace TFLC_sem6_lab1 {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Проверка надежности пароля.
+        /// </summary>
+        internal static string CheckPassword {
+            get {
+                return ResourceManager.GetString("CheckPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Выберите файл.
         /// </summary>
         internal static string ChooseFile {
@@ -156,6 +165,24 @@ namespace TFLC_sem6_lab1 {
         internal static string FilterString {
             get {
                 return ResourceManager.GetString("FilterString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Поиск имен файлов.
+        /// </summary>
+        internal static string FindFileName {
+            get {
+                return ResourceManager.GetString("FindFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Поиск чисел с плавающей точкой.
+        /// </summary>
+        internal static string FindNumbers {
+            get {
+                return ResourceManager.GetString("FindNumbers", resourceCulture);
             }
         }
         
@@ -381,6 +408,15 @@ namespace TFLC_sem6_lab1 {
         internal static string StartGrammar_FlexBison {
             get {
                 return ResourceManager.GetString("StartGrammar_FlexBison", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Регулярные выражения.
+        /// </summary>
+        internal static string StartRegularExpression {
+            get {
+                return ResourceManager.GetString("StartRegularExpression", resourceCulture);
             }
         }
         

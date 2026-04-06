@@ -231,4 +231,16 @@
   <data name="StartGrammar" xml:space="preserve">
     <value>Синтаксический анализатор</value>
   </data>
+  <data name="StartRegularExpression" xml:space="preserve">
+    <value>Регулярные выражения</value>
+  </data>
+  <data name="FindNumbers" xml:space="preserve">
+    <value>Поиск чисел с плавающей точкой</value>
+  </data>
+  <data name="CheckPassword" xml:space="preserve">
+    <value>Проверка надежности пароля</value>
+  </data>
+  <data name="FindFileName" xml:space="preserve">
+    <value>Поиск имен файлов</value>
+  </data>
 </root>

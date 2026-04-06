@@ -89,11 +89,15 @@ namespace TFLC_sem6_lab1.RegularExpressions
                 }
                 catch (IOException ex)
                 {
-                    Console.WriteLine($"Ошибка при чтении файла: {ex.Message}");
+                    MessageBox.Show($"Ошибка при чтении файла: {ex.Message}");
                 }
                 catch (UnauthorizedAccessException ex)
                 {
-                    Console.WriteLine($"Нет доступа к файлу: {ex.Message}");
+                    MessageBox.Show($"Нет доступа к файлу: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Неизвестная ошибка: {ex.Message}");
                 }
 
                 return matches;
@@ -197,52 +201,19 @@ namespace TFLC_sem6_lab1.RegularExpressions
                 }
                 catch (IOException ex)
                 {
-                    Console.WriteLine($"Ошибка при чтении файла: {ex.Message}");
+                    MessageBox.Show($"Ошибка при чтении файла: {ex.Message}");
                 }
                 catch (UnauthorizedAccessException ex)
                 {
-                    Console.WriteLine($"Нет доступа к файлу: {ex.Message}");
+                    MessageBox.Show($"Нет доступа к файлу: {ex.Message}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Неожиданная ошибка: {ex.Message}");
+                    MessageBox.Show($"Неожиданная ошибка: {ex.Message}");
                 }
 
                 return strongPasswords;
             }
-
-            //public List<Expression> FindStrongPasswords(string text)
-            //{
-            //    var strongPasswords = new List<Expression>();
-
-            //    if (string.IsNullOrEmpty(text))
-            //        return strongPasswords;
-
-            //    string[] potentialPasswords = Regex.Split(text, @"[\s,;]+");
-
-            //    string[] lines = text.Split('\n');
-
-            //    foreach (string potential in potentialPasswords)
-            //    {
-            //        if (IsPasswordStrong(potential))
-            //        {
-            //            int index = text.IndexOf(potential);
-            //            if (index >= 0)
-            //            {
-            //                var expression = new Expression
-            //                {
-            //                    Message = potential,
-            //                    Line = GetLineNumber(text, index, lines),
-            //                    StartPosition = index,
-            //                    EndPosition = index + potential.Length
-            //                };
-            //                strongPasswords.Add(expression);
-            //            }
-            //        }
-            //    }
-
-            //    return strongPasswords;
-            //}
         }
     }
 }

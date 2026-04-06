@@ -231,4 +231,16 @@
   <data name="StartGrammar" xml:space="preserve">
     <value>Syntax Analyzer</value>
   </data>
+  <data name="StartRegularExpression" xml:space="preserve">
+    <value>Regular Expressions</value>
+  </data>
+  <data name="FindNumbers" xml:space="preserve">
+    <value>Find float</value>
+  </data>
+  <data name="CheckPassword" xml:space="preserve">
+    <value>If password is strong</value>
+  </data>
+  <data name="FindFileName" xml:space="preserve">
+    <value>Find file names</value>
+  </data>
 </root>
