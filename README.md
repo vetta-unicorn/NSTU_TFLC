@@ -52,6 +52,12 @@
 
 <img width="707" height="686" alt="изображение" src="https://github.com/user-attachments/assets/8dc3b356-fd1a-481a-abd3-2bd881a2f1fc" />
 
+**Определение грамматики**
+
+Vт = {'do', 'while', '{', '}', '(', ')', '--', '++', '-'. '+', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a|b|..|z', '_', ';', '=', '==', '!=', '<', '<=', '>=', '>'}
+
+Vн = {START, DO, WHILE, LBRACE, RBRACE, LPARANTHESIS, RPARANTHESIS, RELATION_OPERATION, SMALLER, BIGGER, SMALLER_OR_EQUAL, BIGGER_OR_EQUAL, ID_INSIDE, ID_OUTSIDE, INCREMENT, DECREMENT, SEMICOLON, OPERAND_OR, OPERAND_AND}
+
 
 **Классификация грамматики по Хомскому**: 
 Контекстно-свободная грамматика
