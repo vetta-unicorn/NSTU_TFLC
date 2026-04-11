@@ -799,6 +799,22 @@ namespace TFLC_sem6_lab1
             }
         }
 
+        private void AutomatFiles(object sender, EventArgs e)
+        {
+            string text = File.ReadAllText(currentFilePath);
+
+        }
+
+        private void AutomatNums(object sender, EventArgs e)
+        {
+
+        }
+
+        private void AutomatPasswords(object sender, EventArgs e)
+        {
+
+        }
+
         private void FileHandler(ToolStripMenuItem item)
         {
             ToolStripMenuItem createItem = new ToolStripMenuItem();
@@ -962,7 +978,29 @@ namespace TFLC_sem6_lab1
             regularPasswordItem.Tag = "CheckPassword";
             regularPasswordItem.Click += CheckPasswords;
             regularItem.DropDownItems.Add(regularPasswordItem);
-        }
 
+            ToolStripMenuItem automatItem = new ToolStripMenuItem();
+            automatItem.Text = "Конечный автомат";
+            automatItem.Tag = "StartAutomatExpression";
+            item.DropDownItems.Add(automatItem);
+
+            ToolStripMenuItem automatFileItem = new ToolStripMenuItem();
+            automatFileItem.Text = "Поиск имен файлов";
+            automatFileItem.Tag = "StartAutomatExpressionFile";
+            automatFileItem.Click += AutomatFiles;
+            item.DropDownItems.Add(automatFileItem);
+
+            ToolStripMenuItem automatNumItem = new ToolStripMenuItem();
+            automatNumItem.Text = "Поиск чисел с плавающей точкой";
+            automatNumItem.Tag = "StartAutomatExpressionNum";
+            automatNumItem.Click += AutomatNums;
+            automatFileItem.DropDownItems.Add(automatNumItem);
+
+            ToolStripMenuItem automatPasswordItem = new ToolStripMenuItem();
+            automatPasswordItem.Text = "Проверка надежности пароля";
+            automatPasswordItem.Tag = "StartAutomatPasswordNum";
+            automatPasswordItem.Click += AutomatPasswords;
+            automatItem.DropDownItems.Add(automatPasswordItem);
+        }
     }
 }
