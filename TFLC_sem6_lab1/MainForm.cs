@@ -702,29 +702,29 @@ namespace TFLC_sem6_lab1
 
         private void StartGrammar(object sender, EventArgs e)
         {
-            //SyntaxTable.DataSource = null;
-            //SyntaxTable.Rows.Clear();
+            SyntaxTable.DataSource = null;
+            SyntaxTable.Rows.Clear();
 
-            //SyntaxTable.Visible = true;
-            //SyntaxTable.Enabled = true;
-            //txtOutput.Visible = false;
-            //OutputTable.Visible = false;
+            SyntaxTable.Visible = true;
+            SyntaxTable.Enabled = true;
+            txtOutput.Visible = false;
+            OutputTable.Visible = false;
 
-            //List<TableLine> tokens = scanner.AnalyzeText(currentFilePath);
+            List<TableLine> tokens = scanner.AnalyzeText(currentFilePath);
 
-            //Parser parser = new Parser(tokens);
-            //var errors = parser.Parse();
+            Parser parser = new Parser(tokens);
+            var errors = parser.Parse();
 
-            //if (errors.Count == 0)
-            //{
-            //    MessageBox.Show("Синтаксических ошибок не найдено!", "Успех",
-            //                  MessageBoxButtons.OK, MessageBoxIcon.Information);
-            //}
-            //else
-            //{
-            //    parser.DisplayErrors(errors, SyntaxTable);
-            //    statusLabel.Text = $"Количество ошибок: {errors.Count}";
-            //}
+            if (errors.Count == 0)
+            {
+                MessageBox.Show("Синтаксических ошибок не найдено!", "Успех",
+                              MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                parser.DisplayErrors(errors, SyntaxTable);
+                statusLabel.Text = $"Количество ошибок: {errors.Count}";
+            }
         }
 
         private void FindFileNames(object sender, EventArgs e)
