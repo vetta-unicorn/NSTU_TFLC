@@ -73,7 +73,6 @@ namespace TFLC_sem6_lab1
         DisplayTokens tokenDisplayer = new DisplayTokens();
 
         private System.Windows.Forms.TextBox txtOutput;
-        GrammarHandle grammar;
 
         DataGridView SyntaxTable;
 
@@ -122,7 +121,7 @@ namespace TFLC_sem6_lab1
         {
             try
             {
-                grammar = new GrammarHandle();
+                //grammar = new GrammarHandle();
             }
             catch (Exception ex)
             {
@@ -511,7 +510,7 @@ namespace TFLC_sem6_lab1
                 MessageBox.Show("Сохраните перед выходом");
                 return;
             }
-            grammar.Dispose();
+            //grammar.Dispose();
 
             if (System.Windows.Forms.Application.MessageLoop)
             {
@@ -712,7 +711,7 @@ namespace TFLC_sem6_lab1
 
             List<TableLine> tokens = scanner.AnalyzeText(currentFilePath);
 
-            Parser parser = new Parser(tokens);
+            TFLC_sem6_lab1.Grammar.Parser parser = new TFLC_sem6_lab1.Grammar.Parser(tokens);
             var errors = parser.Parse();
 
             if (errors.Count == 0)
