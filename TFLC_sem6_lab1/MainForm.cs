@@ -438,7 +438,7 @@ namespace TFLC_sem6_lab1
                 else if (item.Name == "Копировать") { item.Click += CopyText; }
                 else if (item.Name == "Вырезать") { item.Click += CutText; }
                 else if (item.Name == "Вставить") { item.Click += PasteText; }
-                else if (item.Name == "Пуск") { item.Click += StartScanner; }
+                else if (item.Name == "Пуск") { item.Click += StartGrammar; }
                 else if (item.Name == "Справка") { item.Click += ShowHelpForm; }
                 else if (item.Name == "ОПрограмме") { item.Click += ShowAboutForm; }
             }
