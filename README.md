@@ -95,11 +95,21 @@ Vн = {START, DO, WHILE, LBRACE, RBRACE, LPARANTHESIS, RPARANTHESIS, RELATION_OP
 
 **Тестовые примеры**
 
-<img width="933" height="484" alt="изображение" src="https://github.com/user-attachments/assets/221d9a62-22e0-4613-81e1-6eee79ac13bb" />
+<img width="935" height="485" alt="изображение" src="https://github.com/user-attachments/assets/8df892d6-cd36-4cfa-9efe-310ec6f5db09" />
 
-<img width="934" height="487" alt="изображение" src="https://github.com/user-attachments/assets/8e8d5692-607f-450f-95a8-5220eba01723" />
+<img width="1414" height="575" alt="изображение" src="https://github.com/user-attachments/assets/e72120f6-dcf6-4e22-b578-dc744aa1b79a" />
 
-<img width="936" height="489" alt="изображение" src="https://github.com/user-attachments/assets/a036bee7-e981-4351-bd34-65ab5a51a92d" />
+<img width="1414" height="575" alt="изображение" src="https://github.com/user-attachments/assets/5005261e-b860-451e-8ff2-2e0e8041b846" />
+
+**ANTLR**
+
+<img width="716" height="823" alt="изображение" src="https://github.com/user-attachments/assets/6f4e31a6-6e28-4089-a09c-53f32a7f6f2b" />
+
+<img width="384" height="830" alt="изображение" src="https://github.com/user-attachments/assets/f45927a1-ebf6-4553-b4cf-4f4a33b0af59" />
+
+<img width="934" height="485" alt="изображение" src="https://github.com/user-attachments/assets/a089f1d4-88e4-4e51-8ffa-cf32042fd8b9" />
+
+<img width="935" height="484" alt="изображение" src="https://github.com/user-attachments/assets/88d499d1-efca-48e6-8eb4-b081ece58642" />
 
 
 
