@@ -8,7 +8,7 @@ using TFLC_sem6_lab1.Scanner;
 
 namespace TFLC_sem6_lab1.Grammar
 {
-    
+
     public class Parser
     {
         private List<TableLine> _tokens;
@@ -17,9 +17,7 @@ namespace TFLC_sem6_lab1.Grammar
         private List<ParseError> _errors;
         private TokenDict _tokenDict;
         private int[] relation_operation = new int[] { 13, 14, 15, 16, 19, 20 };
-        private int[] increment_operation = new int[] { 6, 8 }; 
-        private int[] expression_start = new int[] { 1, 4 }; 
-        private bool _errorReported;
+        private int[] increment_operation = new int[] { 6, 8 };
 
         private bool endFlag = false;
 
@@ -30,7 +28,6 @@ namespace TFLC_sem6_lab1.Grammar
             _errors = new List<ParseError>();
             _tokenDict = new TokenDict();
             _currentToken = _tokens.Count > 0 ? _tokens[0] : null;
-            _errorReported = false;
         }
 
         public void DisplayErrors(List<ParseError> errors, DataGridView SyntaxTable)
@@ -102,33 +99,12 @@ namespace TFLC_sem6_lab1.Grammar
             return _currentPos < _tokens.Count && _currentToken != null;
         }
 
-        private bool IsErrorToken()
-        {
-            return IsValidToken() && _currentToken.code == -1;
-        }
-
         private bool MatchToken(int code)
         {
-            if (IsValidToken() && !IsErrorToken() && _currentToken.code == code)
+            if (IsValidToken() && _currentToken.code == code)
             {
                 NextToken();
                 return true;
-            }
-            return false;
-        }
-
-        private bool MatchToken(int[] codes)
-        {
-            if (IsValidToken() && !IsErrorToken())
-            {
-                foreach (int code in codes)
-                {
-                    if (_currentToken.code == code)
-                    {
-                        NextToken();
-                        return true;
-                    }
-                }
             }
             return false;
         }
@@ -144,18 +120,6 @@ namespace TFLC_sem6_lab1.Grammar
                 _currentToken?.end_pos ?? 0);
         }
 
-        private void ExpectToken(int[] codes, string context)
-        {
-            if (MatchToken(codes))
-                return;
-
-            string expected = string.Join(" или ", codes.Select(c => _tokenDict.tokens[c]));
-            AddError($"{context}: ожидается {expected}",
-                _currentToken?.line_number ?? 0,
-                _currentToken?.start_pos ?? 0,
-                _currentToken?.end_pos ?? 0);
-        }
-
         private bool SkipToToken(int code)
         {
             int pos = _currentPos;
@@ -164,7 +128,27 @@ namespace TFLC_sem6_lab1.Grammar
                 NextToken();
                 if (_currentToken != null)
                 {
-                    if (_currentToken.code == code) return true;
+                    if (_currentToken.code == code)
+                    {
+                        NextToken();
+                        return true;
+                    }
+                }
+            }
+            _currentPos = pos;
+            _currentToken = _tokens[pos];
+            return false;
+        }
+
+        private bool SkipToToken(int[] codes)
+        {
+            int pos = _currentPos;
+            while (IsValidToken() && !codes.Contains(_currentToken.code))
+            {
+                NextToken();
+                if (_currentToken != null)
+                {
+                    if (codes.Contains(_currentToken.code)) return true;
                 }
             }
             _currentPos = pos;
@@ -188,25 +172,32 @@ namespace TFLC_sem6_lab1.Grammar
             }
         }
 
+        private void SkipToSynchronizingToken(int[] codes)
+        {
+            int pos = _currentPos;
+            while (IsValidToken())
+            {
+                if (codes.Contains(_currentToken.code))
+                {
+                    return;
+                }
+                NextToken();
+            }
+            _currentPos = pos;
+            _currentToken = _tokens[pos];
+        }
+
         private void Program()
         {
             if (!IsValidToken()) return;
 
             DoWhileStatement();
 
-            while (IsValidToken())
+            if (IsValidToken())
             {
-                if (IsErrorToken())
-                {
-                    AddError($"Неизвестный токен: {_currentToken.token}",
-                        _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                    NextToken();
-                }
-                else
-                {
-                    break;
-                }
+                AddError($"Неизвестный токен в конце строки: " +
+                    $"{_currentToken.token}",_currentToken.line_number, 
+                    _currentToken.start_pos, _currentToken.end_pos);
             }
         }
 
@@ -220,7 +211,14 @@ namespace TFLC_sem6_lab1.Grammar
                     _tokens[_currentPos].line_number,
                     _tokens[_currentPos].start_pos,
                     _tokens[_currentPos].end_pos);
-                SkipToToken(3);
+                if (SkipToToken(3))
+                {
+                    SkipToToken(3);
+                }
+                else
+                {
+                    SkipToSynchronizingToken([3, 9, 1]); // do { $id
+                }
             }
 
             if (!IsValidToken())
@@ -233,9 +231,28 @@ namespace TFLC_sem6_lab1.Grammar
                 return;
             }
 
-            ExpectToken(3, "В конструкции do-while");
+            if (_currentToken.code == 3)
+            {
+                NextToken();
+            }
+            else
+            {
+                AddError($"В конструкции do-while: ожидается ключевое слово do",
+                    _currentToken.line_number,
+                    _currentToken.start_pos, _currentToken.end_pos);
+                if (SkipToToken(3)) SkipToToken(3);
+                else SkipToSynchronizingToken([3, 9, 1]); // do { $id
+            }
 
-            if (!IsValidToken() || _tokens.Count == 1) return;
+            if (!IsValidToken() || _tokens.Count == 1)
+            {
+                AddError("В условном выражении: ожидается открывающая фигурная скобка",
+                    _tokens[0].line_number,
+                    _tokens[0].start_pos,
+                    _tokens[0].end_pos);
+                NextToken();
+                return;
+            }
 
             Block();
             if (endFlag) return;
@@ -258,7 +275,14 @@ namespace TFLC_sem6_lab1.Grammar
                 AddError($"В конструкции do-while: ожидается ключевое слово while",
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
-                SkipToToken(2);
+                if (SkipToToken(2))
+                {
+                    SkipToToken(2);
+                }
+                else
+                {
+                    SkipToSynchronizingToken([2, 11, 1]); // while ( $id
+                }
             }
 
             if (!IsValidToken())
@@ -307,8 +331,8 @@ namespace TFLC_sem6_lab1.Grammar
                 AddError($"В условном выражении: ожидается открывающая круглая скобка",
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
-                SkipToSynchronizingToken();
-                return;
+                if (SkipToToken(11)) SkipToToken(11);
+                else SkipToSynchronizingToken([11, 1, 13, 14, 15, 16, 19, 20]); // ( $id >
             }
 
             if (!IsValidToken())
@@ -330,8 +354,8 @@ namespace TFLC_sem6_lab1.Grammar
                 AddError($"В условном выражении: ожидается идентификатор или число",
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
-                SkipToSynchronizingToken();
-                return;
+                if (SkipToToken([1, 4])) SkipToToken([1, 4]);
+                else SkipToSynchronizingToken([1, 13, 14, 15, 16, 19, 20, 4]); // $id > num
             }
 
             if (!IsValidToken())
@@ -353,8 +377,9 @@ namespace TFLC_sem6_lab1.Grammar
                 AddError($"В условном выражении: ожидается оператор сравнения",
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
-                SkipToSynchronizingToken();
-                return;
+                if (SkipToToken(relation_operation)) 
+                    SkipToToken(relation_operation);
+                else SkipToSynchronizingToken([13, 14, 15, 16, 19, 20, 4, 12]); // > num )
             }
 
             if (!IsValidToken())
@@ -376,15 +401,15 @@ namespace TFLC_sem6_lab1.Grammar
                 AddError($"В условном выражении: ожидается идентификатор или число",
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
-                SkipToSynchronizingToken();
-                return;
+                if (SkipToToken([1, 4])) SkipToToken([1, 4]);
+                else SkipToSynchronizingToken([1, 4, 12, 17]); // $id | num ) ;
             }
 
             if (!IsValidToken())
             {
                 AddError("В условном выражении: ожидается )",
                     _tokens[_currentPos - 1].line_number,
-                    _tokens[_currentPos - 1].start_pos, 
+                    _tokens[_currentPos - 1].start_pos,
                     _tokens[_currentPos - 1].end_pos);
                 endFlag = true;
                 return;
@@ -399,7 +424,8 @@ namespace TFLC_sem6_lab1.Grammar
                 AddError($"В условном выражении: ожидается закрывающая круглая скобка",
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
-                SkipToSynchronizingToken();
+                if (SkipToToken(12)) SkipToToken(12);
+                else SkipToSynchronizingToken([12, 17]); // ) ;
             }
         }
 
@@ -415,8 +441,6 @@ namespace TFLC_sem6_lab1.Grammar
                 return;
             }
 
-            _errorReported = false;
-
             if (_currentToken.code == 9)
             {
                 NextToken();
@@ -426,7 +450,8 @@ namespace TFLC_sem6_lab1.Grammar
                 AddError($"В блоке: ожидается открывающая фигурная скоба",
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
-                _errorReported = true;
+                if (SkipToToken(9)) SkipToToken(9);
+                else SkipToSynchronizingToken([9, 1, 6, 8]); // { $id ++ | --
             }
 
 
@@ -440,18 +465,9 @@ namespace TFLC_sem6_lab1.Grammar
                 return;
             }
 
-            while (IsValidToken() && _currentToken.code != 10 && _currentToken.code != 2)
-            {
-                if (IsErrorToken())
-                {
-                    AddError($"Неизвестный токен: {_currentToken.token}",
-                        _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                    NextToken();
-                    continue;
-                }
-                Statement();
-            }
+            Statement();
+
+            if (endFlag) return;
 
             if (!IsValidToken())
             {
@@ -463,43 +479,23 @@ namespace TFLC_sem6_lab1.Grammar
                 return;
             }
 
-
-            if (IsValidToken())
+            if (_currentToken.code == 10)
             {
-                if (_currentToken.code == 10)
-                {
-                    NextToken();
-                }
-                else if (_currentToken.code == 2)
-                {
-                    if (!_errorReported)
-                    {
-                        AddError($"В блоке: ожидается закрывающая фигурная скоба",
-                            _currentToken.line_number - 1,
-                            _currentToken.start_pos, _currentToken.end_pos);
-                    }
-                }
-                else
-                {
-                    AddError($"В блоке: ожидается закрывающая фигурная скоба",
-                        _currentToken.line_number - 1,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                }
-            }
-            else if (!_errorReported)
-            {
-                AddError($"В блоке: ожидается закрывающая фигурная скоба",
-                    _currentToken?.line_number ?? 0,
-                    _currentToken?.start_pos ?? 0,
-                    _currentToken?.end_pos ?? 0);
+                NextToken();
             }
 
             else
             {
-                if (!IsValidToken())
-                {
-                    endFlag = true;
-                }
+                AddError($"В блоке: ожидается закрывающая фигурная скоба",
+                    _currentToken.line_number,
+                    _currentToken.start_pos, _currentToken.end_pos);
+                if (SkipToToken(10)) SkipToToken(10);
+                else SkipToSynchronizingToken([10, 2, 11]); // } while (
+            }
+
+            if (!IsValidToken())
+            {
+                endFlag = true;
             }
         }
 
@@ -511,86 +507,86 @@ namespace TFLC_sem6_lab1.Grammar
                 return;
             }
 
-            if (IsErrorToken())
+            if (!IsValidToken())
             {
-                AddError($"Неизвестный токен: {_currentToken.token}",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                NextToken();
+                AddError("В условном выражении: ожидается идентификатор",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
                 return;
             }
 
-            if (_currentToken.code == 10 || _currentToken.code == 2)
-                return;
             if (_currentToken.code == 1)
             {
                 NextToken();
             }
+
             else
             {
-                AddError($"В операторе: ожидается идентификатор",
+                AddError($"В блоке: ожидается идентификатор",
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
+                if (SkipToToken(1)) SkipToToken(1);
+                else SkipToSynchronizingToken([1, 6, 8, 17]); // $id ++ | -- ;
+            }
 
-                while (IsValidToken() && _currentToken.code != 17 && _currentToken.code != 10 && _currentToken.code != 2)
-                {
-                    NextToken();
-                }
-
-                if (IsValidToken() && _currentToken.code == 17)
-                {
-                    NextToken();
-                }
+            if (!IsValidToken())
+            {
+                AddError("В блоке: ожидается оператор инкремента или декремента",
+                        _tokens[_currentPos - 1].line_number,
+                        _tokens[_currentPos - 1].start_pos,
+                        _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
                 return;
             }
 
-            if (IsValidToken() && (_currentToken.code == 6 || _currentToken.code == 8)) // ++ или --
+            if (increment_operation.Contains(_currentToken.code))
             {
                 NextToken();
             }
-            else if (IsValidToken() && _currentToken.code != 17 && _currentToken.code != 10 && _currentToken.code != 2)
+
+            else
             {
-                AddError($"В операторе: ожидается ++ или --",
+                AddError($"В блоке: ожидается оператор инкремента или декремента",
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
-
-                while (IsValidToken() && _currentToken.code != 17 && _currentToken.code != 10 && _currentToken.code != 2)
-                {
-                    NextToken();
-                }
+                if (SkipToToken(increment_operation)) 
+                    SkipToToken(increment_operation);
+                else SkipToSynchronizingToken([6, 8, 17, 10]); // ++ | -- ; }
             }
 
-            if (IsValidToken())
+            if (!IsValidToken())
             {
-                if (_currentToken.code == 17)
-                {
-                    NextToken();
-                }
-                else if (_currentToken.code != 10 && _currentToken.code != 2)
-                {
-                    AddError($"В операторе: ожидается ;",
-                        _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
+                AddError("В блоке: ожидается точка с запятой",
+                        _tokens[_currentPos - 1].line_number,
+                        _tokens[_currentPos - 1].start_pos,
+                        _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return;
+            }
 
-                    while (IsValidToken() && _currentToken.code != 17 && _currentToken.code != 10 && _currentToken.code != 2)
-                    {
-                        NextToken();
-                    }
+            if (_currentToken.code == 17)
+            {
+                NextToken();
+            }
 
-                    if (IsValidToken() && _currentToken.code == 17)
-                    {
-                        NextToken();
-                    }
-                }
-                else
-                {
-                    AddError($"Ожидается точка с запятой", 
-                        _currentToken.line_number, 
-                        _currentToken.start_pos, _currentToken.end_pos);
-                }
+            else
+            {
+                AddError($"В блоке: ожидается точка с запятой",
+                    _currentToken.line_number,
+                    _currentToken.start_pos, _currentToken.end_pos);
+                if (SkipToToken(17)) SkipToToken(17);
+                else SkipToSynchronizingToken([17, 10, 2]); // ; } while
+            }
+
+            if (!IsValidToken())
+            {
+                endFlag = true;
             }
         }
     }
+
 
     public class ParseError
     {
