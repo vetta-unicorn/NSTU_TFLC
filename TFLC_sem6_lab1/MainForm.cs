@@ -15,6 +15,8 @@ using TFLC_sem6_lab1.RegularExpressions;
 using static TFLC_sem6_lab1.RegularExpressions.Expression;
 using Antlr4.Runtime;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 
 
 namespace TFLC_sem6_lab1
@@ -737,7 +739,7 @@ namespace TFLC_sem6_lab1
             OutputTable.Visible = false;
 
             RegexSearcher regex = new RegexSearcher();
-            List<Expression> expressions = regex.FindFiles(currentFilePath);
+            List<TFLC_sem6_lab1.RegularExpressions.Expression> expressions = regex.FindFiles(currentFilePath);
 
             if (expressions.Count == 0)
             {
@@ -761,7 +763,7 @@ namespace TFLC_sem6_lab1
             OutputTable.Visible = false;
 
             RegexSearcher regex = new RegexSearcher();
-            List<Expression> expressions = regex.FindNumbers(currentFilePath);
+            List<TFLC_sem6_lab1.RegularExpressions.Expression> expressions = regex.FindNumbers(currentFilePath);
 
             if (expressions.Count == 0)
             {
@@ -785,7 +787,7 @@ namespace TFLC_sem6_lab1
             OutputTable.Visible = false;
 
             RegexSearcher regex = new RegexSearcher();
-            List<Expression> expressions = regex.FindStrongPasswords(currentFilePath);
+            List<TFLC_sem6_lab1.RegularExpressions.Expression> expressions = regex.FindStrongPasswords(currentFilePath);
 
             if (expressions.Count == 0)
             {
@@ -800,18 +802,79 @@ namespace TFLC_sem6_lab1
 
         private void AutomatFiles(object sender, EventArgs e)
         {
-            string text = File.ReadAllText(currentFilePath);
+            SyntaxTable.DataSource = null;
+            SyntaxTable.Rows.Clear();
+
+            SyntaxTable.Visible = true;
+            SyntaxTable.Enabled = true;
+            txtOutput.Visible = false;
+            OutputTable.Visible = false;
+
+            FileExtensionAutomaton fileAutomaton = new FileExtensionAutomaton();
+            List<TFLC_sem6_lab1.RegularExpressions.Expression> fileResults = fileAutomaton.FindAllMatches(currentFilePath);
+            
+            RegexSearcher regex = new RegexSearcher();
+
+            if (fileResults.Count == 0)
+            {
+                MessageBox.Show("Нет совпадений");
+            }
+            else
+            {
+                regex.DisplayExpressions(fileResults, SyntaxTable);
+                statusLabel.Text = $"Количество совпадений: {fileResults.Count}";
+            }
 
         }
 
         private void AutomatNums(object sender, EventArgs e)
         {
+            SyntaxTable.DataSource = null;
+            SyntaxTable.Rows.Clear();
 
+            SyntaxTable.Visible = true;
+            SyntaxTable.Enabled = true;
+            txtOutput.Visible = false;
+            OutputTable.Visible = false;
+
+            NumberAutomaton numberAutomaton = new NumberAutomaton();
+            List<TFLC_sem6_lab1.RegularExpressions.Expression> numberResults = numberAutomaton.FindAllMatches(currentFilePath);
+            RegexSearcher regex = new RegexSearcher();
+
+            if (numberResults.Count == 0)
+            {
+                MessageBox.Show("Нет совпадений");
+            }
+            else
+            {
+                regex.DisplayExpressions(numberResults, SyntaxTable);
+                statusLabel.Text = $"Количество совпадений: {numberResults.Count}";
+            }
         }
 
         private void AutomatPasswords(object sender, EventArgs e)
         {
+            SyntaxTable.DataSource = null;
+            SyntaxTable.Rows.Clear();
 
+            SyntaxTable.Visible = true;
+            SyntaxTable.Enabled = true;
+            txtOutput.Visible = false;
+            OutputTable.Visible = false;
+
+            PasswordStrengthAutomaton passwordAutomaton = new PasswordStrengthAutomaton();
+            List<TFLC_sem6_lab1.RegularExpressions.Expression> passwordResults = passwordAutomaton.FindAllMatches(currentFilePath);
+            RegexSearcher regex = new RegexSearcher();
+
+            if (passwordResults.Count == 0)
+            {
+                MessageBox.Show("Нет совпадений");
+            }
+            else
+            {
+                regex.DisplayExpressions(passwordResults, SyntaxTable);
+                statusLabel.Text = $"Количество совпадений: {passwordResults.Count}";
+            }
         }
 
         private void FileHandler(ToolStripMenuItem item)
@@ -987,13 +1050,13 @@ namespace TFLC_sem6_lab1
             automatFileItem.Text = "Поиск имен файлов";
             automatFileItem.Tag = "StartAutomatExpressionFile";
             automatFileItem.Click += AutomatFiles;
-            item.DropDownItems.Add(automatFileItem);
+            automatItem.DropDownItems.Add(automatFileItem);
 
             ToolStripMenuItem automatNumItem = new ToolStripMenuItem();
             automatNumItem.Text = "Поиск чисел с плавающей точкой";
             automatNumItem.Tag = "StartAutomatExpressionNum";
             automatNumItem.Click += AutomatNums;
-            automatFileItem.DropDownItems.Add(automatNumItem);
+            automatItem.DropDownItems.Add(automatNumItem);
 
             ToolStripMenuItem automatPasswordItem = new ToolStripMenuItem();
             automatPasswordItem.Text = "Проверка надежности пароля";
