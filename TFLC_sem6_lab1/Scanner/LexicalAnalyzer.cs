@@ -129,19 +129,12 @@ namespace TFLC_sem6_lab1.Scanner
 
                         bool found = false;
 
-                        // code 1 id
-                        if (line[pos] == '$')
+                        // code 17 ;
+                        if (pos < line.Length && line.Substring(pos, 1) == ";")
                         {
-                            int endPos = pos + 1;
-                            while (endPos < line.Length &&
-                                  (char.IsLetterOrDigit(line[endPos]) || line[endPos] == '_'))
-                            {
-                                endPos++;
-                            }
-
-                            string token = line.Substring(pos, endPos - pos);
-                            tabs.Add(new TableLine(1, tokenDict.tokens[1], token, lineNumber, pos, endPos));
-                            pos = endPos;
+                            tabs.Add(new TableLine(17, tokenDict.tokens[17],
+                                ";", lineNumber, pos, pos + 1));
+                            pos += 1;
                             found = true;
                         }
 
@@ -284,15 +277,6 @@ namespace TFLC_sem6_lab1.Scanner
                             found = true;
                         }
 
-                        // code 17 ;
-                        else if (pos < line.Length && line.Substring(pos, 1) == ";")
-                        {
-                            tabs.Add(new TableLine(17, tokenDict.tokens[17],
-                                ";", lineNumber, pos, pos + 1));
-                            pos += 1;
-                            found = true;
-                        }
-
                         // code 18 =
                         else if (pos < line.Length && line.Substring(pos, 1) == "="
                             && (pos + 2 < line.Length && line.Substring(pos, 2) != "==")
@@ -319,6 +303,22 @@ namespace TFLC_sem6_lab1.Scanner
                             tabs.Add(new TableLine(20, tokenDict.tokens[20],
                                 "!=", lineNumber, pos, pos + 2));
                             pos += 2;
+                            found = true;
+                        }
+
+                        // code 1 id
+                        else if (line[pos] == '$')
+                        {
+                            int endPos = pos + 1;
+                            while (endPos < line.Length &&
+                                  (char.IsLetterOrDigit(line[endPos]) || line[endPos] == '_'))
+                            {
+                                endPos++;
+                            }
+
+                            string token = line.Substring(pos, endPos - pos);
+                            tabs.Add(new TableLine(1, tokenDict.tokens[1], token, lineNumber, pos, endPos));
+                            pos = endPos;
                             found = true;
                         }
 
