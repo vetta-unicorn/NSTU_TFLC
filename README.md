@@ -95,11 +95,13 @@ Vн = {START, DO, WHILE, LBRACE, RBRACE, LPARANTHESIS, RPARANTHESIS, RELATION_OP
 
 **Тестовые примеры**
 
-<img width="935" height="485" alt="изображение" src="https://github.com/user-attachments/assets/8df892d6-cd36-4cfa-9efe-310ec6f5db09" />
+<img width="932" height="486" alt="изображение" src="https://github.com/user-attachments/assets/e6aec428-47c2-483f-86ca-5b89d2c19efb" />
 
-<img width="1414" height="575" alt="изображение" src="https://github.com/user-attachments/assets/e72120f6-dcf6-4e22-b578-dc744aa1b79a" />
+<img width="932" height="489" alt="изображение" src="https://github.com/user-attachments/assets/7c6abee4-4053-4619-8b10-0309d8efcff8" />
 
-<img width="1414" height="575" alt="изображение" src="https://github.com/user-attachments/assets/5005261e-b860-451e-8ff2-2e0e8041b846" />
+<img width="1136" height="485" alt="изображение" src="https://github.com/user-attachments/assets/adb79203-3d66-415c-b05b-3eda6d13e7b3" />
+
+
 
 **ANTLR**
 
