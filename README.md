@@ -68,7 +68,7 @@
 
 <img width="1891" height="826" alt="изображение" src="https://github.com/user-attachments/assets/465b432d-cac7-4fb5-a4ec-b0edbaf54397" />
 
-**Тестовые примеры строк (реализация программы через конечный автомат**
+**Тестовые примеры строк (реализация программы через конечный автомат)**
 
 <img width="937" height="485" alt="изображение" src="https://github.com/user-attachments/assets/3a8f04d7-a08f-46b8-9a8b-a0e10d58bfd6" />
 
