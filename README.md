@@ -44,7 +44,8 @@
 
 *е. Тестовые примеры:*
 
-<img width="933" height="481" alt="изображение" src="https://github.com/user-attachments/assets/56204c14-ff55-4f4b-825e-4d8e145fc47e" />
+<img width="939" height="489" alt="изображение" src="https://github.com/user-attachments/assets/1b1644a1-8082-423b-b233-a63877b3b2ad" />
+
 
 
 **Решение третьей задачи**
@@ -60,7 +61,8 @@
 
 *е. Тестовые примеры:*
 
-<img width="933" height="481" alt="изображение" src="https://github.com/user-attachments/assets/56204c14-ff55-4f4b-825e-4d8e145fc47e" />
+<img width="935" height="487" alt="изображение" src="https://github.com/user-attachments/assets/0af70980-e182-4e4f-b63e-f47b354250b5" />
+
 
 **Граф конечного автомата**
 
