@@ -1,3 +1,21 @@
+# Лабораторная работа 4.
+
+**Цель работы:**
+Изучить теоретические основы регулярных выражений и их применение для поиска и извлечения подстрок из текста. Освоить практические навыки использования библиотечных средств работы с регулярными выражениями, а также интеграцию алгоритмов поиска в графический интерфейс приложения.
+
+**Автор:** Елизавета Лантух, АВТ-313
+
+**Постановка задачи:**
+Разработать модуль поиска подстрок с использованием регулярных выражений, интегрировать его в существующее приложение (текстовый редактор) и обеспечить наглядный вывод результатов.
+
+**Вариант**
+
+Блок 1: Построить РВ, описывающее формат имени файла .doc, .docx, .pdf,  .jpg, .jpeg, .png, .gif (можно выбрать другие 7 форматов файлов).
+
+Блок 2: Построить РВ, описывающее положительные и отрицательные целые числа и числа с плавающей точкой (разделители запятая и точка).
+
+Блок 3: Построить РВ для проверки надежности пароля. Требования к надежности пароля: Имеет длину не менее 14 символов. Хотя бы одна заглавная русская буква. Хотя бы одна строчная русская буква. Хотя бы одна цифра. Хотя бы один специальный символ из списка: ()#?!|/@/$%\^&*-_.
+
 # Лабораторная работа 3.  Разработка синтаксического анализатора (парсера)
 
 **Цель работы:**
@@ -17,12 +35,14 @@
     $number++;
 } while ($number < 5);
 
-2) $x = 5 + 10;
+2) do {
+    $y--;
+} while ($y == 7);
 
-3) do {
-    $x = $x + 1;
-    $y = $y * 2;
-} while ($x < 10);
+4) do {
+    $z++;
+} while ($z != 11);
+
 
 *Перечень допустимых лексем:*
 1) id (начинается с $)
@@ -50,6 +70,12 @@
 
 <img width="707" height="686" alt="изображение" src="https://github.com/user-attachments/assets/8dc3b356-fd1a-481a-abd3-2bd881a2f1fc" />
 
+**Определение грамматики**
+
+Vт = {'do', 'while', '{', '}', '(', ')', '--', '++', '-'. '+', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a|b|..|z', '_', ';', '=', '==', '!=', '<', '<=', '>=', '>'}
+
+Vн = {START, DO, WHILE, LBRACE, RBRACE, LPARANTHESIS, RPARANTHESIS, RELATION_OPERATION, SMALLER, BIGGER, SMALLER_OR_EQUAL, BIGGER_OR_EQUAL, ID_INSIDE, ID_OUTSIDE, INCREMENT, DECREMENT, SEMICOLON, OPERAND_OR, OPERAND_AND}
+
 
 **Классификация грамматики по Хомскому**: 
 Контекстно-свободная грамматика
@@ -69,11 +95,23 @@
 
 **Тестовые примеры**
 
-<img width="933" height="484" alt="изображение" src="https://github.com/user-attachments/assets/221d9a62-22e0-4613-81e1-6eee79ac13bb" />
+<img width="932" height="486" alt="изображение" src="https://github.com/user-attachments/assets/e6aec428-47c2-483f-86ca-5b89d2c19efb" />
 
-<img width="934" height="487" alt="изображение" src="https://github.com/user-attachments/assets/8e8d5692-607f-450f-95a8-5220eba01723" />
+<img width="932" height="489" alt="изображение" src="https://github.com/user-attachments/assets/7c6abee4-4053-4619-8b10-0309d8efcff8" />
 
-<img width="936" height="489" alt="изображение" src="https://github.com/user-attachments/assets/a036bee7-e981-4351-bd34-65ab5a51a92d" />
+<img width="1136" height="485" alt="изображение" src="https://github.com/user-attachments/assets/adb79203-3d66-415c-b05b-3eda6d13e7b3" />
+
+
+
+**ANTLR**
+
+<img width="716" height="823" alt="изображение" src="https://github.com/user-attachments/assets/6f4e31a6-6e28-4089-a09c-53f32a7f6f2b" />
+
+<img width="384" height="830" alt="изображение" src="https://github.com/user-attachments/assets/f45927a1-ebf6-4553-b4cf-4f4a33b0af59" />
+
+<img width="934" height="485" alt="изображение" src="https://github.com/user-attachments/assets/a089f1d4-88e4-4e51-8ffa-cf32042fd8b9" />
+
+<img width="935" height="484" alt="изображение" src="https://github.com/user-attachments/assets/88d499d1-efca-48e6-8eb4-b081ece58642" />
 
 
 
