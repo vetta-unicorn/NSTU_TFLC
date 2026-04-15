@@ -108,7 +108,7 @@ namespace TFLC_sem6_lab1
 
             userHelpPath = Path.Combine(Directory.GetCurrentDirectory(), userPath);
             aboutPath = Path.Combine(Directory.GetCurrentDirectory(), abPath);
-
+ 
             fontDialog1 = new FontDialog();
 
             SetEvent();
