@@ -376,10 +376,24 @@ namespace TFLC_sem6_lab1.Grammar
                 string name = _currentToken.token;
 
                 left = new VariableNode { Name = name };
+                NextToken();
+                _errorCounter = 0;
             }
             else if (_currentToken.code == 4)
             {
                 left = new LiteralNode { Value = int.Parse(_currentToken.token) };
+                NextToken();
+                _errorCounter = 0;
+            }
+
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается операция сравнения",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return null;
             }
 
             string op = _currentToken.token;
@@ -412,6 +426,16 @@ namespace TFLC_sem6_lab1.Grammar
                     SkipToToken(relation_operation);
                 else SkipToSynchronizingToken([13, 14, 15, 16, 19, 20, 4, 12]); // > num )
                 _errorCounter++;
+            }
+
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается идентификатор или число",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return null;
             }
 
             if (_currentToken.code == 1)

@@ -710,9 +710,17 @@ namespace TFLC_sem6_lab1
             LexicalAnalyzer lexer = new LexicalAnalyzer();
             List<TableLine> tokens = lexer.AnalyzeText(currentFilePath);
             Parser parser = new Parser(tokens);
-            AstNode node = parser.Program();
+            List<ParseError> errors = parser.Parse();
+            if (errors == null ||  errors.Count == 0)
+            {
+                AstNode node = parser.Program();
+                PrintAst(node);
+            }
+            else
+            {
 
-            PrintAst(node);
+            }
+            
         }
 
         private void FileHandler(ToolStripMenuItem item)
