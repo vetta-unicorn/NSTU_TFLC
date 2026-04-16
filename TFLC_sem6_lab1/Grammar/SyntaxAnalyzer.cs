@@ -347,6 +347,27 @@ namespace TFLC_sem6_lab1.Grammar
                 NextToken();
                 _errorCounter = 0;
             }
+            else
+            {
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return null;
+                }
+
+                if (_errorCounter == 0)
+                {
+                    AddError($"В условном выражении: ожидается открывающая круглая скобка",
+                    _currentToken.line_number,
+                    _currentToken.start_pos, _currentToken.end_pos);
+                }
+                if (SkipToToken(11)) SkipToToken(11);
+                else SkipToSynchronizingToken([11, 1, 13, 14, 15, 16, 19, 20]); // ( $id >
+                _errorCounter++;
+            }
 
             AstNode left = null;
 
@@ -404,6 +425,27 @@ namespace TFLC_sem6_lab1.Grammar
 
                 right = new LiteralNode { Value = value };
             }
+            else
+            {
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return null;
+                }
+
+                if (_errorCounter == 0)
+                {
+                    AddError($"В условном выражении: ожидается идентификатор или число",
+                    _currentToken.line_number,
+                    _currentToken.start_pos, _currentToken.end_pos);
+                }
+                if (SkipToToken([1, 4])) SkipToToken([1, 4]);
+                else SkipToSynchronizingToken([1, 4, 12, 17]); // $id | num ) ;
+                _errorCounter++;
+            }
 
             NextToken();
 
@@ -411,6 +453,27 @@ namespace TFLC_sem6_lab1.Grammar
             {
                 NextToken();
                 _errorCounter = 0;
+            }
+            else
+            {
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return null;
+                }
+
+                if (_errorCounter == 0)
+                {
+                    AddError($"В условном выражении: ожидается закрывающая круглая скобка",
+                    _currentToken.line_number,
+                    _currentToken.start_pos, _currentToken.end_pos);
+                }
+                if (SkipToToken(12)) SkipToToken(12);
+                else SkipToSynchronizingToken([12, 17]); // ) ;
+                _errorCounter++;
             }
 
             return new BinaryOpNode
@@ -502,161 +565,6 @@ namespace TFLC_sem6_lab1.Grammar
             };
         }
 
-        //private DoWhileNode DoWhileStatement()
-        //{
-        //    if (_currentToken.code == 3) // do
-        //        NextToken();
-
-        //    var block = Block();
-
-        //    if (_currentToken.code == 2) // while
-        //        NextToken();
-
-        //    var condition = Condition();
-
-        //    if (_currentToken.code == 17) // ;
-        //        NextToken();
-
-        //    return new DoWhileNode
-        //    {
-        //        Body = block,
-        //        Condition = condition
-        //    };
-        //}
-
-        //private AstNode Condition()
-        //{
-        //    if (_currentToken.code == 11) // (
-        //        NextToken();
-
-        //    AstNode left = null;
-
-        //    if (_currentToken.code == 1)
-        //    {
-        //        string name = _currentToken.token;
-        //        if (_symbolTable.Lookup(name) == null)
-        //        {
-        //            AddError($"Переменная {name} не объявлена",
-        //                _currentToken.line_number,
-        //                _currentToken.start_pos,
-        //                _currentToken.end_pos);
-        //        }
-
-        //        left = new VariableNode { Name = name };
-        //    }
-        //    else if (_currentToken.code == 4)
-        //    {
-        //        left = new LiteralNode { Value = int.Parse(_currentToken.token) };
-        //    }
-
-        //    NextToken();
-
-        //    string op = _currentToken.token;
-        //    NextToken();
-
-        //    AstNode right = null;
-
-        //    if (_currentToken.code == 1)
-        //    {
-        //        string name = _currentToken.token;
-
-        //        if (_symbolTable.Lookup(name) == null)
-        //        {
-        //            AddError($"Переменная {name} не объявлена",
-        //                _currentToken.line_number,
-        //                _currentToken.start_pos,
-        //                _currentToken.end_pos);
-        //        }
-
-        //        right = new VariableNode { Name = name };
-        //    }
-        //    else if (_currentToken.code == 4)
-        //    {
-        //        int value = int.Parse(_currentToken.token);
-
-        //        if (value < int.MinValue || value > int.MaxValue)
-        //        {
-        //            AddError("Число вне диапазона",
-        //                _currentToken.line_number,
-        //                _currentToken.start_pos,
-        //                _currentToken.end_pos);
-        //        }
-
-        //        right = new LiteralNode { Value = value };
-        //    }
-
-        //    NextToken();
-
-        //    if (_currentToken.code == 12) // )
-        //        NextToken();
-
-        //    return new BinaryOpNode
-        //    {
-        //        Left = left,
-        //        Operator = op,
-        //        Right = right
-        //    };
-        //}
-
-        //private BlockNode Block()
-        //{
-        //    var block = new BlockNode();
-
-        //    if (_currentToken.code == 9) // {
-        //        NextToken();
-
-        //    var stmt = Statement();
-        //    if (stmt != null)
-        //        block.Statements.Add(stmt);
-
-        //    if (_currentToken.code == 10) // }
-        //        NextToken();
-
-        //    return block;
-        //}
-
-        //private AstNode Statement()
-        //{
-        //    if (!IsValidToken())
-        //    {
-        //        endFlag = true;
-        //        return null;
-        //    }
-
-        //    string varName = null;
-
-        //    if (_currentToken.code == 1)
-        //    {
-        //        varName = _currentToken.token;
-        //        if (_symbolTable.Lookup(varName) == null)
-        //        {
-        //            AddError($"Переменная {varName} не объявлена",
-        //                _currentToken.line_number,
-        //                _currentToken.start_pos,
-        //                _currentToken.end_pos);
-        //        }
-
-        //        NextToken();
-        //    }
-
-        //    string op = null;
-
-        //    if (increment_operation.Contains(_currentToken.code))
-        //    {
-        //        op = _currentToken.token;
-        //        NextToken();
-        //    }
-
-        //    if (_currentToken.code == 17)
-        //    {
-        //        NextToken();
-        //    }
-        //    return new UnaryOpNode
-        //    {
-        //        Operator = op,
-        //        Variable = new VariableNode { Name = varName }
-        //    };
-        //}
     }
 
 
