@@ -16,10 +16,8 @@ namespace TFLC_sem6_lab1.Grammar
         private int _currentPos;
         private TableLine _currentToken;
         private List<ParseError> _errors;
-        private TokenDict _tokenDict;
         private int[] relation_operation = new int[] { 13, 14, 15, 16, 19, 20 };
         private int[] increment_operation = new int[] { 6, 8 };
-        private bool _errorFlag;
         private int _errorCounter;
         private bool endFlag = false;
         public AstNode Root { get; private set; }
@@ -30,9 +28,7 @@ namespace TFLC_sem6_lab1.Grammar
             _tokens = tokens;
             _currentPos = 0;
             _errors = new List<ParseError>();
-            _tokenDict = new TokenDict();
             _currentToken = _tokens.Count > 0 ? _tokens[0] : null;
-            _errorFlag = false;
         }
 
         public void DisplayErrors(List<ParseError> errors, DataGridView SyntaxTable)
