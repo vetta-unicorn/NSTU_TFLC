@@ -326,7 +326,9 @@ namespace TFLC_sem6_lab1.Scanner
                         if (!found)
                         {
                             int errorEnd = pos + 1;
-                            while (errorEnd < line.Length && !char.IsWhiteSpace(line[errorEnd]))
+                            while (errorEnd < line.Length && !char.IsWhiteSpace(line[errorEnd])
+                                && line[errorEnd] != '+' && line.Substring(errorEnd, 2) != "++"
+                                && line.Substring(errorEnd, 2) != "--" && line[errorEnd] != ';')
                             {
                                 errorEnd++;
                             }
