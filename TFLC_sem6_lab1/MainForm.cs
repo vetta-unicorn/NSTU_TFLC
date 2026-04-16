@@ -461,7 +461,7 @@ namespace TFLC_sem6_lab1
                 else if (item.Name == "Копировать") { item.Click += CopyText; }
                 else if (item.Name == "Вырезать") { item.Click += CutText; }
                 else if (item.Name == "Вставить") { item.Click += PasteText; }
-                else if (item.Name == "Пуск") { item.Click += StartGrammar; }
+                else if (item.Name == "Пуск") { item.Click += StartAST; }
                 else if (item.Name == "Справка") { item.Click += ShowHelpForm; }
                 else if (item.Name == "ОПрограмме") { item.Click += ShowAboutForm; }
             }
@@ -713,125 +713,9 @@ namespace TFLC_sem6_lab1
             fileInfoLabel.Text = "Новый файл";
         }
 
-        private void StartScanner(object sender, EventArgs e)
+        private void StartAST(object sender, EventArgs e)
         {
-            txtOutput.Visible = false;
-            OutputTable.Visible = true;
 
-            OutputTable.DataSource = null;
-            OutputTable.Rows.Clear();
-            tokenDisplayer.LoadAndDisplayTokens(currentFilePath, scanner, OutputTable);
-        }
-
-        private void StartGrammarFlexBison(object sender, EventArgs e)
-        {
-            OutputTable.DataSource = null;
-            OutputTable.Rows.Clear();
-
-            OutputTable.Visible = false;
-            SyntaxTable.Visible = false;
-            txtOutput.Visible = true;
-
-            if (grammar != null)
-            {
-                grammar.ParseProgram(InputTextBox, txtOutput);
-            }
-        }
-
-        private void StartGrammar(object sender, EventArgs e)
-        {
-            SyntaxTable.DataSource = null;
-            SyntaxTable.Rows.Clear();
-
-            SyntaxTable.Visible = true;
-            SyntaxTable.Enabled = true;
-            txtOutput.Visible = false;
-            OutputTable.Visible = false;
-
-            List<TableLine> tokens = scanner.AnalyzeText(currentFilePath);
-
-            Parser parser = new Parser(tokens);
-            var errors = parser.Parse();
-
-            if (errors.Count == 0)
-            {
-                MessageBox.Show("Синтаксических ошибок не найдено!", "Успех",
-                              MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            else
-            {
-                parser.DisplayErrors(errors, SyntaxTable);
-                statusLabel.Text = $"Количество ошибок: {errors.Count}";
-            }
-        }
-
-        private void StartAntlr(object sender, EventArgs e)
-        {
-            AntlrClass antlrClass = new AntlrClass();
-            _antlrParser = Program.CreateAntlrParser();
-            antlrClass.InitializeAntlrParser(_antlrParser);
-
-            try
-            {
-                if (_antlrParser == null)
-                {
-                    MessageBox.Show("ANTLR парсер не инициализирован", "Ошибка",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                if (OutputTable != null)
-                {
-                    OutputTable.DataSource = null;
-                    OutputTable.Rows.Clear();
-                    OutputTable.Visible = false;
-                }
-
-                if (txtOutput != null)
-                {
-                    txtOutput.Visible = true;
-                    txtOutput.Clear();
-                }
-
-                string code = InputTextBox.Text;
-
-                if (string.IsNullOrWhiteSpace(code))
-                {
-                    MessageBox.Show("Введите код для парсинга", "Предупреждение",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                var result = _antlrParser.ParseWithDetails(code);
-
-                if (result.IsValid)
-                {
-                    string json = Newtonsoft.Json.JsonConvert.SerializeObject(result.Ast,
-                        Newtonsoft.Json.Formatting.Indented);
-
-                    txtOutput.Text = json;
-
-                    MessageBox.Show("ANTLR парсинг успешно завершен!", "Успех",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    txtOutput.Text = "Ошибки парсинга:\n" + string.Join("\n", result.Errors);
-
-                    MessageBox.Show("Ошибки при парсинге", "Ошибка",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при выполнении ANTLR парсера: {ex.Message}", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                if (txtOutput != null)
-                {
-                    txtOutput.Text = $"Ошибка: {ex.Message}\n\n{ex.StackTrace}";
-                }
-            }
         }
 
         private void FileHandler(ToolStripMenuItem item)
@@ -963,29 +847,7 @@ namespace TFLC_sem6_lab1
 
         private void StartHandler(ToolStripMenuItem item)
         {
-            ToolStripMenuItem startItem = new ToolStripMenuItem();
-            startItem.Text = "Лексический анализатор";
-            startItem.Click += StartScanner;
-            startItem.Tag = "StartScanner";
-            item.DropDownItems.Add(startItem);
-
-            ToolStripMenuItem grammarItem = new ToolStripMenuItem();
-            grammarItem.Text = "Синтаксический анализатор";
-            grammarItem.Click += StartGrammar;
-            grammarItem.Tag = "StartGrammar";
-            item.DropDownItems.Add(grammarItem);
-
-            ToolStripMenuItem grammarFBItem = new ToolStripMenuItem();
-            grammarFBItem.Text = "Проверить грамматику Flex&Bison";
-            grammarFBItem.Click += StartGrammarFlexBison;
-            grammarFBItem.Tag = "StartGrammar_FlexBison";
-            item.DropDownItems.Add(grammarFBItem);
-
-            ToolStripMenuItem grammarAntlrItem = new ToolStripMenuItem();
-            grammarAntlrItem.Text = "Проверить грамматику ANTLR";
-            grammarAntlrItem.Click += StartAntlr;
-            grammarAntlrItem.Tag = "StartGrammar_ANTLR";
-            item.DropDownItems.Add(grammarAntlrItem);
+            
         }
 
     }
