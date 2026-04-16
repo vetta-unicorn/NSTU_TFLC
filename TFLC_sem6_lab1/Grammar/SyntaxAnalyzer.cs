@@ -19,6 +19,7 @@ namespace TFLC_sem6_lab1.Grammar
         private int[] relation_operation = new int[] { 13, 14, 15, 16, 19, 20 };
         private int[] increment_operation = new int[] { 6, 8 };
         private bool _errorFlag;
+        private int _errorCounter;
 
         private bool endFlag = false;
 
@@ -163,6 +164,8 @@ namespace TFLC_sem6_lab1.Grammar
 
             DoWhileStatement();
 
+            if (_errorCounter > 3) return;
+
             if (IsValidToken())
             {
                 AddError($"Ошибочный токен в конце строки",
@@ -189,7 +192,7 @@ namespace TFLC_sem6_lab1.Grammar
                 {
                     SkipToSynchronizingToken([3, 9, 1]); // do { $id
                 }
-                _errorFlag = true;
+                _errorCounter++;
             }
 
             if (!IsValidToken())
@@ -205,11 +208,19 @@ namespace TFLC_sem6_lab1.Grammar
             if (_currentToken.code == 3)
             {
                 NextToken();
-                _errorFlag = false;
+                _errorCounter = 0;
             }
             else
             {
-                if (!_errorFlag)
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return;
+                }
+                if (_errorCounter == 0)
                 {
                     AddError($"В конструкции do-while: ожидается ключевое слово do",
                         _currentToken.line_number,
@@ -217,7 +228,7 @@ namespace TFLC_sem6_lab1.Grammar
                 }
                 if (SkipToToken(3)) SkipToToken(3);
                 else SkipToSynchronizingToken([3, 9, 1]); // do { $id
-                _errorFlag = true;
+                _errorCounter++;
             }
 
             if (!IsValidToken() || _tokens.Count == 1)
@@ -245,25 +256,27 @@ namespace TFLC_sem6_lab1.Grammar
             if (_currentToken.code == 2)
             {
                 NextToken();
-                _errorFlag = false;
+                _errorCounter = 0;
             }
             else
             {
-                if (!_errorFlag)
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return;
+                }
+                if (_errorCounter == 0)
                 {
                     AddError($"В конструкции do-while: ожидается ключевое слово while",
                         _currentToken.line_number,
                         _currentToken.start_pos, _currentToken.end_pos);
                 }
-                if (SkipToToken(2))
-                {
-                    SkipToToken(2);
-                }
-                else
-                {
-                    SkipToSynchronizingToken([2, 11, 1]); // while ( $id
-                }
-                _errorFlag = true;
+                if (SkipToToken(2)) SkipToToken(2);
+                else SkipToSynchronizingToken([2, 11, 1]); // while ( $id
+                _errorCounter++;
             }
 
             if (!IsValidToken())
@@ -283,18 +296,27 @@ namespace TFLC_sem6_lab1.Grammar
             if (IsValidToken() && _currentToken.code == 17)
             {
                 NextToken();
-                _errorFlag = false;
+                _errorCounter = 0;
             } 
             else
             {
-                if (!_errorFlag)
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return;
+                }
+
+                if (_errorCounter == 0)
                 {
                     AddError($"Ожидается завершающая точка с запятой",
                    _tokens[_currentPos - 1].line_number,
                     _tokens[_currentPos - 1].start_pos,
                     _tokens[_currentPos - 1].end_pos);
                 }
-                _errorFlag = true;
+                _errorCounter = 0;
             }
         }
 
@@ -313,11 +335,20 @@ namespace TFLC_sem6_lab1.Grammar
             if (_currentToken.code == 11)
             {
                 NextToken();
-                _errorFlag = false;
+                _errorCounter = 0;
             }
             else
             {
-                if (!_errorFlag)
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return;
+                }
+
+                if (_errorCounter == 0)
                 {
                     AddError($"В условном выражении: ожидается открывающая круглая скобка",
                     _currentToken.line_number,
@@ -325,7 +356,7 @@ namespace TFLC_sem6_lab1.Grammar
                 }
                 if (SkipToToken(11)) SkipToToken(11);
                 else SkipToSynchronizingToken([11, 1, 13, 14, 15, 16, 19, 20]); // ( $id >
-                _errorFlag = true;
+                _errorCounter++;
             }
 
             if (!IsValidToken())
@@ -341,11 +372,20 @@ namespace TFLC_sem6_lab1.Grammar
             if (_currentToken.code == 1 || _currentToken.code == 4)
             {
                 NextToken();
-                _errorFlag = false;
+                _errorCounter = 0;
             }
             else
             {
-                if (!_errorFlag)
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return;
+                }
+
+                if (_errorCounter == 0)
                 {
                     AddError($"В условном выражении: ожидается идентификатор или число",
                     _currentToken.line_number,
@@ -369,11 +409,20 @@ namespace TFLC_sem6_lab1.Grammar
             if (relation_operation.Contains(_currentToken.code))
             {
                 NextToken();
-                _errorFlag = false;
+                _errorCounter = 0;
             }
             else
             {
-                if (!_errorFlag)
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return;
+                }
+
+                if (_errorCounter == 0)
                 {
                     AddError($"В условном выражении: ожидается оператор сравнения",
                     _currentToken.line_number,
@@ -382,7 +431,7 @@ namespace TFLC_sem6_lab1.Grammar
                 if (SkipToToken(relation_operation)) 
                     SkipToToken(relation_operation);
                 else SkipToSynchronizingToken([13, 14, 15, 16, 19, 20, 4, 12]); // > num )
-                _errorFlag = false;
+                _errorCounter++;
             }
 
             if (!IsValidToken())
@@ -398,11 +447,20 @@ namespace TFLC_sem6_lab1.Grammar
             if (_currentToken.code == 1 || _currentToken.code == 4)
             {
                 NextToken();
-                _errorFlag = false;
+                _errorCounter = 0;
             }
             else
             {
-                if (!_errorFlag)
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return;
+                }
+
+                if (_errorCounter == 0)
                 {
                     AddError($"В условном выражении: ожидается идентификатор или число",
                     _currentToken.line_number,
@@ -410,7 +468,7 @@ namespace TFLC_sem6_lab1.Grammar
                 }
                 if (SkipToToken([1, 4])) SkipToToken([1, 4]);
                 else SkipToSynchronizingToken([1, 4, 12, 17]); // $id | num ) ;
-                _errorFlag = true;
+                _errorCounter++;
             }
 
             if (!IsValidToken())
@@ -426,11 +484,20 @@ namespace TFLC_sem6_lab1.Grammar
             if (_currentToken.code == 12)
             {
                 NextToken();
-                _errorFlag = false;
+                _errorCounter = 0;
             }
             else
             {
-                if (!_errorFlag)
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return;
+                }
+
+                if (_errorCounter == 0)
                 {
                     AddError($"В условном выражении: ожидается закрывающая круглая скобка",
                     _currentToken.line_number,
@@ -438,7 +505,7 @@ namespace TFLC_sem6_lab1.Grammar
                 }
                 if (SkipToToken(12)) SkipToToken(12);
                 else SkipToSynchronizingToken([12, 17]); // ) ;
-                _errorFlag = true;
+                _errorCounter++;
             }
         }
 
@@ -457,11 +524,19 @@ namespace TFLC_sem6_lab1.Grammar
             if (_currentToken.code == 9)
             {
                 NextToken();
-                _errorFlag = false;
+                _errorCounter = 0;
             }
             else
             {
-                if (!_errorFlag)
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return;
+                }
+                if (_errorCounter == 0)
                 {
                     AddError($"В блоке: ожидается открывающая фигурная скоба",
                     _currentToken.line_number,
@@ -469,7 +544,7 @@ namespace TFLC_sem6_lab1.Grammar
                 }
                 if (SkipToToken(9)) SkipToToken(9);
                 else SkipToSynchronizingToken([9, 1, 6, 8]); // { $id ++ | --
-                _errorFlag = true;
+                _errorCounter++;
             }
 
 
@@ -500,12 +575,20 @@ namespace TFLC_sem6_lab1.Grammar
             if (_currentToken.code == 10)
             {
                 NextToken();
-                _errorFlag = false;
+                _errorCounter = 0;
             }
 
             else
             {
-                if (!_errorFlag)
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return;
+                }
+                if (_errorCounter == 0)
                 {
                     AddError($"В блоке: ожидается закрывающая фигурная скоба",
                     _currentToken.line_number,
@@ -513,7 +596,7 @@ namespace TFLC_sem6_lab1.Grammar
                 }
                 if (SkipToToken(10)) SkipToToken(10);
                 else SkipToSynchronizingToken([10, 2, 11]); // } while (
-                _errorFlag = true;
+                _errorCounter++;
             }
 
             if (!IsValidToken())
@@ -543,12 +626,20 @@ namespace TFLC_sem6_lab1.Grammar
             if (_currentToken.code == 1)
             {
                 NextToken();
-                _errorFlag = false;
+                _errorCounter = 0;
             }
 
             else
             {
-                if (!_errorFlag)
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return;
+                }
+                if (_errorCounter == 0)
                 {
                     AddError($"В блоке: ожидается идентификатор",
                     _currentToken.line_number,
@@ -556,7 +647,7 @@ namespace TFLC_sem6_lab1.Grammar
                 }
                 if (SkipToToken(1)) SkipToToken(1);
                 else SkipToSynchronizingToken([1, 6, 8, 17]); // $id ++ | -- ;
-                _errorFlag = true;
+                _errorCounter++;
             }
 
             if (!IsValidToken())
@@ -572,12 +663,20 @@ namespace TFLC_sem6_lab1.Grammar
             if (increment_operation.Contains(_currentToken.code))
             {
                 NextToken();
-                _errorFlag = false;
+                _errorCounter = 0;
             }
 
             else
             {
-                if (!_errorFlag)
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return;
+                }
+                if (_errorCounter == 0)
                 {
                     AddError($"В блоке: ожидается оператор инкремента или декремента",
                     _currentToken.line_number,
@@ -586,7 +685,7 @@ namespace TFLC_sem6_lab1.Grammar
                 if (SkipToToken(increment_operation)) 
                     SkipToToken(increment_operation);
                 else SkipToSynchronizingToken([6, 8, 17, 10]); // ++ | -- ; }
-                _errorFlag = true;
+                _errorCounter++;
             }
 
             if (!IsValidToken())
@@ -602,12 +701,20 @@ namespace TFLC_sem6_lab1.Grammar
             if (_currentToken.code == 17)
             {
                 NextToken();
-                _errorFlag = false;
+                _errorCounter = 0;
             }
 
             else
             {
-                if (!_errorFlag)
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return;
+                }
+                if (_errorCounter == 0)
                 {
                     AddError($"В блоке: ожидается точка с запятой",
                     _tokens[_currentPos - 1].line_number,
@@ -616,7 +723,7 @@ namespace TFLC_sem6_lab1.Grammar
                 }
                 if (SkipToToken(17)) SkipToToken(17);
                 else SkipToSynchronizingToken([17, 10, 2]); // ; } while
-                _errorFlag = true;
+                _errorCounter++;
             }
 
             if (!IsValidToken())
