@@ -214,6 +214,26 @@ namespace TFLC_sem6_lab1.Grammar
                 NextToken();
                 _errorCounter = 0;
             }
+            else
+            {
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return null;
+                }
+                if (_errorCounter == 0)
+                {
+                    AddError($"В конструкции do-while: ожидается ключевое слово do",
+                        _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                }
+                if (SkipToToken(3)) SkipToToken(3);
+                else SkipToSynchronizingToken([3, 9, 1]); // do { $id
+                _errorCounter++;
+            }
 
 
             if (!IsValidToken() || _tokens.Count == 1)
@@ -243,6 +263,26 @@ namespace TFLC_sem6_lab1.Grammar
                 NextToken();
                 _errorCounter = 0;
             }
+            else
+            {
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return null;
+                }
+                if (_errorCounter == 0)
+                {
+                    AddError($"В конструкции do-while: ожидается ключевое слово while",
+                        _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                }
+                if (SkipToToken(2)) SkipToToken(2);
+                else SkipToSynchronizingToken([2, 11, 1]); // while ( $id
+                _errorCounter++;
+            }
 
             if (!IsValidToken())
             {
@@ -260,6 +300,26 @@ namespace TFLC_sem6_lab1.Grammar
             if (IsValidToken() && _currentToken.code == 17)
             {
                 NextToken();
+                _errorCounter = 0;
+            }
+            else
+            {
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return null;
+                }
+
+                if (_errorCounter == 0)
+                {
+                    AddError($"Ожидается завершающая точка с запятой",
+                   _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                }
                 _errorCounter = 0;
             }
 
