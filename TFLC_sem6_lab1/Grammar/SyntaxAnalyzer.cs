@@ -69,7 +69,7 @@ namespace TFLC_sem6_lab1.Grammar
         {
             try
             {
-                Root = Program(); // теперь возвращает AST
+                Root = Program(); 
             }
             catch (Exception ex)
             {
@@ -181,36 +181,119 @@ namespace TFLC_sem6_lab1.Grammar
 
         private DoWhileNode DoWhileStatement()
         {
-            if (_currentToken.code == 3) // do
+            if (!IsValidToken()) return null;
+
+            BlockNode blockNode = null;
+            AstNode conditionNode = null;
+
+            if (_currentToken.code != 3)
+            {
+                AddError("Ошибочный токен в начале строки",
+                    _tokens[_currentPos].line_number,
+                    _tokens[_currentPos].start_pos,
+                    _tokens[_currentPos].end_pos);
+
+                if (SkipToToken(3)) SkipToToken(3);
+                else SkipToSynchronizingToken([3, 9, 1]);
+
+                _errorCounter++;
+            }
+
+            if (!IsValidToken())
+            {
+                AddError("В конструкции do-while ожидается do",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return null;
+            }
+
+            if (_currentToken.code == 3)
+            {
                 NextToken();
+                _errorCounter = 0;
+            }
 
-            var block = Block();
 
-            if (_currentToken.code == 2) // while
+            if (!IsValidToken() || _tokens.Count == 1)
+            {
+                AddError("В условном выражении: ожидается открывающая фигурная скобка",
+                    _tokens[0].line_number,
+                    _tokens[0].start_pos,
+                    _tokens[0].end_pos);
                 NextToken();
+                return null;
+            }
 
-            var condition = Condition();
+            blockNode = Block();
+            if (endFlag) return null;
 
-            if (_currentToken.code == 17) // ;
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается ключевое слово while",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                return null;
+            }
+
+            if (_currentToken.code == 2)
+            {
                 NextToken();
+                _errorCounter = 0;
+            }
+
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается (",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return null;
+            }
+
+            conditionNode = Condition();
+            if (endFlag) return null;
+
+            if (IsValidToken() && _currentToken.code == 17)
+            {
+                NextToken();
+                _errorCounter = 0;
+            }
 
             return new DoWhileNode
             {
-                Body = block,
-                Condition = condition
+                Body = blockNode,
+                Condition = conditionNode
             };
         }
 
         private AstNode Condition()
         {
-            if (_currentToken.code == 11) // (
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается открывающая круглая скобка",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return null;
+            }
+
+            if (_currentToken.code == 11)
+            {
                 NextToken();
+                _errorCounter = 0;
+            }
 
             AstNode left = null;
 
             if (_currentToken.code == 1)
             {
                 string name = _currentToken.token;
+
                 if (_symbolTable.Lookup(name) == null)
                 {
                     AddError($"Переменная {name} не объявлена",
@@ -264,8 +347,11 @@ namespace TFLC_sem6_lab1.Grammar
 
             NextToken();
 
-            if (_currentToken.code == 12) // )
+            if (_currentToken.code == 12)
+            {
                 NextToken();
+                _errorCounter = 0;
+            }
 
             return new BinaryOpNode
             {
@@ -279,15 +365,31 @@ namespace TFLC_sem6_lab1.Grammar
         {
             var block = new BlockNode();
 
-            if (_currentToken.code == 9) // {
+            if (!IsValidToken())
+            {
+                AddError("В условном выражении: ожидается открывающая фигурная скобка",
+                    _tokens[_currentPos - 1].line_number,
+                    _tokens[_currentPos - 1].start_pos,
+                    _tokens[_currentPos - 1].end_pos);
+                endFlag = true;
+                return block;
+            }
+
+            if (_currentToken.code == 9)
+            {
                 NextToken();
+                _errorCounter = 0;
+            }
 
             var stmt = Statement();
             if (stmt != null)
                 block.Statements.Add(stmt);
 
-            if (_currentToken.code == 10) // }
+            if (_currentToken.code == 10)
+            {
                 NextToken();
+                _errorCounter = 0;
+            }
 
             return block;
         }
@@ -305,6 +407,7 @@ namespace TFLC_sem6_lab1.Grammar
             if (_currentToken.code == 1)
             {
                 varName = _currentToken.token;
+
                 if (_symbolTable.Lookup(varName) == null)
                 {
                     AddError($"Переменная {varName} не объявлена",
@@ -314,6 +417,7 @@ namespace TFLC_sem6_lab1.Grammar
                 }
 
                 NextToken();
+                _errorCounter = 0;
             }
 
             string op = null;
@@ -322,18 +426,177 @@ namespace TFLC_sem6_lab1.Grammar
             {
                 op = _currentToken.token;
                 NextToken();
+                _errorCounter = 0;
             }
 
             if (_currentToken.code == 17)
             {
                 NextToken();
+                _errorCounter = 0;
             }
+
             return new UnaryOpNode
             {
                 Operator = op,
                 Variable = new VariableNode { Name = varName }
             };
         }
+
+        //private DoWhileNode DoWhileStatement()
+        //{
+        //    if (_currentToken.code == 3) // do
+        //        NextToken();
+
+        //    var block = Block();
+
+        //    if (_currentToken.code == 2) // while
+        //        NextToken();
+
+        //    var condition = Condition();
+
+        //    if (_currentToken.code == 17) // ;
+        //        NextToken();
+
+        //    return new DoWhileNode
+        //    {
+        //        Body = block,
+        //        Condition = condition
+        //    };
+        //}
+
+        //private AstNode Condition()
+        //{
+        //    if (_currentToken.code == 11) // (
+        //        NextToken();
+
+        //    AstNode left = null;
+
+        //    if (_currentToken.code == 1)
+        //    {
+        //        string name = _currentToken.token;
+        //        if (_symbolTable.Lookup(name) == null)
+        //        {
+        //            AddError($"Переменная {name} не объявлена",
+        //                _currentToken.line_number,
+        //                _currentToken.start_pos,
+        //                _currentToken.end_pos);
+        //        }
+
+        //        left = new VariableNode { Name = name };
+        //    }
+        //    else if (_currentToken.code == 4)
+        //    {
+        //        left = new LiteralNode { Value = int.Parse(_currentToken.token) };
+        //    }
+
+        //    NextToken();
+
+        //    string op = _currentToken.token;
+        //    NextToken();
+
+        //    AstNode right = null;
+
+        //    if (_currentToken.code == 1)
+        //    {
+        //        string name = _currentToken.token;
+
+        //        if (_symbolTable.Lookup(name) == null)
+        //        {
+        //            AddError($"Переменная {name} не объявлена",
+        //                _currentToken.line_number,
+        //                _currentToken.start_pos,
+        //                _currentToken.end_pos);
+        //        }
+
+        //        right = new VariableNode { Name = name };
+        //    }
+        //    else if (_currentToken.code == 4)
+        //    {
+        //        int value = int.Parse(_currentToken.token);
+
+        //        if (value < int.MinValue || value > int.MaxValue)
+        //        {
+        //            AddError("Число вне диапазона",
+        //                _currentToken.line_number,
+        //                _currentToken.start_pos,
+        //                _currentToken.end_pos);
+        //        }
+
+        //        right = new LiteralNode { Value = value };
+        //    }
+
+        //    NextToken();
+
+        //    if (_currentToken.code == 12) // )
+        //        NextToken();
+
+        //    return new BinaryOpNode
+        //    {
+        //        Left = left,
+        //        Operator = op,
+        //        Right = right
+        //    };
+        //}
+
+        //private BlockNode Block()
+        //{
+        //    var block = new BlockNode();
+
+        //    if (_currentToken.code == 9) // {
+        //        NextToken();
+
+        //    var stmt = Statement();
+        //    if (stmt != null)
+        //        block.Statements.Add(stmt);
+
+        //    if (_currentToken.code == 10) // }
+        //        NextToken();
+
+        //    return block;
+        //}
+
+        //private AstNode Statement()
+        //{
+        //    if (!IsValidToken())
+        //    {
+        //        endFlag = true;
+        //        return null;
+        //    }
+
+        //    string varName = null;
+
+        //    if (_currentToken.code == 1)
+        //    {
+        //        varName = _currentToken.token;
+        //        if (_symbolTable.Lookup(varName) == null)
+        //        {
+        //            AddError($"Переменная {varName} не объявлена",
+        //                _currentToken.line_number,
+        //                _currentToken.start_pos,
+        //                _currentToken.end_pos);
+        //        }
+
+        //        NextToken();
+        //    }
+
+        //    string op = null;
+
+        //    if (increment_operation.Contains(_currentToken.code))
+        //    {
+        //        op = _currentToken.token;
+        //        NextToken();
+        //    }
+
+        //    if (_currentToken.code == 17)
+        //    {
+        //        NextToken();
+        //    }
+        //    return new UnaryOpNode
+        //    {
+        //        Operator = op,
+        //        Variable = new VariableNode { Name = varName }
+        //    };
+        //}
     }
 
 
