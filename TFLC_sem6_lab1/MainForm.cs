@@ -1,4 +1,4 @@
-using System.Globalization;
+п»їusing System.Globalization;
 using System.Resources;
 using System.Text;
 using System.Windows.Forms;
@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using TFLC_sem6_lab1.Scanner;
 using TFLC_sem6_lab1.Grammar;
 using System.Reflection;
+using TFLC_sem6_lab1.AST;
 
 
 namespace TFLC_sem6_lab1
@@ -29,13 +30,8 @@ namespace TFLC_sem6_lab1
 
         int exitCounter = 0;
 
-        [DllImport("user32.dll")]
-        private static extern bool SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
-
         private const int WM_UNDO = 0x304;
         private const int EM_REDO = 0x437;
-
-
 
         string userHelpPath;
         private string aboutPath;
@@ -52,9 +48,9 @@ namespace TFLC_sem6_lab1
 
         private Panel lineNumberPanel;
 
-        private ToolStripStatusLabel statusLabel = new ToolStripStatusLabel("Готов к работе");
-        private ToolStripStatusLabel cursorPositionLabel = new ToolStripStatusLabel("Стр: 1, Стлб: 1");
-        private ToolStripStatusLabel fileInfoLabel = new ToolStripStatusLabel("Новый файл");
+        private ToolStripStatusLabel statusLabel = new ToolStripStatusLabel("Р“РѕС‚РѕРІ Рє СЂР°Р±РѕС‚Рµ");
+        private ToolStripStatusLabel cursorPositionLabel = new ToolStripStatusLabel("РЎС‚СЂ: 1, РЎС‚Р»Р±: 1");
+        private ToolStripStatusLabel fileInfoLabel = new ToolStripStatusLabel("РќРѕРІС‹Р№ С„Р°Р№Р»");
 
         private bool isTextModified = false;
 
@@ -73,24 +69,7 @@ namespace TFLC_sem6_lab1
         Navigator navigator = new Navigator();
         DisplayTokens tokenDisplayer = new DisplayTokens();
 
-        // Flex&Bison DLL
-        [DllImport("FlexBisonGrammar.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int ParseString(string input);
-
-        [DllImport("FlexBisonGrammar.dll", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr GetLastParseError();
-
-        private dynamic _antlrParser; // ANTLR 
-
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern IntPtr LoadLibrary(string lpFileName);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool FreeLibrary(IntPtr hModule);
-        private IntPtr dllHandle;
         private System.Windows.Forms.TextBox txtOutput;
-        GrammarHandle grammar;
 
         DataGridView SyntaxTable;
 
@@ -138,16 +117,6 @@ namespace TFLC_sem6_lab1
 
         private void SetupDataGridView()
         {
-            try
-            {
-                grammar = new GrammarHandle();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка инициализации: {ex.Message}", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
             OutputTable.Enabled = true;
             OutputTable.EditMode = DataGridViewEditMode.EditProgrammatically;
 
@@ -160,25 +129,25 @@ namespace TFLC_sem6_lab1
             OutputTable.Columns.Clear();
 
             DataGridViewTextBoxColumn codeColumn = new DataGridViewTextBoxColumn();
-            codeColumn.HeaderText = "Условный код";
+            codeColumn.HeaderText = "РЈСЃР»РѕРІРЅС‹Р№ РєРѕРґ";
             codeColumn.DataPropertyName = "code";
             codeColumn.Width = 80;
             OutputTable.Columns.Add(codeColumn);
 
             DataGridViewTextBoxColumn typeColumn = new DataGridViewTextBoxColumn();
-            typeColumn.HeaderText = "Тип лексемы";
+            typeColumn.HeaderText = "РўРёРї Р»РµРєСЃРµРјС‹";
             typeColumn.DataPropertyName = "type";
             typeColumn.Width = 150;
             OutputTable.Columns.Add(typeColumn);
 
             DataGridViewTextBoxColumn tokenColumn = new DataGridViewTextBoxColumn();
-            tokenColumn.HeaderText = "Лексема";
+            tokenColumn.HeaderText = "Р›РµРєСЃРµРјР°";
             tokenColumn.DataPropertyName = "token";
             tokenColumn.Width = 100;
             OutputTable.Columns.Add(tokenColumn);
 
             DataGridViewTextBoxColumn locationColumn = new DataGridViewTextBoxColumn();
-            locationColumn.HeaderText = "Местоположение";
+            locationColumn.HeaderText = "РњРµСЃС‚РѕРїРѕР»РѕР¶РµРЅРёРµ";
             locationColumn.DataPropertyName = "Location";
             locationColumn.Width = 120;
             OutputTable.Columns.Add(locationColumn);
@@ -236,13 +205,13 @@ namespace TFLC_sem6_lab1
             SyntaxTable.Columns.Clear();
 
             DataGridViewTextBoxColumn messageColumn = new DataGridViewTextBoxColumn();
-            messageColumn.HeaderText = "Сообщение";
+            messageColumn.HeaderText = "РЎРѕРѕР±С‰РµРЅРёРµ";
             messageColumn.DataPropertyName = "message";
             messageColumn.Width = 200;
             SyntaxTable.Columns.Add(messageColumn);
 
             DataGridViewTextBoxColumn locationColumn = new DataGridViewTextBoxColumn();
-            locationColumn.HeaderText = "Местоположение";
+            locationColumn.HeaderText = "РњРµСЃС‚РѕРїРѕР»РѕР¶РµРЅРёРµ";
             locationColumn.DataPropertyName = "Location";
             locationColumn.Width = 200;
             SyntaxTable.Columns.Add(locationColumn);
@@ -278,7 +247,7 @@ namespace TFLC_sem6_lab1
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ошибка при переходе к ошибке: {ex.Message}");
+                    MessageBox.Show($"РћС€РёР±РєР° РїСЂРё РїРµСЂРµС…РѕРґРµ Рє РѕС€РёР±РєРµ: {ex.Message}");
                 }
             }
         }
@@ -362,7 +331,7 @@ namespace TFLC_sem6_lab1
             {
                 isTextModified = true;
                 statusStripHandler.UpdateFileInfo(currentFilePath, fileInfoLabel, isTextModified);
-                statusStripHandler.UpdateStatus("Текст изменен", statusLabel);
+                statusStripHandler.UpdateStatus("РўРµРєСЃС‚ РёР·РјРµРЅРµРЅ", statusLabel);
             };
         }
 
@@ -372,7 +341,7 @@ namespace TFLC_sem6_lab1
             int line = InputTextBox.GetLineFromCharIndex(currentPosition) + 1;
             int column = currentPosition - InputTextBox.GetFirstCharIndexFromLine(line - 1) + 1;
 
-            cursorPositionLabel.Text = $"Стр: {line}, Стлб: {column}";
+            cursorPositionLabel.Text = $"РЎС‚СЂ: {line}, РЎС‚Р»Р±: {column}";
         }
 
         private void CreateLineNumberedRichTextBox()
@@ -444,26 +413,26 @@ namespace TFLC_sem6_lab1
         {
             foreach (ToolStripMenuItem item in MainMenu.Items)
             {
-                if (item.Text == "Файл") { FileHandler(item); }
-                else if (item.Text == "Правка") { EditionHandler(item); }
-                else if (item.Text == "Справка") { HelpFormsHandler(item); }
-                else if (item.Text == "Настройки") { SettingsHandler(item); }
-                else if (item.Text == "Пуск") { StartHandler(item); }
+                if (item.Text == "Р¤Р°Р№Р»") { FileHandler(item); }
+                else if (item.Text == "РџСЂР°РІРєР°") { EditionHandler(item); }
+                else if (item.Text == "РЎРїСЂР°РІРєР°") { HelpFormsHandler(item); }
+                else if (item.Text == "РќР°СЃС‚СЂРѕР№РєРё") { SettingsHandler(item); }
+                else if (item.Text == "РџСѓСЃРє") { StartHandler(item); }
             }
 
             foreach (ToolStripMenuItem item in InstrumentMenu.Items)
             {
-                if (item.Name == "Создать") { item.Click += CreateFile; }
-                else if (item.Name == "Открыть") { item.Click += OpenFile; }
-                else if (item.Name == "Сохранить") { item.Click += SaveFile; }
-                else if (item.Name == "Отменить") { item.Click += UndoText; }
-                else if (item.Name == "Повторить") { item.Click += RedoText; }
-                else if (item.Name == "Копировать") { item.Click += CopyText; }
-                else if (item.Name == "Вырезать") { item.Click += CutText; }
-                else if (item.Name == "Вставить") { item.Click += PasteText; }
-                else if (item.Name == "Пуск") { item.Click += StartAST; }
-                else if (item.Name == "Справка") { item.Click += ShowHelpForm; }
-                else if (item.Name == "ОПрограмме") { item.Click += ShowAboutForm; }
+                if (item.Name == "РЎРѕР·РґР°С‚СЊ") { item.Click += CreateFile; }
+                else if (item.Name == "РћС‚РєСЂС‹С‚СЊ") { item.Click += OpenFile; }
+                else if (item.Name == "РЎРѕС…СЂР°РЅРёС‚СЊ") { item.Click += SaveFile; }
+                else if (item.Name == "РћС‚РјРµРЅРёС‚СЊ") { item.Click += UndoText; }
+                else if (item.Name == "РџРѕРІС‚РѕСЂРёС‚СЊ") { item.Click += RedoText; }
+                else if (item.Name == "РљРѕРїРёСЂРѕРІР°С‚СЊ") { item.Click += CopyText; }
+                else if (item.Name == "Р’С‹СЂРµР·Р°С‚СЊ") { item.Click += CutText; }
+                else if (item.Name == "Р’СЃС‚Р°РІРёС‚СЊ") { item.Click += PasteText; }
+                else if (item.Name == "РџСѓСЃРє") { item.Click += StartAST; }
+                else if (item.Name == "РЎРїСЂР°РІРєР°") { item.Click += ShowHelpForm; }
+                else if (item.Name == "РћРџСЂРѕРіСЂР°РјРјРµ") { item.Click += ShowAboutForm; }
             }
         }
 
@@ -517,7 +486,7 @@ namespace TFLC_sem6_lab1
 
             if (fileText != InputTextBox.Text)
             {
-                MessageBox.Show("Сохраните перед выходом");
+                MessageBox.Show("РЎРѕС…СЂР°РЅРёС‚Рµ РїРµСЂРµРґ РІС‹С…РѕРґРѕРј");
                 return;
             }
             processFile.ExitFile(InputTextBox);
@@ -531,10 +500,9 @@ namespace TFLC_sem6_lab1
             OutputTable.Text = "";
             if (fileText != InputTextBox.Text)
             {
-                MessageBox.Show("Сохраните перед выходом");
+                MessageBox.Show("РЎРѕС…СЂР°РЅРёС‚Рµ РїРµСЂРµРґ РІС‹С…РѕРґРѕРј");
                 return;
             }
-            grammar.Dispose();
 
             if (System.Windows.Forms.Application.MessageLoop)
             {
@@ -708,50 +676,79 @@ namespace TFLC_sem6_lab1
             RichTextBoxExtensions.RefreshResources();
             currLang = "ru";
 
-            statusLabel.Text = "Готов к работе";
-            cursorPositionLabel.Text = "Стр: 1, Стлб: 1";
-            fileInfoLabel.Text = "Новый файл";
+            statusLabel.Text = "Р“РѕС‚РѕРІ Рє СЂР°Р±РѕС‚Рµ";
+            cursorPositionLabel.Text = "РЎС‚СЂ: 1, РЎС‚Р»Р±: 1";
+            fileInfoLabel.Text = "РќРѕРІС‹Р№ С„Р°Р№Р»";
+        }
+
+        public void PrintAst(AstNode node, string indent = "", bool last = true)
+        {
+            PrintAST ast = new PrintAST();
+            if (node == null) return;
+
+            txtOutput.Text += indent
+                + (last ? "в””в”Ђв”Ђ " : "в”њв”Ђв”Ђ ")
+                + ast.GetNodeLabel(node)
+                + Environment.NewLine;
+
+            indent += last ? "    " : "в”‚   ";
+
+            var children = ast.GetChildren(node);
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                PrintAst(children[i], indent, i == children.Count - 1);
+            }
         }
 
         private void StartAST(object sender, EventArgs e)
         {
+            txtOutput.Visible = true;
+            OutputTable.Visible = false;
+            txtOutput.Text = "";
 
+            LexicalAnalyzer lexer = new LexicalAnalyzer();
+            List<TableLine> tokens = lexer.AnalyzeText(currentFilePath);
+            Parser parser = new Parser(tokens);
+            AstNode node = parser.Program();
+
+            PrintAst(node);
         }
 
         private void FileHandler(ToolStripMenuItem item)
         {
             ToolStripMenuItem createItem = new ToolStripMenuItem();
-            createItem.Text = "Создать";
+            createItem.Text = "РЎРѕР·РґР°С‚СЊ";
             createItem.Click += CreateFile;
             createItem.Tag = "CreateFile";
             item.DropDownItems.Add(createItem);
 
             ToolStripMenuItem openItem = new ToolStripMenuItem();
-            openItem.Text = "Открыть";
+            openItem.Text = "РћС‚РєСЂС‹С‚СЊ";
             openItem.Click += OpenFile;
             openItem.Tag = "OpenFile";
             item.DropDownItems.Add(openItem);
 
             ToolStripMenuItem saveItem = new ToolStripMenuItem();
-            saveItem.Text = "Сохранить";
+            saveItem.Text = "РЎРѕС…СЂР°РЅРёС‚СЊ";
             saveItem.Click += SaveFile;
             saveItem.Tag = "SaveFile";
             item.DropDownItems.Add(saveItem);
 
             ToolStripMenuItem saveAsItem = new ToolStripMenuItem();
-            saveAsItem.Text = "Сохранить как";
+            saveAsItem.Text = "РЎРѕС…СЂР°РЅРёС‚СЊ РєР°Рє";
             saveAsItem.Click += SaveAsFile;
             saveAsItem.Tag = "SaveAsFile";
             item.DropDownItems.Add(saveAsItem);
 
             ToolStripMenuItem exitFileItem = new ToolStripMenuItem();
-            exitFileItem.Text = "Закрыть файл";
+            exitFileItem.Text = "Р—Р°РєСЂС‹С‚СЊ С„Р°Р№Р»";
             exitFileItem.Click += ExitFromFile;
             exitFileItem.Tag = "CloseFile";
             item.DropDownItems.Add(exitFileItem);
 
             ToolStripMenuItem exitItem = new ToolStripMenuItem();
-            exitItem.Text = "Выход";
+            exitItem.Text = "Р’С‹С…РѕРґ";
             exitItem.Click += ExitFromProgram;
             exitItem.Tag = "ExitFile";
             item.DropDownItems.Add(exitItem);
@@ -760,43 +757,43 @@ namespace TFLC_sem6_lab1
         private void EditionHandler(ToolStripMenuItem item)
         {
             ToolStripMenuItem undoItem = new ToolStripMenuItem();
-            undoItem.Text = "Отменить";
+            undoItem.Text = "РћС‚РјРµРЅРёС‚СЊ";
             undoItem.Click += UndoText;
             undoItem.Tag = "UndoText";
             item.DropDownItems.Add(undoItem);
 
             ToolStripMenuItem redoItem = new ToolStripMenuItem();
-            redoItem.Text = "Повторить";
+            redoItem.Text = "РџРѕРІС‚РѕСЂРёС‚СЊ";
             redoItem.Click += RedoText;
             redoItem.Tag = "RedoText";
             item.DropDownItems.Add(redoItem);
 
             ToolStripMenuItem cutItem = new ToolStripMenuItem();
-            cutItem.Text = "Вырезать";
+            cutItem.Text = "Р’С‹СЂРµР·Р°С‚СЊ";
             cutItem.Click += CutText;
             cutItem.Tag = "CutText";
             item.DropDownItems.Add(cutItem);
 
             ToolStripMenuItem copyItem = new ToolStripMenuItem();
-            copyItem.Text = "Копировать";
+            copyItem.Text = "РљРѕРїРёСЂРѕРІР°С‚СЊ";
             copyItem.Click += CopyText;
             copyItem.Tag = "CopyText";
             item.DropDownItems.Add(copyItem);
 
             ToolStripMenuItem pasteItem = new ToolStripMenuItem();
-            pasteItem.Text = "Вставить";
+            pasteItem.Text = "Р’СЃС‚Р°РІРёС‚СЊ";
             pasteItem.Click += PasteText;
             pasteItem.Tag = "PasteText";
             item.DropDownItems.Add(pasteItem);
 
             ToolStripMenuItem deleteItem = new ToolStripMenuItem();
-            deleteItem.Text = "Удалить";
+            deleteItem.Text = "РЈРґР°Р»РёС‚СЊ";
             deleteItem.Click += DeleteText;
             deleteItem.Tag = "DeleteText";
             item.DropDownItems.Add(deleteItem);
 
             ToolStripMenuItem selectItem = new ToolStripMenuItem();
-            selectItem.Text = "Выделить все";
+            selectItem.Text = "Р’С‹РґРµР»РёС‚СЊ РІСЃРµ";
             selectItem.Click += SelectAllText;
             selectItem.Tag = "SelectAllText";
             item.DropDownItems.Add(selectItem);
@@ -805,13 +802,13 @@ namespace TFLC_sem6_lab1
         private void HelpFormsHandler(ToolStripMenuItem item)
         {
             ToolStripMenuItem helpItem = new ToolStripMenuItem();
-            helpItem.Text = "Вызов справки";
+            helpItem.Text = "Р’С‹Р·РѕРІ СЃРїСЂР°РІРєРё";
             helpItem.Click += ShowHelpForm;
             helpItem.Tag = "ShowHelp";
             item.DropDownItems.Add(helpItem);
 
             ToolStripMenuItem aboutItem = new ToolStripMenuItem();
-            aboutItem.Text = "О программе";
+            aboutItem.Text = "Рћ РїСЂРѕРіСЂР°РјРјРµ";
             aboutItem.Click += ShowAboutForm;
             aboutItem.Tag = "ShowAbout";
             item.DropDownItems.Add(aboutItem);
@@ -820,23 +817,23 @@ namespace TFLC_sem6_lab1
         private void SettingsHandler(ToolStripMenuItem item)
         {
             ToolStripMenuItem textItem = new ToolStripMenuItem();
-            textItem.Text = "Настройки шрифта";
+            textItem.Text = "РќР°СЃС‚СЂРѕР№РєРё С€СЂРёС„С‚Р°";
             textItem.Click += ChangeTextStyle;
             textItem.Tag = "ChangeTextStyle";
             item.DropDownItems.Add(textItem);
 
             ToolStripMenuItem langItem = new ToolStripMenuItem();
-            langItem.Text = "Сменить язык";
+            langItem.Text = "РЎРјРµРЅРёС‚СЊ СЏР·С‹Рє";
             langItem.Tag = "ChangeLang";
 
             ToolStripMenuItem engItem = new ToolStripMenuItem();
-            engItem.Text = "Английский";
+            engItem.Text = "РђРЅРіР»РёР№СЃРєРёР№";
             engItem.Click += SetLocalizeEng;
             engItem.Tag = "SetLocalizeEng";
             langItem.DropDownItems.Add(engItem);
 
             ToolStripMenuItem ruItem = new ToolStripMenuItem();
-            ruItem.Text = "Русский";
+            ruItem.Text = "Р СѓСЃСЃРєРёР№";
             ruItem.Click += SetLocalizeRu;
             ruItem.Tag = "SetLocalizeRu";
             langItem.DropDownItems.Add(ruItem);
@@ -847,7 +844,11 @@ namespace TFLC_sem6_lab1
 
         private void StartHandler(ToolStripMenuItem item)
         {
-            
+            ToolStripMenuItem astItem = new ToolStripMenuItem();
+            astItem.Text = "AST";
+            astItem.Click += StartAST;
+            astItem.Tag = "AST";
+            item.DropDownItems.Add(astItem);
         }
 
     }

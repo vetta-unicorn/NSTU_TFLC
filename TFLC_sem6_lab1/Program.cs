@@ -4,9 +4,9 @@ namespace TFLC_sem6_lab1
 {
     internal static class Program
     {
-        private static string _dllPath; 
-        private static string _antlrDllPath;      
-        private static Assembly _antlrAssembly;   
+        private static string _dllPath;
+        private static string _antlrDllPath;
+        private static Assembly _antlrAssembly;
 
         /// <summary>
         ///  The main entry point for the application.
@@ -45,12 +45,12 @@ namespace TFLC_sem6_lab1
                     if (stream == null)
                     {
                         string resourceList = string.Join("\n", availableResources);
-                        MessageBox.Show(
-                            $"Ресурс '{resourceName}' не найден!\n\n" +
-                            $"Доступные ресурсы:\n{resourceList}",
-                            "Ошибка",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error);
+                        //MessageBox.Show(
+                        //    $"Ресурс '{resourceName}' не найден!\n\n" +
+                        //    $"Доступные ресурсы:\n{resourceList}",
+                        //    "Ошибка",
+                        //    MessageBoxButtons.OK,
+                        //    MessageBoxIcon.Error);
                         return;
                     }
 
@@ -74,8 +74,8 @@ namespace TFLC_sem6_lab1
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при извлечении FlexBisonGrammar DLL: {ex.Message}", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //MessageBox.Show($"Ошибка при извлечении FlexBisonGrammar DLL: {ex.Message}", "Ошибка",
+                //    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -100,12 +100,12 @@ namespace TFLC_sem6_lab1
                 if (antlrResourceName == null)
                 {
                     string resourceList = string.Join("\n", availableResources);
-                    MessageBox.Show(
-                        $"Ресурс ANTLR_DLL.dll не найден!\n\n" +
-                        $"Доступные ресурсы:\n{resourceList}",
-                        "Предупреждение",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
+                    //MessageBox.Show(
+                    //    $"Ресурс ANTLR_DLL.dll не найден!\n\n" +
+                    //    $"Доступные ресурсы:\n{resourceList}",
+                    //    "Предупреждение",
+                    //    MessageBoxButtons.OK,
+                    //    MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -113,11 +113,11 @@ namespace TFLC_sem6_lab1
                 {
                     if (stream == null)
                     {
-                        MessageBox.Show(
-                            $"Не удалось загрузить ресурс '{antlrResourceName}'",
-                            "Ошибка",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error);
+                        //MessageBox.Show(
+                        //    $"Не удалось загрузить ресурс '{antlrResourceName}'",
+                        //    "Ошибка",
+                        //    MessageBoxButtons.OK,
+                        //    MessageBoxIcon.Error);
                         return;
                     }
 
@@ -127,17 +127,17 @@ namespace TFLC_sem6_lab1
                     try
                     {
                         _antlrAssembly = Assembly.Load(assemblyData);
-                        _antlrDllPath = null; 
+                        _antlrDllPath = null;
 
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(
-                            $"Не удалось загрузить ANTLR DLL из памяти: {ex.Message}\n" +
-                            $"Пробуем сохранить на диск...",
-                            "Информация",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Information);
+                        //MessageBox.Show(
+                        //    $"Не удалось загрузить ANTLR DLL из памяти: {ex.Message}\n" +
+                        //    $"Пробуем сохранить на диск...",
+                        //    "Информация",
+                        //    MessageBoxButtons.OK,
+                        //    MessageBoxIcon.Information);
 
                         string tempPath = Path.GetTempPath();
                         _antlrDllPath = Path.Combine(tempPath, $"ANTLR_DLL_{Guid.NewGuid()}.dll");
@@ -157,8 +157,8 @@ namespace TFLC_sem6_lab1
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при извлечении ANTLR DLL: {ex.Message}", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //MessageBox.Show($"Ошибка при извлечении ANTLR DLL: {ex.Message}", "Ошибка",
+                //    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

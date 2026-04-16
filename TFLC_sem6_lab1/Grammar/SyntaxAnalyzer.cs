@@ -160,7 +160,7 @@ namespace TFLC_sem6_lab1.Grammar
             _currentToken = _tokens[pos];
         }
 
-        private AstNode Program()
+        public AstNode Program()
         {
             if (!IsValidToken()) return null;
 
