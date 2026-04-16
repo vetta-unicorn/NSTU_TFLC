@@ -375,14 +375,6 @@ namespace TFLC_sem6_lab1.Grammar
             {
                 string name = _currentToken.token;
 
-                if (_symbolTable.Lookup(name) == null)
-                {
-                    AddError($"Переменная {name} не объявлена",
-                        _currentToken.line_number,
-                        _currentToken.start_pos,
-                        _currentToken.end_pos);
-                }
-
                 left = new VariableNode { Name = name };
             }
             else if (_currentToken.code == 4)
@@ -393,6 +385,34 @@ namespace TFLC_sem6_lab1.Grammar
             string op = _currentToken.token;
 
             AstNode right = null;
+
+            if (relation_operation.Contains(_currentToken.code))
+            {
+                NextToken();
+                _errorCounter = 0;
+            }
+            else
+            {
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return null;
+                }
+
+                if (_errorCounter == 0)
+                {
+                    AddError($"В условном выражении: ожидается оператор сравнения",
+                    _currentToken.line_number,
+                    _currentToken.start_pos, _currentToken.end_pos);
+                }
+                if (SkipToToken(relation_operation))
+                    SkipToToken(relation_operation);
+                else SkipToSynchronizingToken([13, 14, 15, 16, 19, 20, 4, 12]); // > num )
+                _errorCounter++;
+            }
 
             if (_currentToken.code == 1)
             {
