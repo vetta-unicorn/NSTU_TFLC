@@ -718,9 +718,9 @@ namespace TFLC_sem6_lab1
             }
             else
             {
-
+                parser.DisplayErrors(errors, SyntaxTable);
+                statusLabel.Text = $"Количество ошибок: {errors.Count}";
             }
-            
         }
 
         private void FileHandler(ToolStripMenuItem item)
