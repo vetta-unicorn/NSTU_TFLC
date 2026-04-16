@@ -503,6 +503,26 @@ namespace TFLC_sem6_lab1.Grammar
                 NextToken();
                 _errorCounter = 0;
             }
+            else
+            {
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return null;
+                }
+                if (_errorCounter == 0)
+                {
+                    AddError($"В блоке: ожидается открывающая фигурная скоба",
+                    _currentToken.line_number,
+                    _currentToken.start_pos, _currentToken.end_pos);
+                }
+                if (SkipToToken(9)) SkipToToken(9);
+                else SkipToSynchronizingToken([9, 1, 6, 8]); // { $id ++ | --
+                _errorCounter++;
+            }
 
             var stmt = Statement();
             if (stmt != null)
@@ -512,6 +532,26 @@ namespace TFLC_sem6_lab1.Grammar
             {
                 NextToken();
                 _errorCounter = 0;
+            }
+            else
+            {
+                if (_errorCounter > 3)
+                {
+                    AddError("Допущено более 3 синтаксических ошибок, " +
+                        "парсинг прекращается", _currentToken.line_number,
+                        _currentToken.start_pos, _currentToken.end_pos);
+                    endFlag = true;
+                    return;
+                }
+                if (_errorCounter == 0)
+                {
+                    AddError($"В блоке: ожидается закрывающая фигурная скоба",
+                    _currentToken.line_number,
+                    _currentToken.start_pos, _currentToken.end_pos);
+                }
+                if (SkipToToken(10)) SkipToToken(10);
+                else SkipToSynchronizingToken([10, 2, 11]); // } while (
+                _errorCounter++;
             }
 
             return block;
