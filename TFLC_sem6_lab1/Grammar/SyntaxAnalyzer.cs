@@ -65,7 +65,7 @@ namespace TFLC_sem6_lab1.Grammar
             }
         }
 
-        public List<ParseError> Parse()
+        public (List<ParseError>, AstNode) Parse()
         {
             try
             {
@@ -76,7 +76,7 @@ namespace TFLC_sem6_lab1.Grammar
                 AddError($"Критическая ошибка: {ex.Message}", 0, 0, 0);
             }
 
-            return _errors;
+            return (_errors, Root);
         }
 
         private void NextToken()
@@ -610,6 +610,7 @@ namespace TFLC_sem6_lab1.Grammar
 
             if (_currentToken.code == 1)
             {
+                varName = _currentToken.token;
                 NextToken();
                 _errorCounter = 0;
             }

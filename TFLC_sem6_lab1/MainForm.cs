@@ -705,19 +705,29 @@ namespace TFLC_sem6_lab1
         {
             txtOutput.Visible = true;
             OutputTable.Visible = false;
+            SyntaxTable.Visible = false;
             txtOutput.Text = "";
 
             LexicalAnalyzer lexer = new LexicalAnalyzer();
             List<TableLine> tokens = lexer.AnalyzeText(currentFilePath);
             Parser parser = new Parser(tokens);
-            List<ParseError> errors = parser.Parse();
+            (List<ParseError>, AstNode) result = parser.Parse();
+            List<ParseError> errors = result.Item1;
+            AstNode node = result.Item2;
             if (errors == null ||  errors.Count == 0)
             {
-                AstNode node = parser.Program();
                 PrintAst(node);
             }
             else
             {
+                SyntaxTable.DataSource = null;
+                SyntaxTable.Rows.Clear();
+
+                SyntaxTable.Visible = true;
+                SyntaxTable.Enabled = true;
+                txtOutput.Visible = false;
+                OutputTable.Visible = false;
+
                 parser.DisplayErrors(errors, SyntaxTable);
                 statusLabel.Text = $"Количество ошибок: {errors.Count}";
             }
