@@ -15,10 +15,8 @@ namespace TFLC_sem6_lab1.Grammar
         private int _currentPos;
         private TableLine _currentToken;
         private List<ParseError> _errors;
-        private TokenDict _tokenDict;
         private int[] relation_operation = new int[] { 13, 14, 15, 16, 19, 20 };
         private int[] increment_operation = new int[] { 6, 8 };
-        private bool _errorFlag;
         private int _errorCounter;
 
         private bool endFlag = false;
@@ -28,9 +26,7 @@ namespace TFLC_sem6_lab1.Grammar
             _tokens = tokens;
             _currentPos = 0;
             _errors = new List<ParseError>();
-            _tokenDict = new TokenDict();
             _currentToken = _tokens.Count > 0 ? _tokens[0] : null;
-            _errorFlag = false;
         }
 
         public void DisplayErrors(List<ParseError> errors, DataGridView SyntaxTable)
@@ -102,60 +98,54 @@ namespace TFLC_sem6_lab1.Grammar
             return _currentPos < _tokens.Count && _currentToken != null;
         }
 
-        private bool SkipToToken(int code)
+        private bool SkipToSynchronizingToken(int[] codes)
         {
             int pos = _currentPos;
             int i = 0;
-            while (IsValidToken() && _currentToken.code != code && i < 3)
-            {
-                NextToken();
-                if (_currentToken != null)
-                {
-                    if (_currentToken.code == code)
-                    {
-                        return true;
-                    }
-                    i++;
-                }
-            }
-            _currentPos = pos;
-            _currentToken = _tokens[pos];
-            return false;
-        }
-
-        private bool SkipToToken(int[] codes)
-        {
-            int pos = _currentPos;
-            int i = 0;
-            while (IsValidToken() && !codes.Contains(_currentToken.code) && i < 3)
-            {
-                NextToken();
-                if (_currentToken != null)
-                {
-                    if (codes.Contains(_currentToken.code)) return true;
-                }
-                i++;
-            }
-            _currentPos = pos;
-            _currentToken = _tokens[pos];
-            return false;
-        }
-
-        private void SkipToSynchronizingToken(int[] codes)
-        {
-            int pos = _currentPos;
-            int i = 0;
-            while (IsValidToken() && i < 3)
+            while (IsValidToken() && i < 4)
             {
                 if (codes.Contains(_currentToken.code))
                 {
-                    return;
+                    return true;
                 }
                 NextToken();
                 i++;
             }
             _currentPos = pos;
             _currentToken = _tokens[pos];
+            return false;
+        }
+
+        private void ExpectToken(int[] codes, int[] syncro, string message)
+        {
+            if (!IsValidToken()) return;
+            if (codes.Contains(_currentToken.code))
+            {
+                NextToken();
+                _errorCounter = 0;
+            }
+            else
+            {
+                if (_errorCounter > 5) { endFlag = true; return; }
+                AddError(message,
+                    _currentToken.line_number,
+                    _currentToken.start_pos, _currentToken.end_pos);
+                SkipToSynchronizingToken(syncro);
+                _errorCounter++;
+            }
+        }
+
+        private void ExpectEOF(string message)
+        {
+            if (!IsValidToken())
+            {
+                AddError(message,
+                    _tokens[Math.Max(0, _currentPos - 1)].line_number,
+                    _tokens[Math.Max(0, _currentPos - 1)].start_pos,
+                    _tokens[Math.Max(0, _currentPos - 1)].end_pos);
+                endFlag = true;
+                return;
+            }
         }
 
         private void Program()
@@ -164,8 +154,7 @@ namespace TFLC_sem6_lab1.Grammar
 
             DoWhileStatement();
 
-            if (_errorCounter > 3) return;
-
+            if (endFlag) return;
             if (IsValidToken())
             {
                 AddError($"Ошибочный токен в конце строки",
@@ -184,420 +173,86 @@ namespace TFLC_sem6_lab1.Grammar
                     _tokens[_currentPos].line_number,
                     _tokens[_currentPos].start_pos,
                     _tokens[_currentPos].end_pos);
-                if (SkipToToken(3))
-                {
-                    SkipToToken(3);
-                }
-                else
-                {
-                    SkipToSynchronizingToken([3, 9, 1]); // do { $id
-                }
-                _errorCounter++;
+                SkipToSynchronizingToken([3, 9, 1, 6, 8, 17]);
             }
 
-            if (!IsValidToken())
-            {
-                AddError("В конструкции do-while ожидается do",
-                    _tokens[_currentPos - 1].line_number,
-                    _tokens[_currentPos - 1].start_pos,
-                    _tokens[_currentPos - 1].end_pos);
-                endFlag = true;
-                return;
-            }
+            ExpectEOF("В конструкции do-while ожидается do");
 
-            if (_currentToken.code == 3)
-            {
-                NextToken();
-                _errorCounter = 0;
-            }
-            else
-            {
-                if (_errorCounter > 3)
-                {
-                    AddError("Допущено более 3 синтаксических ошибок, " +
-                        "парсинг прекращается", _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                    endFlag = true;
-                    return;
-                }
-                if (_errorCounter == 0)
-                {
-                    AddError($"В конструкции do-while: ожидается ключевое слово do",
-                        _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                }
-                if (SkipToToken(3)) SkipToToken(3);
-                else SkipToSynchronizingToken([3, 9, 1]); // do { $id
-                _errorCounter++;
-            }
+            ExpectToken([3], [3, 9, 1, 6, 8, 17],
+                "В конструкции do-while: ожидается ключевое слово do");
 
-            if (!IsValidToken() || _tokens.Count == 1)
-            {
-                AddError("В условном выражении: ожидается открывающая фигурная скобка",
-                    _tokens[0].line_number,
-                    _tokens[0].start_pos,
-                    _tokens[0].end_pos);
-                NextToken();
-                return;
-            }
+            ExpectEOF("В условном выражении: ожидается открывающая фигурная скобка");
 
             Block();
+
             if (endFlag) return;
 
-            if (!IsValidToken())
-            {
-                AddError("В условном выражении: ожидается ключевое слово while",
-                    _tokens[_currentPos - 1].line_number,
-                    _tokens[_currentPos - 1].start_pos,
-                    _tokens[_currentPos - 1].end_pos);
-                return;
-            }
+            ExpectEOF("В условном выражении: ожидается ключевое слово while");
 
-            if (_currentToken.code == 2)
-            {
-                NextToken();
-                _errorCounter = 0;
-            }
-            else
-            {
-                if (_errorCounter > 3)
-                {
-                    AddError("Допущено более 3 синтаксических ошибок, " +
-                        "парсинг прекращается", _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                    endFlag = true;
-                    return;
-                }
-                if (_errorCounter == 0)
-                {
-                    AddError($"В конструкции do-while: ожидается ключевое слово while",
-                        _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                }
-                if (SkipToToken(2)) SkipToToken(2);
-                else SkipToSynchronizingToken([2, 11, 1]); // while ( $id
-                _errorCounter++;
-            }
+            ExpectToken([2], [2, 11, 1, 13, 14, 15, 16, 19, 20, 4],
+                "В конструкции do-while: ожидается ключевое слово while");
 
-            if (!IsValidToken())
-            {
-                AddError("В условном выражении: ожидается (",
-                    _tokens[_currentPos - 1].line_number,
-                    _tokens[_currentPos - 1].start_pos,
-                    _tokens[_currentPos - 1].end_pos);
-                endFlag = true;
-                return;
-            }
+            ExpectEOF("В условном выражении: ожидается открывающая круглая скобка");
 
             Condition();
 
             if (endFlag) return;
 
-            if (IsValidToken() && _currentToken.code == 17)
-            {
-                NextToken();
-                _errorCounter = 0;
-            } 
-            else
-            {
-                if (_errorCounter > 3)
-                {
-                    AddError("Допущено более 3 синтаксических ошибок, " +
-                        "парсинг прекращается", _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                    endFlag = true;
-                    return;
-                }
+            ExpectEOF("Ожидается завершающая точка с запятой");
 
-                if (_errorCounter == 0)
-                {
-                    AddError($"Ожидается завершающая точка с запятой",
-                   _tokens[_currentPos - 1].line_number,
-                    _tokens[_currentPos - 1].start_pos,
-                    _tokens[_currentPos - 1].end_pos);
-                }
-                _errorCounter = 0;
-            }
+            ExpectToken([17], [0], "Ожидается завершающая точка с запятой");
         }
 
         private void Condition()
         {
-            if (!IsValidToken())
-            {
-                AddError("В условном выражении: ожидается открывающая круглая скобка",
-                    _tokens[_currentPos - 1].line_number,
-                    _tokens[_currentPos - 1].start_pos,
-                    _tokens[_currentPos - 1].end_pos);
-                endFlag = true;
-                return;
-            }
+            ExpectEOF("В условном выражении: ожидается открывающая круглая скобка");
 
-            if (_currentToken.code == 11)
-            {
-                NextToken();
-                _errorCounter = 0;
-            }
-            else
-            {
-                if (_errorCounter > 3)
-                {
-                    AddError("Допущено более 3 синтаксических ошибок, " +
-                        "парсинг прекращается", _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                    endFlag = true;
-                    return;
-                }
+            ExpectToken([11], [11, 1, 13, 14, 15, 16, 19, 20, 4, 12],
+                "В условном выражении: ожидается открывающая круглая скобка");
 
-                if (_errorCounter == 0)
-                {
-                    AddError($"В условном выражении: ожидается открывающая круглая скобка",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                }
-                if (SkipToToken(11)) SkipToToken(11);
-                else SkipToSynchronizingToken([11, 1, 13, 14, 15, 16, 19, 20]); // ( $id >
-                _errorCounter++;
-            }
+            ExpectEOF("В условном выражении: ожидается идентификатор или число");
+
+            ExpectToken([1, 4], [1, 13, 14, 15, 16, 19, 20, 4, 12, 17],
+                "В условном выражении: ожидается идентификатор или число");
+
+            ExpectEOF("В условном выражении: ожидается оператор сравнения");
+
+            ExpectToken(relation_operation, [13, 14, 15, 16, 19, 20, 4, 12, 17],
+                "В условном выражении: ожидается оператор сравнения");
+
+            ExpectEOF("В условном выражении: ожидается идентификатор или число");
+
+            ExpectToken([1, 4], [1, 4, 12, 17],
+                "В условном выражении: ожидается идентификатор или число");
+
+            ExpectEOF("В условном выражении: ожидается закрывающая круглая скобка");
+
+            ExpectToken([12], [12, 17],
+                "В условном выражении: ожидается закрывающая круглая скобка");
 
             if (!IsValidToken())
             {
-                AddError("В условном выражении: ожидается идентификатор или число",
-                    _tokens[_currentPos - 1].line_number,
-                    _tokens[_currentPos - 1].start_pos,
-                    _tokens[_currentPos - 1].end_pos);
                 endFlag = true;
-                return;
-            }
-
-            if (_currentToken.code == 1 || _currentToken.code == 4)
-            {
-                NextToken();
-                _errorCounter = 0;
-            }
-            else
-            {
-                if (_errorCounter > 3)
-                {
-                    AddError("Допущено более 3 синтаксических ошибок, " +
-                        "парсинг прекращается", _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                    endFlag = true;
-                    return;
-                }
-
-                if (_errorCounter == 0)
-                {
-                    AddError($"В условном выражении: ожидается идентификатор или число",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                }
-                if (SkipToToken([1, 4])) SkipToToken([1, 4]);
-                else SkipToSynchronizingToken([1, 13, 14, 15, 16, 19, 20, 4]); // $id > num
-                _errorFlag = true;
-            }
-
-            if (!IsValidToken())
-            {
-                AddError("В условном выражении: ожидается оператор сравнения",
-                    _tokens[_currentPos - 1].line_number,
-                    _tokens[_currentPos - 1].start_pos,
-                    _tokens[_currentPos - 1].end_pos);
-                endFlag = true;
-                return;
-            }
-
-            if (relation_operation.Contains(_currentToken.code))
-            {
-                NextToken();
-                _errorCounter = 0;
-            }
-            else
-            {
-                if (_errorCounter > 3)
-                {
-                    AddError("Допущено более 3 синтаксических ошибок, " +
-                        "парсинг прекращается", _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                    endFlag = true;
-                    return;
-                }
-
-                if (_errorCounter == 0)
-                {
-                    AddError($"В условном выражении: ожидается оператор сравнения",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                }
-                if (SkipToToken(relation_operation)) 
-                    SkipToToken(relation_operation);
-                else SkipToSynchronizingToken([13, 14, 15, 16, 19, 20, 4, 12]); // > num )
-                _errorCounter++;
-            }
-
-            if (!IsValidToken())
-            {
-                AddError("В условном выражении: ожидается идентификатор или число",
-                    _tokens[_currentPos - 1].line_number,
-                    _tokens[_currentPos - 1].start_pos,
-                    _tokens[_currentPos - 1].end_pos);
-                endFlag = true;
-                return;
-            }
-
-            if (_currentToken.code == 1 || _currentToken.code == 4)
-            {
-                NextToken();
-                _errorCounter = 0;
-            }
-            else
-            {
-                if (_errorCounter > 3)
-                {
-                    AddError("Допущено более 3 синтаксических ошибок, " +
-                        "парсинг прекращается", _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                    endFlag = true;
-                    return;
-                }
-
-                if (_errorCounter == 0)
-                {
-                    AddError($"В условном выражении: ожидается идентификатор или число",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                }
-                if (SkipToToken([1, 4])) SkipToToken([1, 4]);
-                else SkipToSynchronizingToken([1, 4, 12, 17]); // $id | num ) ;
-                _errorCounter++;
-            }
-
-            if (!IsValidToken())
-            {
-                AddError("В условном выражении: ожидается )",
-                    _tokens[_currentPos - 1].line_number,
-                    _tokens[_currentPos - 1].start_pos,
-                    _tokens[_currentPos - 1].end_pos);
-                endFlag = true;
-                return;
-            }
-
-            if (_currentToken.code == 12)
-            {
-                NextToken();
-                _errorCounter = 0;
-            }
-            else
-            {
-                if (_errorCounter > 3)
-                {
-                    AddError("Допущено более 3 синтаксических ошибок, " +
-                        "парсинг прекращается", _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                    endFlag = true;
-                    return;
-                }
-
-                if (_errorCounter == 0)
-                {
-                    AddError($"В условном выражении: ожидается закрывающая круглая скобка",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                }
-                if (SkipToToken(12)) SkipToToken(12);
-                else SkipToSynchronizingToken([12, 17]); // ) ;
-                _errorCounter++;
             }
         }
 
         private void Block()
         {
-            if (!IsValidToken())
-            {
-                AddError("В условном выражении: ожидается открывающая фигурная скобка",
-                    _tokens[_currentPos - 1].line_number,
-                    _tokens[_currentPos - 1].start_pos,
-                    _tokens[_currentPos - 1].end_pos);
-                endFlag = true;
-                return;
-            }
+            ExpectEOF("В условном выражении: ожидается открывающая фигурная скобка");
 
-            if (_currentToken.code == 9)
-            {
-                NextToken();
-                _errorCounter = 0;
-            }
-            else
-            {
-                if (_errorCounter > 3)
-                {
-                    AddError("Допущено более 3 синтаксических ошибок, " +
-                        "парсинг прекращается", _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                    endFlag = true;
-                    return;
-                }
-                if (_errorCounter == 0)
-                {
-                    AddError($"В блоке: ожидается открывающая фигурная скоба",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                }
-                if (SkipToToken(9)) SkipToToken(9);
-                else SkipToSynchronizingToken([9, 1, 6, 8]); // { $id ++ | --
-                _errorCounter++;
-            }
+            ExpectToken([9], [9, 1, 6, 8, 17, 10],
+                "В блоке: ожидается открывающая фигурная скоба");
 
-
-            if (!IsValidToken())
-            {
-                AddError("В условном выражении: ожидается идентификатор",
-                    _tokens[_currentPos - 1].line_number,
-                    _tokens[_currentPos - 1].start_pos,
-                    _tokens[_currentPos - 1].end_pos);
-                endFlag = true;
-                return;
-            }
+            ExpectEOF("В условном выражении: ожидается идентификатор");
 
             Statement();
 
             if (endFlag) return;
 
-            if (!IsValidToken())
-            {
-                AddError("В условном выражении: ожидается закрывающая фигурная скобка",
-                        _tokens[_currentPos - 1].line_number,
-                        _tokens[_currentPos - 1].start_pos,
-                        _tokens[_currentPos - 1].end_pos);
-                endFlag = true;
-                return;
-            }
+            ExpectEOF("В условном выражении: ожидается закрывающая фигурная скобка");
 
-            if (_currentToken.code == 10)
-            {
-                NextToken();
-                _errorCounter = 0;
-            }
-
-            else
-            {
-                if (_errorCounter > 3)
-                {
-                    AddError("Допущено более 3 синтаксических ошибок, " +
-                        "парсинг прекращается", _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                    endFlag = true;
-                    return;
-                }
-                if (_errorCounter == 0)
-                {
-                    AddError($"В блоке: ожидается закрывающая фигурная скоба",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                }
-                if (SkipToToken(10)) SkipToToken(10);
-                else SkipToSynchronizingToken([10, 2, 11]); // } while (
-                _errorCounter++;
-            }
+            ExpectToken([10], [10, 2, 11, 1, 13, 14, 15, 16, 19, 20],
+                "В блоке: ожидается закрывающая фигурная скоба");
 
             if (!IsValidToken())
             {
@@ -607,124 +262,20 @@ namespace TFLC_sem6_lab1.Grammar
 
         private void Statement()
         {
-            if (!IsValidToken())
-            {
-                endFlag = true;
-                return;
-            }
+            ExpectEOF("В условном выражении: ожидается идентификатор");
 
-            if (!IsValidToken())
-            {
-                AddError("В условном выражении: ожидается идентификатор",
-                    _tokens[_currentPos - 1].line_number,
-                    _tokens[_currentPos - 1].start_pos,
-                    _tokens[_currentPos - 1].end_pos);
-                endFlag = true;
-                return;
-            }
+            ExpectToken([1], [1, 6, 8, 17, 10, 2],
+                "В блоке: ожидается идентификатор");
 
-            if (_currentToken.code == 1)
-            {
-                NextToken();
-                _errorCounter = 0;
-            }
+            ExpectEOF("В блоке: ожидается оператор инкремента или декремента");
 
-            else
-            {
-                if (_errorCounter > 3)
-                {
-                    AddError("Допущено более 3 синтаксических ошибок, " +
-                        "парсинг прекращается", _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                    endFlag = true;
-                    return;
-                }
-                if (_errorCounter == 0)
-                {
-                    AddError($"В блоке: ожидается идентификатор",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                }
-                if (SkipToToken(1)) SkipToToken(1);
-                else SkipToSynchronizingToken([1, 6, 8, 17]); // $id ++ | -- ;
-                _errorCounter++;
-            }
+            ExpectToken(increment_operation, [6, 8, 17, 10, 2, 11],
+                "В блоке: ожидается оператор инкремента или декремента");
 
-            if (!IsValidToken())
-            {
-                AddError("В блоке: ожидается оператор инкремента или декремента",
-                        _tokens[_currentPos - 1].line_number,
-                        _tokens[_currentPos - 1].start_pos,
-                        _tokens[_currentPos - 1].end_pos);
-                endFlag = true;
-                return;
-            }
+            ExpectEOF("В блоке: ожидается точка с запятой");
 
-            if (increment_operation.Contains(_currentToken.code))
-            {
-                NextToken();
-                _errorCounter = 0;
-            }
-
-            else
-            {
-                if (_errorCounter > 3)
-                {
-                    AddError("Допущено более 3 синтаксических ошибок, " +
-                        "парсинг прекращается", _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                    endFlag = true;
-                    return;
-                }
-                if (_errorCounter == 0)
-                {
-                    AddError($"В блоке: ожидается оператор инкремента или декремента",
-                    _currentToken.line_number,
-                    _currentToken.start_pos, _currentToken.end_pos);
-                }
-                if (SkipToToken(increment_operation)) 
-                    SkipToToken(increment_operation);
-                else SkipToSynchronizingToken([6, 8, 17, 10]); // ++ | -- ; }
-                _errorCounter++;
-            }
-
-            if (!IsValidToken())
-            {
-                AddError("В блоке: ожидается точка с запятой",
-                        _tokens[_currentPos - 1].line_number,
-                        _tokens[_currentPos - 1].start_pos,
-                        _tokens[_currentPos - 1].end_pos);
-                endFlag = true;
-                return;
-            }
-
-            if (_currentToken.code == 17)
-            {
-                NextToken();
-                _errorCounter = 0;
-            }
-
-            else
-            {
-                if (_errorCounter > 3)
-                {
-                    AddError("Допущено более 3 синтаксических ошибок, " +
-                        "парсинг прекращается", _currentToken.line_number,
-                        _currentToken.start_pos, _currentToken.end_pos);
-                    endFlag = true;
-                    return;
-                }
-                if (_errorCounter == 0)
-                {
-                    AddError($"В блоке: ожидается точка с запятой",
-                    _tokens[_currentPos - 1].line_number,
-                    _tokens[_currentPos - 1].start_pos,
-                    _tokens[_currentPos - 1].end_pos);
-                }
-                if (SkipToToken(17)) SkipToToken(17);
-                else SkipToSynchronizingToken([17, 10, 2]); // ; } while
-                _errorCounter++;
-            }
+            ExpectToken([17], [17, 10, 2, 11, 1, 4],
+                "В блоке: ожидается точка с запятой");
 
             if (!IsValidToken())
             {
