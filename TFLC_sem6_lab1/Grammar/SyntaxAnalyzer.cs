@@ -173,7 +173,7 @@ namespace TFLC_sem6_lab1.Grammar
                     _tokens[_currentPos].line_number,
                     _tokens[_currentPos].start_pos,
                     _tokens[_currentPos].end_pos);
-                SkipToSynchronizingToken([3, 9, 1, 6, 8, 17]); // do { $id ++ | -- ;
+                SkipToSynchronizingToken([3, 9, 1, 6, 8, 17]);
             }
 
             ExpectEOF("В конструкции do-while ожидается do");
@@ -184,6 +184,7 @@ namespace TFLC_sem6_lab1.Grammar
             ExpectEOF("В условном выражении: ожидается открывающая фигурная скобка");
 
             Block();
+
             if (endFlag) return;
 
             ExpectEOF("В условном выражении: ожидается ключевое слово while");
@@ -196,6 +197,8 @@ namespace TFLC_sem6_lab1.Grammar
             Condition();
 
             if (endFlag) return;
+
+            ExpectEOF("Ожидается завершающая точка с запятой");
 
             ExpectToken([17], [0], "Ожидается завершающая точка с запятой");
         }
@@ -226,6 +229,11 @@ namespace TFLC_sem6_lab1.Grammar
 
             ExpectToken([12], [12, 17],
                 "В условном выражении: ожидается закрывающая круглая скобка");
+
+            if (!IsValidToken())
+            {
+                endFlag = true;
+            }
         }
 
         private void Block()
