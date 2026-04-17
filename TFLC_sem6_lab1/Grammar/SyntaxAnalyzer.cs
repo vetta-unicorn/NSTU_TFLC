@@ -130,7 +130,7 @@ namespace TFLC_sem6_lab1.Grammar
                 AddError(message,
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
-                SkipToSynchronizingToken(syncro); // $id ++ | -- ; } while
+                SkipToSynchronizingToken(syncro);
                 _errorCounter++;
             }
         }
