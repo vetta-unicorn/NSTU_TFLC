@@ -711,12 +711,31 @@ namespace TFLC_sem6_lab1
             LexicalAnalyzer lexer = new LexicalAnalyzer();
             List<TableLine> tokens = lexer.AnalyzeText(currentFilePath);
             Parser parser = new Parser(tokens);
-            (List<ParseError>, AstNode) result = parser.Parse();
+            (List<ParseError>, AstNode, ParseError) result = parser.Parse();
             List<ParseError> errors = result.Item1;
             AstNode node = result.Item2;
-            if (errors == null ||  errors.Count == 0)
+            ParseError semanticError = result.Item3;
+
+            if ((errors == null ||  errors.Count == 0) && semanticError == null)
             {
                 PrintAst(node);
+                MessageBox.Show("Успех! Синтаксических и семантических ошибок не обнаружено!");
+            }
+            else if (semanticError != null)
+            {
+                List<ParseError> semanticErrors = new List<ParseError>();
+                semanticErrors.Add(semanticError);
+
+                SyntaxTable.DataSource = null;
+                SyntaxTable.Rows.Clear();
+
+                SyntaxTable.Visible = true;
+                SyntaxTable.Enabled = true;
+                txtOutput.Visible = false;
+                OutputTable.Visible = false;
+
+                parser.DisplayErrors(semanticErrors, SyntaxTable);
+                statusLabel.Text = $"Количество ошибок: {semanticErrors.Count}";
             }
             else
             {

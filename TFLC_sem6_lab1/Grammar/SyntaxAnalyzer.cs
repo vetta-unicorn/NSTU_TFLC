@@ -23,6 +23,12 @@ namespace TFLC_sem6_lab1.Grammar
         public AstNode Root { get; private set; }
         private SymbolTable _symbolTable = new SymbolTable();
 
+        TableLine statementToken;
+        TableLine condition1Token;
+        TableLine condition2Token;
+
+        ParseError _semanticError;
+
         public Parser(List<TableLine> tokens)
         {
             _tokens = tokens;
@@ -61,7 +67,7 @@ namespace TFLC_sem6_lab1.Grammar
             }
         }
 
-        public (List<ParseError>, AstNode) Parse()
+        public (List<ParseError>, AstNode, ParseError) Parse()
         {
             try
             {
@@ -72,7 +78,7 @@ namespace TFLC_sem6_lab1.Grammar
                 AddError($"Критическая ошибка: {ex.Message}", 0, 0, 0);
             }
 
-            return (_errors, Root);
+            return (_errors, Root, _semanticError);
         }
 
         private void NextToken()
@@ -170,6 +176,14 @@ namespace TFLC_sem6_lab1.Grammar
                     _currentToken.line_number,
                     _currentToken.start_pos,
                     _currentToken.end_pos);
+            }
+
+            if (statementToken.token != condition1Token.token 
+                && statementToken.token != condition2Token.token)
+            {
+                _semanticError = new ParseError("В условии должен быть хотя бы один " +
+                    "идентификатор из блока", condition1Token.line_number,
+                    condition1Token.start_pos, condition1Token.end_pos);
             }
 
             return node;
@@ -372,12 +386,14 @@ namespace TFLC_sem6_lab1.Grammar
                 string name = _currentToken.token;
 
                 left = new VariableNode { Name = name };
+                condition1Token = _currentToken;
                 NextToken();
                 _errorCounter = 0;
             }
             else if (_currentToken.code == 4)
             {
                 left = new LiteralNode { Value = int.Parse(_currentToken.token) };
+                condition1Token = _currentToken;
                 NextToken();
                 _errorCounter = 0;
             }
@@ -438,12 +454,14 @@ namespace TFLC_sem6_lab1.Grammar
             {
                 string name = _currentToken.token;
                 right = new VariableNode { Name = name };
+                condition2Token = _currentToken;
                 NextToken();
                 _errorCounter = 0;
             }
             else if (_currentToken.code == 4)
             {
                 int value = int.Parse(_currentToken.token);
+                condition2Token = _currentToken;
                 right = new LiteralNode { Value = value };
                 NextToken();
                 _errorCounter = 0;
@@ -606,6 +624,7 @@ namespace TFLC_sem6_lab1.Grammar
 
             if (_currentToken.code == 1)
             {
+                statementToken = _currentToken;
                 varName = _currentToken.token;
                 NextToken();
                 _errorCounter = 0;
@@ -720,10 +739,19 @@ namespace TFLC_sem6_lab1.Grammar
         public int StartPosition { get; set; }
         public int EndPosition { get; set; }
 
+        public ParseError() { }
+
+        public ParseError(string message, int line, int startPosition, int endPosition)
+        {
+            Message = message;
+            Line = line;
+            StartPosition = startPosition;
+            EndPosition = endPosition;
+        }
+
         public override string ToString()
         {
             return $"Строка {Line + 1}, позиция {StartPosition}-{EndPosition}: {Message}";
         }
     }
-
 }
