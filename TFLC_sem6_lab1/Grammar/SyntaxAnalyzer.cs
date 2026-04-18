@@ -118,7 +118,10 @@ namespace TFLC_sem6_lab1.Grammar
 
         private void ExpectToken(int[] codes, int[] syncro, string message)
         {
-            if (!IsValidToken()) return;
+            ExpectEOF(message);
+
+            if (endFlag) return;
+
             if (codes.Contains(_currentToken.code))
             {
                 NextToken();
@@ -162,7 +165,6 @@ namespace TFLC_sem6_lab1.Grammar
                     _currentToken.start_pos, _currentToken.end_pos);
             }
         }
-
         private void DoWhileStatement()
         {
             if (!IsValidToken()) return;
@@ -176,111 +178,82 @@ namespace TFLC_sem6_lab1.Grammar
                 SkipToSynchronizingToken([3, 9, 1, 6, 8, 17]);
             }
 
-            ExpectEOF("В конструкции do-while ожидается do");
-
             ExpectToken([3], [3, 9, 1, 6, 8, 17],
                 "В конструкции do-while: ожидается ключевое слово do");
 
-            ExpectEOF("В условном выражении: ожидается открывающая фигурная скобка");
-
+            if (endFlag) return;
             Block();
 
             if (endFlag) return;
-
-            ExpectEOF("В условном выражении: ожидается ключевое слово while");
-
             ExpectToken([2], [2, 11, 1, 13, 14, 15, 16, 19, 20, 4],
                 "В конструкции do-while: ожидается ключевое слово while");
 
-            ExpectEOF("В условном выражении: ожидается открывающая круглая скобка");
-
+            if (endFlag) return;
             Condition();
 
             if (endFlag) return;
-
-            ExpectEOF("Ожидается завершающая точка с запятой");
-
-            ExpectToken([17], [0], "Ожидается завершающая точка с запятой");
+            ExpectToken([17], [17], "Ожидается завершающая точка с запятой");
         }
 
         private void Condition()
         {
-            ExpectEOF("В условном выражении: ожидается открывающая круглая скобка");
-
+            if (endFlag) return;
             ExpectToken([11], [11, 1, 13, 14, 15, 16, 19, 20, 4, 12],
                 "В условном выражении: ожидается открывающая круглая скобка");
 
-            ExpectEOF("В условном выражении: ожидается идентификатор или число");
-
+            if (endFlag) return;
             ExpectToken([1, 4], [1, 13, 14, 15, 16, 19, 20, 4, 12, 17],
                 "В условном выражении: ожидается идентификатор или число");
 
-            ExpectEOF("В условном выражении: ожидается оператор сравнения");
-
+            if (endFlag) return;
             ExpectToken(relation_operation, [13, 14, 15, 16, 19, 20, 4, 12, 17],
                 "В условном выражении: ожидается оператор сравнения");
 
-            ExpectEOF("В условном выражении: ожидается идентификатор или число");
-
+            if (endFlag) return;
             ExpectToken([1, 4], [1, 4, 12, 17],
                 "В условном выражении: ожидается идентификатор или число");
 
-            ExpectEOF("В условном выражении: ожидается закрывающая круглая скобка");
-
+            if (endFlag) return;
             ExpectToken([12], [12, 17],
                 "В условном выражении: ожидается закрывающая круглая скобка");
 
-            if (!IsValidToken())
-            {
-                endFlag = true;
-            }
+            if (endFlag) return;
+            ExpectEOF("Ожидается завершающая точка с запятой");
         }
 
         private void Block()
         {
-            ExpectEOF("В условном выражении: ожидается открывающая фигурная скобка");
-
+            if (endFlag) return;
             ExpectToken([9], [9, 1, 6, 8, 17, 10],
                 "В блоке: ожидается открывающая фигурная скоба");
 
-            ExpectEOF("В условном выражении: ожидается идентификатор");
-
+            if (endFlag) return;
             Statement();
 
             if (endFlag) return;
-
-            ExpectEOF("В условном выражении: ожидается закрывающая фигурная скобка");
-
             ExpectToken([10], [10, 2, 11, 1, 13, 14, 15, 16, 19, 20],
                 "В блоке: ожидается закрывающая фигурная скоба");
 
-            if (!IsValidToken())
-            {
-                endFlag = true;
-            }
+            if (endFlag) return;
+            ExpectEOF("В конструкции do-while: ожидается ключевое слово while");
         }
 
         private void Statement()
         {
-            ExpectEOF("В условном выражении: ожидается идентификатор");
-
+            if (endFlag) return;
             ExpectToken([1], [1, 6, 8, 17, 10, 2],
                 "В блоке: ожидается идентификатор");
 
-            ExpectEOF("В блоке: ожидается оператор инкремента или декремента");
-
+            if (endFlag) return;
             ExpectToken(increment_operation, [6, 8, 17, 10, 2, 11],
                 "В блоке: ожидается оператор инкремента или декремента");
 
-            ExpectEOF("В блоке: ожидается точка с запятой");
-
+            if (endFlag) return;
             ExpectToken([17], [17, 10, 2, 11, 1, 4],
                 "В блоке: ожидается точка с запятой");
 
-            if (!IsValidToken())
-            {
-                endFlag = true;
-            }
+            if (endFlag) return;
+            ExpectEOF("В блоке: ожидается закрывающая фигурная скоба");
         }
     }
 
