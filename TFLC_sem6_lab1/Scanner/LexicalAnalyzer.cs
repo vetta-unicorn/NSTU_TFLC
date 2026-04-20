@@ -345,7 +345,7 @@ namespace TFLC_sem6_lab1.Scanner
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка чтения файла: {ex.Message}");
-                return new List<TableLine>(); // Возвращаем пустой список
+                return new List<TableLine>(); 
             }
 
             return tabs;
