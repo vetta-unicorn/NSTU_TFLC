@@ -116,6 +116,20 @@ namespace TFLC_sem6_lab1.Grammar
             return false;
         }
 
+        private bool SkipToToken(int[] neededCodes)
+        {
+            int i = 0;
+            while (IsValidToken() && i < 3)
+            {
+                if (neededCodes.Contains(_currentToken.code))
+                {
+                    return true;
+                }
+                i++;
+            }
+            return false;
+        }
+
         private void ExpectToken(int[] codes, int[] syncro, string message)
         {
             ExpectEOF(message);
@@ -134,6 +148,7 @@ namespace TFLC_sem6_lab1.Grammar
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
                 SkipToSynchronizingToken(syncro);
+                if (SkipToToken(codes)) NextToken();
                 _errorCounter++;
             }
         }
