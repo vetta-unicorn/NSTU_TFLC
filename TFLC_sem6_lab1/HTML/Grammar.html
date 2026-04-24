@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Грамматика Go G[F]</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f5f7;
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, 'Roboto', monospace;
+            line-height: 1.55;
+            color: #1a1e24;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .content {
+            padding: 2rem 2.2rem;
+        }
+
+        /* Стилизация для сохранения читаемости — без изменения текста */
+        p {
+            margin-bottom: 1.25rem;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        pre, .grammar-block {
+            background: #f8f9fc;
+            border-left: 4px solid #3b82f6;
+            padding: 1.2rem 1.5rem;
+            font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin: 1.25rem 0;
+            border-radius: 12px;
+            color: #0c2e3e;
+        }
+
+        /* Сохраняем моноширинность для продукции и терминалов */
+        .mono {
+            font-family: monospace;
+            background: #f0f2f5;
+            padding: 0.2rem 0.3rem;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        hr {
+            margin: 1.5rem 0;
+            border: none;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        /* не меняем содержимое, только визуальная аккуратность */
+        ul, li {
+            margin-left: 1.5rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .signature {
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="content">
+<p>Определим грамматику создания функции языка Go G[&lt;F&gt;] в нотации Хомского с продукциями P:
+G[&lt;F&gt;]:
+1)	&lt;START&gt; -> ‘do’ &lt;DO&gt;
+2)	&lt;DO&gt; -> ‘{‘ &lt;LBRACE&gt;
+3)	&lt;LBRACE&gt; -> '$' &lt;ID_INSIDE&gt;
+4)	&lt;ID_INSIDE&gt; -> letter &lt;ID_INSIDE&gt;
+5)	&lt;ID_INSIDE&gt; -> letter &lt;ID_INSIDE&gt; | digit &lt;ID_INSIDE&gt; | ‘_’ &lt;ID_INSIDE&gt; | &lt;INCREMENT_EXPRESSION&gt;
+6)	&lt;INCREMENT_EXPRESSION&gt; -> ‘++’ &lt;INCREMENT&gt; | ‘--’ &lt;DECREMENT&gt;
+7)	&lt;INCREMENT_EXPRESSION&gt;  -> ‘;’ &lt;SEMICOLON&gt;
+8)	&lt;SEMICOLON&gt; -> ‘}’ &lt;RBRACE&gt;
+9)	&lt;RBRACE&gt; -> ‘while’ &lt;WHILE&gt;
+10)	&lt;WHILE&gt; -> ‘(‘ &lt;LPARENTHESIS&gt;
+11)	&lt;LPARENTHESIS&gt; -> '$' &lt;ID_OUTSIDE&gt;
+12)	&lt;ID_OUTSIDE&gt; -> letter &lt;ID_OUTSIDE&gt;
+13)	&lt;ID_OUTSIDE&gt; -> letter &lt;ID_OUTSIDE&gt; | digit &lt;ID_OUTSIDE&gt; | ‘_’ &lt;ID_OUTSIDE&gt; | &lt;RELATION_OPERATION&gt;
+14)	&lt;RELATION_OPERATION&gt; -> ‘&lt;’ &lt;SMALLER&gt; | ‘&gt;’ &lt;BIGGER&gt; | ‘&lt;=’ &lt;SMALLER_OR_EQUAL&gt; | ‘&gt;=’ &lt;BIGGER_OR_EQUAL&gt; | ‘==’ &lt;EQUAL&gt; | ‘!=’ &lt;NOT_EQUAL&gt;
+15)	&lt;RELATION_OPERATION&gt; -> '$' &lt;ID_OUTSIDE*&gt;
+16)	&lt;ID_OUTSIDE*&gt; -> letter &lt;ID_OUTSIDE*&gt;
+17)	&lt;ID_OUTSIDE*&gt; -> letter &lt;ID_OUTSIDE*&gt; | digit &lt;ID_OUTSIDE*&gt; | ‘_’ &lt;ID_OUTSIDE*&gt;
+18)	&lt;ID_OUTSIDE*&gt; -> &lt;OPERAND&gt; | ‘)’ &lt;RPARENTHESIS&gt;
+19)	&lt;OPERAND&gt; -> ‘&&’ &lt;OPERAND_AND&gt; | ‘||’ &lt;OPERAND_OR&gt;
+20)	&lt;OPERAND&gt; -> &lt;ID_OUTSIDE&gt;
+21)	&lt;RPARENTHESIS&gt; -> ‘;’ &lt;SEMICOLON&gt;
+Следуя введенному формальному определению грамматики, представим G[&lt;F&gt;] ее составляющими:
+‒ Z = &lt;F&gt;
+‒ Vт = {'do', 'while', '{', '}', '(', ')', '--', '++', '-'. '+', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a|b|..|z', '_', ';', '=', '==', '!=', '&lt;', '&lt;=', '&gt;=', '&gt;'}
+‒ Vн = {START, DO, WHILE, LBRACE, RBRACE, LPARANTHESIS, RPARANTHESIS, RELATION_OPERATION, SMALLER, BIGGER, SMALLER_OR_EQUAL, BIGGER_OR_EQUAL, ID_INSIDE, ID_OUTSIDE, INCREMENT, DECREMENT, SEMICOLON, OPERAND_OR, OPERAND_AND}</p>
+    </div>
+</div>
+</body>
+</html>

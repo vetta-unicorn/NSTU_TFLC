@@ -24,8 +24,23 @@ namespace TFLC_sem6_lab1
         private string userPath = @"Files\HelpForm.html";
         private string abPath = @"Files\AboutForm.html";
         private string startPath = @"Files\Start.txt";
+        private string analyzePath = @"Files\Analysis.html";
+        private string classificationPath = @"Files\Classification.html";
+        private string codePath = @"Files\Code.html";
+        private string examplePath = @"Files\example.txt";
+        private string grammarPath = @"Files\Grammar.html";
+        private string sourcePath = @"Files\Source.html";
+        private string taskPath = @"Files\Task.html";
+
         private string helpResourceName = "TFLC_sem6_lab1.HTML.HelpForm.html";
         private string aboutResourceName = "TFLC_sem6_lab1.HTML.AboutForm.html";
+        private string analyzeResourceName = "TFLC_sem6_lab1.HTML.Analysis.html";
+        private string classificationResourceName = "TFLC_sem6_lab1.HTML.Classification.html";
+        private string codeResourceName = "TFLC_sem6_lab1.HTML.Code.html";
+        private string exampleResourceName = "TFLC_sem6_lab1.HTML.example.txt";
+        private string grammarResourceName = "TFLC_sem6_lab1.HTML.Grammar.html";
+        private string sourceResourceName = "TFLC_sem6_lab1.HTML.Source.html";
+        private string taskResourceName = "TFLC_sem6_lab1.HTML.Task.html";
 
         int exitCounter = 0;
 
@@ -446,6 +461,7 @@ namespace TFLC_sem6_lab1
             {
                 if (item.Text == "Файл") { FileHandler(item); }
                 else if (item.Text == "Правка") { EditionHandler(item); }
+                else if (item.Text == "Текст") { TextHandler(item); }
                 else if (item.Text == "Справка") { HelpFormsHandler(item); }
                 else if (item.Text == "Настройки") { SettingsHandler(item); }
                 else if (item.Text == "Пуск") { StartHandler(item); }
@@ -653,6 +669,133 @@ namespace TFLC_sem6_lab1
             }
 
             try { File.Delete(tempFile); } catch { }
+        }
+
+        private void ShowAnalysisForm(object sender, EventArgs e)
+        {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
+            string htmlContent = processFile.LoadEmbeddedResource(analyzeResourceName);
+
+            string tempFile = Path.Combine(Path.GetTempPath(), "Analysis.html");
+            File.WriteAllText(tempFile, htmlContent);
+
+            using (var helper = new HelpForm(tempFile))
+            {
+                helper.ShowDialog();
+            }
+
+            try { File.Delete(tempFile); } catch { }
+        }
+
+        private void ShowClassificationForm(object sender, EventArgs e)
+        {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
+            string htmlContent = processFile.LoadEmbeddedResource(classificationResourceName);
+
+            string tempFile = Path.Combine(Path.GetTempPath(), "Classification.html");
+            File.WriteAllText(tempFile, htmlContent);
+
+            using (var helper = new HelpForm(tempFile))
+            {
+                helper.ShowDialog();
+            }
+
+            try { File.Delete(tempFile); } catch { }
+        }
+
+        private void ShowCodeForm(object sender, EventArgs e)
+        {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
+            string htmlContent = processFile.LoadEmbeddedResource(codeResourceName);
+
+            string tempFile = Path.Combine(Path.GetTempPath(), "Code.html");
+            File.WriteAllText(tempFile, htmlContent);
+
+            using (var helper = new HelpForm(tempFile))
+            {
+                helper.ShowDialog();
+            }
+
+            try { File.Delete(tempFile); } catch { }
+        }
+
+        private void ShowGrammarForm(object sender, EventArgs e)
+        {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
+            string htmlContent = processFile.LoadEmbeddedResource(grammarResourceName);
+
+            string tempFile = Path.Combine(Path.GetTempPath(), "Grammar.html");
+            File.WriteAllText(tempFile, htmlContent);
+
+            using (var helper = new HelpForm(tempFile))
+            {
+                helper.ShowDialog();
+            }
+
+            try { File.Delete(tempFile); } catch { }
+        }
+
+        private void ShowSourceForm(object sender, EventArgs e)
+        {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
+            string htmlContent = processFile.LoadEmbeddedResource(sourceResourceName);
+
+            string tempFile = Path.Combine(Path.GetTempPath(), "Source.html");
+            File.WriteAllText(tempFile, htmlContent);
+
+            using (var helper = new HelpForm(tempFile))
+            {
+                helper.ShowDialog();
+            }
+
+            try { File.Delete(tempFile); } catch { }
+        }
+
+        private void ShowTaskForm(object sender, EventArgs e)
+        {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
+            string htmlContent = processFile.LoadEmbeddedResource(taskResourceName);
+
+            string tempFile = Path.Combine(Path.GetTempPath(), "Task.html");
+            File.WriteAllText(tempFile, htmlContent);
+
+            using (var helper = new HelpForm(tempFile))
+            {
+                helper.ShowDialog();
+            }
+
+            try { File.Delete(tempFile); } catch { }
+        }
+
+        private void ShowExample(object sender, EventArgs e)
+        {
+            txtOutput.Visible = false;
+            OutputTable.Visible = true;
+
+            string htmlContent = processFile.LoadEmbeddedResource(exampleResourceName);
+
+            string tempFile = Path.Combine(Path.GetTempPath(), "example.txt");
+            File.WriteAllText(tempFile, htmlContent);
+
+            using (var helper = new HelpForm(tempFile))
+            {
+                helper.ShowDialog();
+            }
+
+            try { File.Delete(tempFile); } catch { }
+
         }
 
         private void ChangeTextStyle(object sender, EventArgs e)
@@ -916,6 +1059,51 @@ namespace TFLC_sem6_lab1
             selectItem.Click += SelectAllText;
             selectItem.Tag = "SelectAllText";
             item.DropDownItems.Add(selectItem);
+        }
+
+        private void TextHandler(ToolStripMenuItem item)
+        {
+            ToolStripMenuItem taskItem = new ToolStripMenuItem();
+            taskItem.Text = "Постановка задачи";
+            taskItem.Click += ShowTaskForm;
+            taskItem.Tag = "ShowTaskForm";
+            item.DropDownItems.Add(taskItem);
+
+            ToolStripMenuItem grammarItem = new ToolStripMenuItem();
+            grammarItem.Text = "Грамматика";
+            grammarItem.Click += ShowGrammarForm;
+            grammarItem.Tag = "ShowGrammarForm";
+            item.DropDownItems.Add(grammarItem);
+
+            ToolStripMenuItem classItem = new ToolStripMenuItem();
+            classItem.Text = "Классификация грамматики";
+            classItem.Click += ShowClassificationForm;
+            classItem.Tag = "ShowClassification";
+            item.DropDownItems.Add(classItem);
+
+            ToolStripMenuItem analysisItem = new ToolStripMenuItem();
+            analysisItem.Text = "Метод анализа";
+            analysisItem.Click += ShowAnalysisForm;
+            analysisItem.Tag = "ShowAnalysis";
+            item.DropDownItems.Add(analysisItem);
+
+            ToolStripMenuItem exampleItem = new ToolStripMenuItem();
+            exampleItem.Text = "Тестовый пример";
+            exampleItem.Click += ShowExample;
+            exampleItem.Tag = "ShowExample";
+            item.DropDownItems.Add(exampleItem);
+
+            ToolStripMenuItem codeItem = new ToolStripMenuItem();
+            codeItem.Text = "Исходный код программы";
+            codeItem.Click += ShowCodeForm;
+            codeItem.Tag = "ShowCode";
+            item.DropDownItems.Add(codeItem);
+
+            ToolStripMenuItem sourceItem = new ToolStripMenuItem();
+            sourceItem.Text = "Список литературы";
+            sourceItem.Click += ShowSourceForm;
+            sourceItem.Tag = "ShowSourceForm";
+            item.DropDownItems.Add(sourceItem);
         }
 
         private void HelpFormsHandler(ToolStripMenuItem item)

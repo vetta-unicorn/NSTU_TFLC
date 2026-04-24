@@ -12,14 +12,28 @@
     <None Remove="Grammar\ANTLR_DLL.dll" />
     <None Remove="Grammar\FlexBisonGrammar.dll" />
     <None Remove="HTML\AboutForm.html" />
+    <None Remove="HTML\Analysis.html" />
+    <None Remove="HTML\Classification.html" />
+    <None Remove="HTML\Code.html" />
+    <None Remove="HTML\example.txt" />
+    <None Remove="HTML\Grammar.html" />
     <None Remove="HTML\HelpForm.html" />
+    <None Remove="HTML\Source.html" />
+    <None Remove="HTML\Task.html" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Grammar\ANTLR_DLL.dll" />
     <EmbeddedResource Include="Grammar\FlexBisonGrammar.dll" />
     <EmbeddedResource Include="HTML\AboutForm.html" />
+    <EmbeddedResource Include="HTML\Analysis.html" />
+    <EmbeddedResource Include="HTML\Classification.html" />
+    <EmbeddedResource Include="HTML\Code.html" />
+    <EmbeddedResource Include="HTML\example.txt" />
+    <EmbeddedResource Include="HTML\Grammar.html" />
     <EmbeddedResource Include="HTML\HelpForm.html" />
+    <EmbeddedResource Include="HTML\Source.html" />
+    <EmbeddedResource Include="HTML\Task.html" />
   </ItemGroup>
 
   <ItemGroup>

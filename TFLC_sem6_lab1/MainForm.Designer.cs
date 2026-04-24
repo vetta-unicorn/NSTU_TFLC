@@ -45,13 +45,6 @@
             MenuFile = new ToolStripMenuItem();
             MenuChange = new ToolStripMenuItem();
             MenuText = new ToolStripMenuItem();
-            копироватьToolStripMenuItem1 = new ToolStripMenuItem();
-            вырезатьToolStripMenuItem1 = new ToolStripMenuItem();
-            вставитьToolStripMenuItem1 = new ToolStripMenuItem();
-            методАнализаToolStripMenuItem = new ToolStripMenuItem();
-            тестовыйПримерToolStripMenuItem = new ToolStripMenuItem();
-            списокЛитературыToolStripMenuItem = new ToolStripMenuItem();
-            исходныйКодПрограммыToolStripMenuItem = new ToolStripMenuItem();
             MenuStart = new ToolStripMenuItem();
             MenuHelp = new ToolStripMenuItem();
             MenuSettings = new ToolStripMenuItem();
@@ -209,53 +202,10 @@
             // 
             // MenuText
             // 
-            MenuText.DropDownItems.AddRange(new ToolStripItem[] { копироватьToolStripMenuItem1, вырезатьToolStripMenuItem1, вставитьToolStripMenuItem1, методАнализаToolStripMenuItem, тестовыйПримерToolStripMenuItem, списокЛитературыToolStripMenuItem, исходныйКодПрограммыToolStripMenuItem });
             MenuText.Name = "MenuText";
             MenuText.Size = new Size(59, 24);
             MenuText.Tag = "MenuText";
             MenuText.Text = "Текст";
-            // 
-            // копироватьToolStripMenuItem1
-            // 
-            копироватьToolStripMenuItem1.Name = "копироватьToolStripMenuItem1";
-            копироватьToolStripMenuItem1.Size = new Size(288, 26);
-            копироватьToolStripMenuItem1.Text = "Постановка задачи";
-            // 
-            // вырезатьToolStripMenuItem1
-            // 
-            вырезатьToolStripMenuItem1.Name = "вырезатьToolStripMenuItem1";
-            вырезатьToolStripMenuItem1.Size = new Size(288, 26);
-            вырезатьToolStripMenuItem1.Text = "Грамматика";
-            // 
-            // вставитьToolStripMenuItem1
-            // 
-            вставитьToolStripMenuItem1.Name = "вставитьToolStripMenuItem1";
-            вставитьToolStripMenuItem1.Size = new Size(288, 26);
-            вставитьToolStripMenuItem1.Text = "Классификация грамматики";
-            // 
-            // методАнализаToolStripMenuItem
-            // 
-            методАнализаToolStripMenuItem.Name = "методАнализаToolStripMenuItem";
-            методАнализаToolStripMenuItem.Size = new Size(288, 26);
-            методАнализаToolStripMenuItem.Text = "Метод анализа";
-            // 
-            // тестовыйПримерToolStripMenuItem
-            // 
-            тестовыйПримерToolStripMenuItem.Name = "тестовыйПримерToolStripMenuItem";
-            тестовыйПримерToolStripMenuItem.Size = new Size(288, 26);
-            тестовыйПримерToolStripMenuItem.Text = "Тестовый пример";
-            // 
-            // списокЛитературыToolStripMenuItem
-            // 
-            списокЛитературыToolStripMenuItem.Name = "списокЛитературыToolStripMenuItem";
-            списокЛитературыToolStripMenuItem.Size = new Size(288, 26);
-            списокЛитературыToolStripMenuItem.Text = "Список литературы";
-            // 
-            // исходныйКодПрограммыToolStripMenuItem
-            // 
-            исходныйКодПрограммыToolStripMenuItem.Name = "исходныйКодПрограммыToolStripMenuItem";
-            исходныйКодПрограммыToolStripMenuItem.Size = new Size(288, 26);
-            исходныйКодПрограммыToolStripMenuItem.Text = "Исходный код программы";
             // 
             // MenuStart
             // 
@@ -344,13 +294,6 @@
         private ToolStripMenuItem MenuText;
         private ToolStripMenuItem MenuStart;
         private ToolStripMenuItem MenuHelp;
-        private ToolStripMenuItem копироватьToolStripMenuItem1;
-        private ToolStripMenuItem вырезатьToolStripMenuItem1;
-        private ToolStripMenuItem вставитьToolStripMenuItem1;
-        private ToolStripMenuItem методАнализаToolStripMenuItem;
-        private ToolStripMenuItem тестовыйПримерToolStripMenuItem;
-        private ToolStripMenuItem списокЛитературыToolStripMenuItem;
-        private ToolStripMenuItem исходныйКодПрограммыToolStripMenuItem;
         private ToolStripMenuItem Пуск;
         private ToolStripMenuItem Справка;
         private ToolStripMenuItem ОПрограмме;

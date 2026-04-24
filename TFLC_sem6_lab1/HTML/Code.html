@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Код лексического анализатора и парсера</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f5f7;
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, 'Roboto', monospace;
+            line-height: 1.55;
+            color: #1a1e24;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .content {
+            padding: 2rem 2.2rem;
+        }
+
+        pre {
+            background: #1e1e2f;
+            color: #e4e4e7;
+            padding: 1.5rem;
+            border-radius: 16px;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+
+        hr {
+            margin: 1.5rem 0;
+            border: none;
+            height: 1px;
+            background: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="content">
+<pre>public class TokenDict
+{
+    public Dictionary&lt;int, string&gt; tokens { get; }
+    public TokenDict()
+    {
+        tokens = new Dictionary&lt;int, string&gt;
+        {
+            {1, "id" },
+            {2, "while" },
+            {3, "do" },
+            {4, "целое число без знака" },
+            {5, "оператор сложения" },
+            {6, "оператор инкремента" },
+            {7, "оператор вычитания" },
+            {8, "оператор декремента" },
+            {9, "открывающая фигурная скоба" },
+            {10, "закрывающая фигурная скоба" },
+            {11, "открывающая круглая скобка" },
+            {12, "закрывающая круглая скобка" },
+            {13, "оператор меньше" },
+            {14, "оператор меньше или равно" },
+            {15, "оператор больше" },
+            {16, "оператор больше или равно" },
+            {17, "точка с запятой" },
+            {18, "оператор присваивания" },
+            {19, "оператор равенства" },
+            {20, "оператор неравенства" },
+            {-1, "ERROR: неизвестный токен" }
+        };
+    }
+}
+
+public class TableLine
+{
+    public int code {  get; set; }
+    public string type { get; set; }
+    public string token { get; set; }
+    public int line_number { get; set; }
+    public int start_pos { get; set; }
+    public int end_pos { get; set; }
+    public bool IsError => code == -1;
+    public TableLine(int code, string type, string token, int line_number, int start_pos, int end_pos)
+    {
+        this.code = code;
+        this.type = type;
+        this.token = token;
+        this.line_number = line_number;
+        this.start_pos = start_pos;
+        this.end_pos = end_pos;
+    }
+    public TableLine(int code, int line_number, int start_pos, int end_pos)
+    {
+        this.code = code;
+        this.type = "default";
+        this.token = "default";
+        this.line_number = line_number;
+        this.start_pos = start_pos;
+        this.end_pos = end_pos;
+    }
+    public TableLine() { }
+}
+
+public class DisplayTokens
+{
+    public void LoadAndDisplayTokens(string filePath, LexicalAnalyzer scanner, 
+        DataGridView OutputTable)
+    {
+        try
+        {
+            List&lt;TableLine&gt; tokens = scanner.AnalyzeText(filePath);
+            var displayTokens = new List&lt;TokenDisplay&gt;();
+            foreach (var token in tokens)
+            {
+                displayTokens.Add(new TokenDisplay
+                {
+                    code = token.code,
+                    type = token.type,
+                    token = token.token,
+                    Location = $"строка {token.line_number + 1}, {token.start_pos + 1}-{token.end_pos}"
+                });
+            }
+
+            OutputTable.DataSource = null;
+            OutputTable.DataSource = displayTokens;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Ошибка при загрузке файла: {ex.Message}", "Ошибка",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+}
+
+public class LexicalAnalyzer
+{
+    public TokenDict tokenDict = new TokenDict();
+    public LexicalAnalyzer()
+    {
+        tokenDict = new TokenDict();
+    }
+    public List&lt;TableLine&gt; AnalyzeText(string filePath)
+    {
+        int lineNumber = -1;
+        List&lt;TableLine&gt; tabs = new List&lt;TableLine&gt;();
+        try
+        {
+            foreach (string line in File.ReadLines(filePath))
+            {
+                lineNumber++;
+
+                int pos = 0;
+                while (pos &lt; line.Length)
+                {
+                    if (char.IsWhiteSpace(line[pos]))
+                    {
+                        pos++;
+                        continue;
+                    }
+
+                    bool found = false;
+
+                    // code 17 ;
+                    if (pos &lt; line.Length &amp;&amp; line.Substring(pos, 1) == ";")
+                    {
+                        tabs.Add(new TableLine(17, tokenDict.tokens[17],
+                            ";", lineNumber, pos, pos + 1));
+                        pos += 1;
+                        found = true;
+                    }
+
+                    // code 2 do
+                    else if (pos + 1 &lt; line.Length &amp;&amp; line.Substring(pos, 2) == "do"
+                        &amp;&amp; (pos + 2 &lt; line.Length &amp;&amp; line[pos + 2] == ' ' || pos + 2 &gt;= line.Length))
+                    {
+                        tabs.Add(new TableLine(3, tokenDict.tokens[3], "do", lineNumber, pos, pos + 2));
+                        pos += 2;
+                        found = true;
+                    }
+
+                    // code 3 while
+                    else if (pos + 4 &lt; line.Length &amp;&amp; line.Substring(pos, 5) == "while"
+                        &amp;&amp; (pos + 5 &lt; line.Length &amp;&amp; line[pos + 5] == ' ' || pos + 5 &gt;= line.Length))
+                    {
+                        tabs.Add(new TableLine(2, tokenDict.tokens[2], "while", lineNumber, pos, pos + 5));
+                        pos += 5;
+                        found = true;
+                    }
+
+                    // code 4 int
+                    else if (char.IsDigit(line[pos]))
+                    {
+                        int endPos = pos;
+                        while (endPos &lt; line.Length &amp;&amp; char.IsDigit(line[endPos]))
+                        {
+                            endPos++;
+                        }
+
+                        string token = line.Substring(pos, endPos - pos);
+                        tabs.Add(new TableLine(4, tokenDict.tokens[4], token, lineNumber, pos, endPos));
+                        pos = endPos;
+                        found = true;
+                    }
+
+                    // code 6 ++
+                    else if (pos + 1 &lt; line.Length &amp;&amp; line.Substring(pos, 2) == "++")
+                    {
+                        tabs.Add(new TableLine(6, tokenDict.tokens[6], "++", lineNumber, pos, pos + 2));
+                        pos += 2;
+                        found = true;
+                    }
+
+                    // code 5 +
+                    else if (pos &lt; line.Length &amp;&amp; line.Substring(pos, 1) == "+")
+                    {
+                        tabs.Add(new TableLine(5, tokenDict.tokens[5], "+", lineNumber, pos, pos + 1));
+                        pos += 1;
+                        found = true;
+                    }
+
+                    // code 8 --
+                    else if (pos + 1 &lt; line.Length &amp;&amp; line.Substring(pos, 2) == "--")
+                    {
+                        tabs.Add(new TableLine(8, tokenDict.tokens[8], "--", lineNumber, pos, pos + 2));
+                        pos += 2;
+                        found = true;
+                    }
+
+                    // code 7 -
+                    else if (pos &lt; line.Length &amp;&amp; line.Substring(pos, 1) == "-")
+                    {
+                        tabs.Add(new TableLine(7, tokenDict.tokens[7], "-", lineNumber, pos, pos + 1));
+                        pos += 1;
+                        found = true;
+                    }
+
+                    // code 9 {
+                    else if (pos &lt; line.Length &amp;&amp; line.Substring(pos, 1) == "{")
+                    {
+                        tabs.Add(new TableLine(9, tokenDict.tokens[9],
+                            "{", lineNumber, pos, pos + 1));
+                        pos += 1;
+                        found = true;
+                    }
+
+                    // code 10 }
+                    else if (pos &lt; line.Length &amp;&amp; line.Substring(pos, 1) == "}")
+                    {
+                        tabs.Add(new TableLine(10, tokenDict.tokens[10],
+                            "}", lineNumber, pos, pos + 1));
+                        pos += 1;
+                        found = true;
+                    }
+
+                    // code 11 (
+                    else if (pos &lt; line.Length &amp;&amp; line.Substring(pos, 1) == "(")
+                    {
+                        tabs.Add(new TableLine(11, tokenDict.tokens[11],
+                            "(", lineNumber, pos, pos + 1));
+                        pos += 1;
+                        found = true;
+                    }
+
+                    // code 12 )
+                    else if (pos &lt; line.Length &amp;&amp; line.Substring(pos, 1) == ")")
+                    {
+                        tabs.Add(new TableLine(12, tokenDict.tokens[12],
+                            ")", lineNumber, pos, pos + 1));
+                        pos += 1;
+                        found = true;
+                    }
+
+                    // code 13 &lt;
+                    else if (pos &lt; line.Length &amp;&amp; line.Substring(pos, 1) == "&lt;"
+                        &amp;&amp; line.Substring(pos, 2) != "&lt;=")
+                    {
+                        tabs.Add(new TableLine(13, tokenDict.tokens[13],
+                            "&lt;", lineNumber, pos, pos + 1));
+                        pos += 1;
+                        found = true;
+                    }
+
+                    // code 14 &lt;=
+                    else if (pos + 1 &lt; line.Length &amp;&amp; line.Substring(pos, 2) == "&lt;=")
+                    {
+                        tabs.Add(new TableLine(14, tokenDict.tokens[14],
+                            "&lt;=", lineNumber, pos, pos + 2));
+                        pos += 2;
+                        found = true;
+                    }
+
+                    // code 15 &gt;
+                    else if (pos &lt; line.Length &amp;&amp; line.Substring(pos, 1) == "&gt;"
+                        &amp;&amp; line.Substring(pos, 2) != "&gt;=")
+                    {
+                        tabs.Add(new TableLine(15, tokenDict.tokens[15],
+                            "&gt;", lineNumber, pos, pos + 1));
+                        pos += 1;
+                        found = true;
+                    }
+
+                    // code 16 &gt;=
+                    else if (pos + 1 &lt; line.Length &amp;&amp; line.Substring(pos, 2) == "&gt;=")
+                    {
+                        tabs.Add(new TableLine(16, tokenDict.tokens[16],
+                            "&gt;=", lineNumber, pos, pos + 2));
+                        pos += 2;
+                        found = true;
+                    }
+
+                    // code 18 =
+                    else if (pos &lt; line.Length &amp;&amp; line.Substring(pos, 1) == "="
+                        &amp;&amp; (pos + 2 &lt; line.Length &amp;&amp; line.Substring(pos, 2) != "==")
+                        || pos + 2 &gt;= line.Length)
+                    {
+                        tabs.Add(new TableLine(18, tokenDict.tokens[18],
+                            "=", lineNumber, pos, pos + 1));
+                        pos += 1;
+                        found = true;
+                    }
+
+                    // code 19 ==
+                    else if (pos + 1 &lt; line.Length &amp;&amp; line.Substring(pos, 2) == "==")
+                    {
+                        tabs.Add(new TableLine(19, tokenDict.tokens[19],
+                            "==", lineNumber, pos, pos + 2));
+                        pos += 2;
+                        found = true;
+                    }
+
+                    // code 20 !=
+                    else if (pos + 1 &lt; line.Length &amp;&amp; line.Substring(pos, 2) == "!=")
+                    {
+                        tabs.Add(new TableLine(20, tokenDict.tokens[20],
+                            "!=", lineNumber, pos, pos + 2));
+                        pos += 2;
+                        found = true;
+                    }
+
+                    // code 1 id
+                    else if (line[pos] == '$')
+                    {
+                        int endPos = pos + 1;
+                        while (endPos &lt; line.Length &amp;&amp;
+                              (char.IsLetterOrDigit(line[endPos]) || line[endPos] == '_'))
+                        {
+                            endPos++;
+                        }
+
+                        string token = line.Substring(pos, endPos - pos);
+                        tabs.Add(new TableLine(1, tokenDict.tokens[1], token, lineNumber, pos, endPos));
+                        pos = endPos;
+                        found = true;
+                    }
+
+                    // code -1 ERROR
+                    if (!found)
+                    {
+                        int errorEnd = pos + 1;
+                        while (errorEnd &lt; line.Length &amp;&amp; !char.IsWhiteSpace(line[errorEnd])
+                            &amp;&amp; line[errorEnd] != '+' &amp;&amp; line[errorEnd] != '-'
+                            &amp;&amp; line[errorEnd] != ';' &amp;&amp; line[errorEnd] != ')'
+                            &amp;&amp; line[errorEnd] != '}')
+                        {
+                            errorEnd++;
+                        }
+
+                        string errorToken = line.Substring(pos, errorEnd - pos);
+                        tabs.Add(new TableLine(-1, tokenDict.tokens[-1],
+                            errorToken, lineNumber, pos, errorEnd));
+                        pos = errorEnd;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Ошибка чтения файла: {ex.Message}");
+            return new List&lt;TableLine&gt;(); 
+        }
+
+        return tabs;
+    }
+}
+
+public class Parser
+{
+    private List&lt;TableLine&gt; _tokens;
+    private int _currentPos;
+    private TableLine _currentToken;
+    private List&lt;ParseError&gt; _errors;
+    private int[] relation_operation = new int[] { 13, 14, 15, 16, 19, 20 };
+    private int[] increment_operation = new int[] { 6, 8 };
+    private int _errorCounter;
+
+    private bool endFlag = false;
+
+    public Parser(List&lt;TableLine&gt; tokens)
+    {
+        _tokens = tokens;
+        _currentPos = 0;
+        _errors = new List&lt;ParseError&gt;();
+        _currentToken = _tokens.Count &gt; 0 ? _tokens[0] : null;
+    }
+
+    public void DisplayErrors(List&lt;ParseError&gt; errors, DataGridView SyntaxTable)
+    {
+        SyntaxTable.Rows.Clear();
+
+        foreach (var error in errors)
+        {
+            string locationText = "";
+            if (error.StartPosition &gt;= 0 &amp;&amp; error.EndPosition &gt;= error.StartPosition)
+            {
+                locationText = $"строка {error.Line + 1}, {error.StartPosition}-{error.EndPosition}";
+            }
+            else if (error.Line &gt;= 0)
+            {
+                locationText = $"строка {error.Line + 1}";
+            }
+            else
+            {
+                locationText = "местоположение не определено";
+            }
+
+            DataGridViewRow row = new DataGridViewRow();
+            row.CreateCells(SyntaxTable,
+                error.Message,
+                locationText
+            );
+
+            SyntaxTable.Rows.Add(row);
+        }
+    }
+
+    public List&lt;ParseError&gt; Parse()
+    {
+        try
+        {
+            Program();
+        }
+        catch (Exception ex)
+        {
+            AddError($"Критическая ошибка: {ex.Message}", 0, 0, 0);
+        }
+
+        return _errors;
+    }
+
+    private void NextToken()
+    {
+        _currentPos++;
+        if (_currentPos &lt; _tokens.Count)
+            _currentToken = _tokens[_currentPos];
+        else
+            _currentToken = null;
+    }
+
+    private void AddError(string message, int line, int start_position, int end_position)
+    {
+        _errors.Add(new ParseError
+        {
+            Message = message,
+            Line = line,
+            StartPosition = start_position,
+            EndPosition = end_position
+        });
+    }
+
+    private bool IsValidToken()
+    {
+        return _currentPos &lt; _tokens.Count &amp;&amp; _currentToken != null;
+    }
+
+    private bool SkipToSynchronizingToken(int[] codes)
+    {
+        int pos = _currentPos;
+        int i = 0;
+        while (IsValidToken() &amp;&amp; i &lt; 4)
+        {
+            if (codes.Contains(_currentToken.code))
+            {
+                return true;
+            }
+            NextToken();
+            i++;
+        }
+        _currentPos = pos;
+        _currentToken = _tokens[pos];
+        return false;
+    }
+
+    private void ExpectToken(int[] codes, int[] syncro, string message)
+    {
+        ExpectEOF(message);
+
+        if (endFlag) return;
+
+        if (codes.Contains(_currentToken.code))
+        {
+            NextToken();
+            _errorCounter = 0;
+        }
+        else
+        {
+            if (_errorCounter &gt; 5) { endFlag = true; return; }
+            AddError(message,
+                _currentToken.line_number,
+                _currentToken.start_pos, _currentToken.end_pos);
+            SkipToSynchronizingToken(syncro);
+            _errorCounter++;
+        }
+    }
+
+    private void ExpectEOF(string message)
+    {
+        if (!IsValidToken())
+        {
+            AddError(message,
+                _tokens[Math.Max(0, _currentPos - 1)].line_number,
+                _tokens[Math.Max(0, _currentPos - 1)].start_pos,
+                _tokens[Math.Max(0, _currentPos - 1)].end_pos);
+            endFlag = true;
+            return;
+        }
+    }
+
+    private void Program()
+    {
+        if (!IsValidToken()) return;
+
+        DoWhileStatement();
+
+        if (endFlag) return;
+        if (IsValidToken())
+        {
+            AddError($"Ошибочный токен в конце строки",
+                _currentToken.line_number, 
+                _currentToken.start_pos, _currentToken.end_pos);
+        }
+    }
+    private void DoWhileStatement()
+    {
+        if (!IsValidToken()) return;
+
+        if (_currentToken.code != 3)
+        {
+            AddError("Ошибочный токен в начале строки",
+                _tokens[_currentPos].line_number,
+                _tokens[_currentPos].start_pos,
+                _tokens[_currentPos].end_pos);
+            SkipToSynchronizingToken([3, 9, 1, 6, 8, 17]);
+        }
+
+        ExpectToken([3], [3, 9, 1, 6, 8, 17],
+            "В конструкции do-while: ожидается ключевое слово do");
+
+        if (endFlag) return;
+        Block();
+
+        if (endFlag) return;
+        ExpectToken([2], [2, 11, 1, 13, 14, 15, 16, 19, 20, 4],
+            "В конструкции do-while: ожидается ключевое слово while");
+
+        if (endFlag) return;
+        Condition();
+
+        if (endFlag) return;
+        ExpectToken([17], [17], "Ожидается завершающая точка с запятой");
+    }
+
+    private void Condition()
+    {
+        if (endFlag) return;
+        ExpectToken([11], [11, 1, 13, 14, 15, 16, 19, 20, 4, 12],
+            "В условном выражении: ожидается открывающая круглая скобка");
+
+        if (endFlag) return;
+        ExpectToken([1, 4], [1, 13, 14, 15, 16, 19, 20, 4, 12, 17],
+            "В условном выражении: ожидается идентификатор или число");
+
+        if (endFlag) return;
+        ExpectToken(relation_operation, [13, 14, 15, 16, 19, 20, 4, 12, 17],
+            "В условном выражении: ожидается оператор сравнения");
+
+        if (endFlag) return;
+        ExpectToken([1, 4], [1, 4, 12, 17],
+            "В условном выражении: ожидается идентификатор или число");
+
+        if (endFlag) return;
+        ExpectToken([12], [12, 17],
+            "В условном выражении: ожидается закрывающая круглая скобка");
+
+        if (endFlag) return;
+        ExpectEOF("Ожидается завершающая точка с запятой");
+    }
+
+    private void Block()
+    {
+        if (endFlag) return;
+        ExpectToken([9], [9, 1, 6, 8, 17, 10],
+            "В блоке: ожидается открывающая фигурная скоба");
+
+        if (endFlag) return;
+        Statement();
+
+        if (endFlag) return;
+        ExpectToken([10], [10, 2, 11, 1, 13, 14, 15, 16, 19, 20],
+            "В блоке: ожидается закрывающая фигурная скоба");
+
+        if (endFlag) return;
+        ExpectEOF("В конструкции do-while: ожидается ключевое слово while");
+    }
+
+    private void Statement()
+    {
+        if (endFlag) return;
+        ExpectToken([1], [1, 6, 8, 17, 10, 2],
+            "В блоке: ожидается идентификатор");
+
+        if (endFlag) return;
+        ExpectToken(increment_operation, [6, 8, 17, 10, 2, 11],
+            "В блоке: ожидается оператор инкремента или декремента");
+
+        if (endFlag) return;
+        ExpectToken([17], [17, 10, 2, 11, 1, 4],
+            "В блоке: ожидается точка с запятой");
+
+        if (endFlag) return;
+        ExpectEOF("В блоке: ожидается закрывающая фигурная скоба");
+    }
+}
+
+
+public class ParseError
+{
+    public string Message { get; set; }
+    public int Line { get; set; }
+    public int StartPosition { get; set; }
+    public int EndPosition { get; set; }
+
+    public override string ToString()
+    {
+        return $"Строка {Line + 1}, позиция {StartPosition}-{EndPosition}: {Message}";
+    }
+}</pre>
+    </div>
+</div>
+</body>
+</html>
