@@ -146,6 +146,7 @@ namespace TFLC_sem6_lab1
             this.AllowDrop = true;
             this.DragEnter += Form1_DragEnter;
             this.DragDrop += Form1_DragDrop;
+            this.FormClosing += Form1_FormClosing;
 
             SetupDataGridView();
         }
@@ -327,7 +328,32 @@ namespace TFLC_sem6_lab1
             }
         }
 
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (isTextModified)
+            {
+                DialogResult result = MessageBox.Show(
+                    "Текст был изменен. Сохранить изменения перед выходом?",
+                    "Сохранение изменений",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question
+                );
 
+                switch (result)
+                {
+                    case DialogResult.Yes:
+                        processFile.SaveTxtFile(InputTextBox, currentFilePath, isOpened);
+                        break;
+
+                    case DialogResult.No:
+                        break;
+
+                    case DialogResult.Cancel:
+                        e.Cancel = true;
+                        break;
+                }
+            }
+        }
         private void Form1_DragEnter(object sender, DragEventArgs e)
         {
             if (e != null && e.Data != null)
@@ -866,20 +892,20 @@ namespace TFLC_sem6_lab1
             tokenDisplayer.LoadAndDisplayTokens(currentFilePath, scanner, OutputTable);
         }
 
-        private void StartGrammarFlexBison(object sender, EventArgs e)
-        {
-            OutputTable.DataSource = null;
-            OutputTable.Rows.Clear();
+        //private void StartGrammarFlexBison(object sender, EventArgs e)
+        //{
+        //    OutputTable.DataSource = null;
+        //    OutputTable.Rows.Clear();
 
-            OutputTable.Visible = false;
-            SyntaxTable.Visible = false;
-            txtOutput.Visible = true;
+        //    OutputTable.Visible = false;
+        //    SyntaxTable.Visible = false;
+        //    txtOutput.Visible = true;
 
-            if (grammar != null)
-            {
-                grammar.ParseProgram(InputTextBox, txtOutput);
-            }
-        }
+        //    if (grammar != null)
+        //    {
+        //        grammar.ParseProgram(InputTextBox, txtOutput);
+        //    }
+        //}
 
         private void StartGrammar(object sender, EventArgs e)
         {
@@ -1163,11 +1189,11 @@ namespace TFLC_sem6_lab1
             grammarItem.Tag = "StartGrammar";
             item.DropDownItems.Add(grammarItem);
 
-            ToolStripMenuItem grammarFBItem = new ToolStripMenuItem();
-            grammarFBItem.Text = "Проверить грамматику Flex&Bison";
-            grammarFBItem.Click += StartGrammarFlexBison;
-            grammarFBItem.Tag = "StartGrammar_FlexBison";
-            item.DropDownItems.Add(grammarFBItem);
+            //ToolStripMenuItem grammarFBItem = new ToolStripMenuItem();
+            //grammarFBItem.Text = "Проверить грамматику Flex&Bison";
+            //grammarFBItem.Click += StartGrammarFlexBison;
+            //grammarFBItem.Tag = "StartGrammar_FlexBison";
+            //item.DropDownItems.Add(grammarFBItem);
 
             ToolStripMenuItem grammarAntlrItem = new ToolStripMenuItem();
             grammarAntlrItem.Text = "Проверить грамматику ANTLR";
