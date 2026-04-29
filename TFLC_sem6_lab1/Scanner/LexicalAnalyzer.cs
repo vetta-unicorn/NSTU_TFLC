@@ -328,7 +328,8 @@ namespace TFLC_sem6_lab1.Scanner
                             int errorEnd = pos + 1;
                             while (errorEnd < line.Length && !char.IsWhiteSpace(line[errorEnd])
                                 && line[errorEnd] != '+' && line[errorEnd] != '-'
-                                && line[errorEnd] != ';')
+                                && line[errorEnd] != ';' && line[errorEnd] != ')'
+                                && line[errorEnd] != '}')
                             {
                                 errorEnd++;
                             }
@@ -344,7 +345,7 @@ namespace TFLC_sem6_lab1.Scanner
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка чтения файла: {ex.Message}");
-                return new List<TableLine>(); // Возвращаем пустой список
+                return new List<TableLine>(); 
             }
 
             return tabs;

@@ -116,6 +116,20 @@ namespace TFLC_sem6_lab1.Grammar
             return false;
         }
 
+        private bool SkipToToken(int[] neededCodes)
+        {
+            int i = 0;
+            while (IsValidToken() && i < 3)
+            {
+                if (neededCodes.Contains(_currentToken.code))
+                {
+                    return true;
+                }
+                i++;
+            }
+            return false;
+        }
+
         private void ExpectToken(int[] codes, int[] syncro, string message)
         {
             ExpectEOF(message);
@@ -134,6 +148,11 @@ namespace TFLC_sem6_lab1.Grammar
                     _currentToken.line_number,
                     _currentToken.start_pos, _currentToken.end_pos);
                 SkipToSynchronizingToken(syncro);
+                if (SkipToToken(codes))
+                {
+                    _errors.Last().Message = "Неожиданный токен";
+                    NextToken();
+                }
                 _errorCounter++;
             }
         }
@@ -168,15 +187,6 @@ namespace TFLC_sem6_lab1.Grammar
         private void DoWhileStatement()
         {
             if (!IsValidToken()) return;
-
-            if (_currentToken.code != 3)
-            {
-                AddError("Ошибочный токен в начале строки",
-                    _tokens[_currentPos].line_number,
-                    _tokens[_currentPos].start_pos,
-                    _tokens[_currentPos].end_pos);
-                SkipToSynchronizingToken([3, 9, 1, 6, 8, 17]);
-            }
 
             ExpectToken([3], [3, 9, 1, 6, 8, 17],
                 "В конструкции do-while: ожидается ключевое слово do");
