@@ -8,7 +8,6 @@ using TFLC_sem6_lab1.Scanner;
 
 namespace TFLC_sem6_lab1.Grammar
 {
-
     public class Parser
     {
         private List<TableLine> _tokens;
