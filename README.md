@@ -23,6 +23,38 @@
 4. Постройте CFG.
 5. Укажите в чем отличие do-while от while в IR
 
+**Общее задание**
+
+*AST*
+
+<img width="974" height="515" alt="изображение" src="https://github.com/user-attachments/assets/bc1168fe-13f3-4ced-bcf9-32854a6c67fd" />
+<img width="974" height="419" alt="изображение" src="https://github.com/user-attachments/assets/6c00af78-cbd9-40b9-b94e-bf21a88b005a" />
+
+*LLVM IR*
+
+<img width="974" height="585" alt="изображение" src="https://github.com/user-attachments/assets/473f793a-8d70-4237-9852-677c29026ad0" />
+
+*Оптимизация IR*
+
+O0
+
+<img width="974" height="800" alt="изображение" src="https://github.com/user-attachments/assets/0601cbad-2186-4875-a664-2576c6433cfd" />
+
+O2
+
+<img width="974" height="544" alt="изображение" src="https://github.com/user-attachments/assets/ab73fab4-9649-4371-92e4-91e507acc548" />
+
+Сравнение
+
+<img width="974" height="622" alt="изображение" src="https://github.com/user-attachments/assets/21883405-9f83-403a-b761-94c110dee348" />
+
+Граф потока управления программой
+
+<img width="361" height="157" alt="изображение" src="https://github.com/user-attachments/assets/4b2fd85b-24ee-4cc7-b8e7-3b639c733315" />
+
+<img width="738" height="161" alt="изображение" src="https://github.com/user-attachments/assets/22523347-bf85-4671-9df2-4fbb299694b7" />
+
+
 
 # Лабораторная работа 5.
 
