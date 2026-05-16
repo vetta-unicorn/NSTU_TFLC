@@ -93,6 +93,10 @@ O2
 <img width="693" height="469" alt="изображение" src="https://github.com/user-attachments/assets/cf29f147-5b19-43cb-a7ae-80b3f1b7d06b" />
 <img width="769" height="281" alt="изображение" src="https://github.com/user-attachments/assets/3b063017-6479-4964-8ebb-b906a3e29115" />
 
+**Выводы**
+
+В цикле while проверка происходит перед телом цикла, а в do-while после тела цикла
+
 
 # Лабораторная работа 5.
 
