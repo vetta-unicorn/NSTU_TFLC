@@ -54,6 +54,44 @@ O2
 
 <img width="738" height="161" alt="изображение" src="https://github.com/user-attachments/assets/22523347-bf85-4671-9df2-4fbb299694b7" />
 
+**Индивидуальное задание**
+
+*IR O0*
+
+<img width="843" height="639" alt="изображение" src="https://github.com/user-attachments/assets/120b13bf-cdbd-4cc1-9116-c95ab29148f0" />
+<img width="974" height="358" alt="изображение" src="https://github.com/user-attachments/assets/bfe1669c-3f0f-44f7-9faa-f78fdb5f2584" />
+
+*IR 02*
+
+<img width="974" height="521" alt="изображение" src="https://github.com/user-attachments/assets/a83c8fe3-4194-43ec-aa7f-1bf6f2b98d1d" />
+
+*Сравнение*
+
+<img width="719" height="575" alt="изображение" src="https://github.com/user-attachments/assets/d720034a-0934-499b-a3fb-6c891d4b16bb" />
+<img width="974" height="447" alt="изображение" src="https://github.com/user-attachments/assets/913fd86b-dd45-4547-ae21-66e2321d0cbf" />
+
+*-loop-unroll*
+
+<img width="752" height="493" alt="изображение" src="https://github.com/user-attachments/assets/b970ff8d-e006-49c5-98b1-38190f92ab71" />
+<img width="974" height="559" alt="изображение" src="https://github.com/user-attachments/assets/a2df8c42-1318-4e45-a344-702078912636" />
+
+
+*-loop-rotate*
+
+<img width="809" height="515" alt="изображение" src="https://github.com/user-attachments/assets/537f3725-4195-4e4e-8d82-fb9fded8345c" />
+<img width="974" height="550" alt="изображение" src="https://github.com/user-attachments/assets/28a03bbb-3a1b-4770-9a1f-10ef2a291ae7" />
+
+*Граф потока управления*
+
+<img width="432" height="553" alt="изображение" src="https://github.com/user-attachments/assets/009dcdb4-320e-4579-a380-cb21c7b69ca6" />
+
+*Разница IR while и do-while*
+
+<img width="974" height="499" alt="изображение" src="https://github.com/user-attachments/assets/1725b506-bc03-4311-b906-2a918c4b5881" />
+<img width="969" height="524" alt="изображение" src="https://github.com/user-attachments/assets/231ef012-27ea-415e-b397-66edd323f014" />
+
+<img width="693" height="469" alt="изображение" src="https://github.com/user-attachments/assets/cf29f147-5b19-43cb-a7ae-80b3f1b7d06b" />
+<img width="769" height="281" alt="изображение" src="https://github.com/user-attachments/assets/3b063017-6479-4964-8ebb-b906a3e29115" />
 
 
 # Лабораторная работа 5.
