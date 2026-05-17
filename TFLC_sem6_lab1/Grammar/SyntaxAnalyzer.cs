@@ -23,11 +23,18 @@ namespace TFLC_sem6_lab1.Grammar
         public AstNode Root { get; private set; }
         private SymbolTable _symbolTable = new SymbolTable();
 
+        private List<TacInstruction> _tacInstructions; 
+        private int _tempCounter; 
+        private int _labelCounter;
+
         TableLine statementToken;
         TableLine condition1Token;
         TableLine condition2Token;
 
         ParseError _semanticError;
+
+        private string _optimizationStats;
+        public string GetOptimizationStats() => _optimizationStats;
 
         public Parser(List<TableLine> tokens)
         {
@@ -35,6 +42,10 @@ namespace TFLC_sem6_lab1.Grammar
             _currentPos = 0;
             _errors = new List<ParseError>();
             _currentToken = _tokens.Count > 0 ? _tokens[0] : null;
+
+            _tacInstructions = new List<TacInstruction>();
+            _tempCounter = 0;
+            _labelCounter = 0;
         }
 
         public void DisplayErrors(List<ParseError> errors, DataGridView SyntaxTable)
@@ -67,18 +78,31 @@ namespace TFLC_sem6_lab1.Grammar
             }
         }
 
-        public (List<ParseError>, AstNode, ParseError) Parse()
+        public (List<ParseError>, AstNode, ParseError, List<TacInstruction>) Parse()
         {
             try
             {
-                Root = Program(); 
+                Root = Program();
             }
             catch (Exception ex)
             {
                 AddError($"Критическая ошибка: {ex.Message}", 0, 0, 0);
             }
 
-            return (_errors, Root, _semanticError);
+            return (_errors, Root, _semanticError, _tacInstructions);
+        }
+
+        public List<TacInstruction> GetOptimizedTAC()
+        {
+            if (_tacInstructions == null || _tacInstructions.Count == 0)
+                return new List<TacInstruction>();
+
+            var optimizer = new TACOptimizer();
+            var optimized = optimizer.Optimize(new List<TacInstruction>(_tacInstructions));
+
+            _optimizationStats = optimizer.GetOptimizationStats();
+
+            return optimized;
         }
 
         private void NextToken()
@@ -189,6 +213,38 @@ namespace TFLC_sem6_lab1.Grammar
             return node;
         }
 
+        private string GenerateConditionTAC(AstNode condition)
+        {
+            if (condition is BinaryOpNode binaryOp)
+            {
+                string leftVal = GenerateExpressionTAC(binaryOp.Left);
+
+                string rightVal = GenerateExpressionTAC(binaryOp.Right);
+
+                string result = NewTemp();
+
+                AddTacInstruction(binaryOp.Operator, leftVal, rightVal, result);
+
+                return result;
+            }
+
+            return "";
+        }
+
+        private string GenerateExpressionTAC(AstNode expr)
+        {
+            if (expr is VariableNode varNode)
+            {
+                return varNode.Name;
+            }
+            else if (expr is LiteralNode litNode)
+            {
+                return litNode.Value.ToString();
+            }
+
+            return "";
+        }
+
         private DoWhileNode DoWhileStatement()
         {
             if (!IsValidToken()) return null;
@@ -245,19 +301,16 @@ namespace TFLC_sem6_lab1.Grammar
                 _errorCounter++;
             }
 
+            string startLabel = NewLabel();  
+            string condLabel = NewLabel();   
+            string endLabel = NewLabel();    
 
-            if (!IsValidToken() || _tokens.Count == 1)
-            {
-                AddError("В условном выражении: ожидается открывающая фигурная скобка",
-                    _tokens[0].line_number,
-                    _tokens[0].start_pos,
-                    _tokens[0].end_pos);
-                NextToken();
-                return null;
-            }
+            AddTacInstruction("label", result: startLabel);
 
             blockNode = Block();
             if (endFlag) return null;
+
+            AddTacInstruction("label", result: condLabel);
 
             if (!IsValidToken())
             {
@@ -294,18 +347,16 @@ namespace TFLC_sem6_lab1.Grammar
                 _errorCounter++;
             }
 
-            if (!IsValidToken())
-            {
-                AddError("В условном выражении: ожидается (",
-                    _tokens[_currentPos - 1].line_number,
-                    _tokens[_currentPos - 1].start_pos,
-                    _tokens[_currentPos - 1].end_pos);
-                endFlag = true;
-                return null;
-            }
-
             conditionNode = Condition();
             if (endFlag) return null;
+
+            string condResult = GenerateConditionTAC(conditionNode);
+
+            AddTacInstruction("jz", condResult, "", endLabel);
+
+            AddTacInstruction("jmp", result: startLabel);
+
+            AddTacInstruction("label", result: endLabel);
 
             if (IsValidToken() && _currentToken.code == 17)
             {
@@ -339,7 +390,6 @@ namespace TFLC_sem6_lab1.Grammar
                 Condition = conditionNode
             };
         }
-
         private AstNode Condition()
         {
             if (!IsValidToken())
@@ -722,11 +772,50 @@ namespace TFLC_sem6_lab1.Grammar
                 endFlag = true;
             }
 
+            if (varName != null && op != null)
+            {
+                if (op == "++")
+                {
+                    string temp = NewTemp();
+                    AddTacInstruction("+", varName, "1", temp);
+                    AddTacInstruction("=", temp, "", varName);
+                }
+                else if (op == "--")
+                {
+                    string temp = NewTemp();
+                    AddTacInstruction("-", varName, "1", temp);
+                    AddTacInstruction("=", temp, "", varName);
+                }
+            }
+
             return new UnaryOpNode
             {
                 Operator = op,
                 Variable = new VariableNode { Name = varName }
             };
+        }
+
+        private string NewTemp()
+        {
+            return $"t{_tempCounter++}";
+        }
+
+        private string NewLabel()
+        {
+            return $"L{_labelCounter++}";
+        }
+
+        private void AddTacInstruction(string op, string arg1 = "", string arg2 = "", string result = "")
+        {
+            _tacInstructions.Add(new TacInstruction(op, arg1, arg2, result));
+        }
+
+        public string GetTACString()
+        {
+            if (_tacInstructions == null || _tacInstructions.Count == 0)
+                return "TAC не сгенерирован";
+
+            return string.Join(Environment.NewLine, _tacInstructions.Select(i => i.ToString()));
         }
 
     }

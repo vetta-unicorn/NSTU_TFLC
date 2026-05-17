@@ -701,6 +701,27 @@ namespace TFLC_sem6_lab1
             }
         }
 
+        public void PrintTAC(List<TacInstruction> tacInstructions)
+        {
+            if (tacInstructions == null || tacInstructions.Count == 0)
+            {
+                txtOutput.Text += "Нет сгенерированного TAC" + Environment.NewLine;
+                return;
+            }
+
+            txtOutput.Text += "=== ТРЕХАДРЕСНЫЙ КОД (TAC) ===" + Environment.NewLine;
+            txtOutput.Text += Environment.NewLine;
+
+            for (int i = 0; i < tacInstructions.Count; i++)
+            {
+                string lineNum = (i + 1).ToString().PadRight(4);
+                txtOutput.Text += $"{lineNum}{tacInstructions[i].ToString()}" + Environment.NewLine;
+            }
+
+            txtOutput.Text += Environment.NewLine;
+            txtOutput.Text += $"Всего инструкций: {tacInstructions.Count}" + Environment.NewLine;
+        }
+
         private void StartAST(object sender, EventArgs e)
         {
             txtOutput.Visible = true;
@@ -711,14 +732,21 @@ namespace TFLC_sem6_lab1
             LexicalAnalyzer lexer = new LexicalAnalyzer();
             List<TableLine> tokens = lexer.AnalyzeText(currentFilePath);
             Parser parser = new Parser(tokens);
-            (List<ParseError>, AstNode, ParseError) result = parser.Parse();
+            (List<ParseError>, AstNode, ParseError, List<TacInstruction>) result = parser.Parse();
             List<ParseError> errors = result.Item1;
             AstNode node = result.Item2;
             ParseError semanticError = result.Item3;
+            List<TacInstruction> tacInstructions = result.Item4;
 
-            if ((errors == null ||  errors.Count == 0) && semanticError == null)
+            if ((errors == null || errors.Count == 0) && semanticError == null)
             {
+                txtOutput.Text += "=== АБСТРАКТНОЕ СИНТАКСИЧЕСКОЕ ДЕРЕВО (AST) ===" + Environment.NewLine;
+                txtOutput.Text += Environment.NewLine;
                 PrintAst(node);
+                txtOutput.Text += Environment.NewLine;
+
+                PrintTAC(tacInstructions);
+
                 MessageBox.Show("Успех! Синтаксических и семантических ошибок не обнаружено!");
             }
             else if (semanticError != null)
@@ -749,6 +777,121 @@ namespace TFLC_sem6_lab1
 
                 parser.DisplayErrors(errors, SyntaxTable);
                 statusLabel.Text = $"Количество ошибок: {errors.Count}";
+            }
+        }
+
+        private void StartOptimizedTAC(object sender, EventArgs e)
+        {
+            txtOutput.Visible = true;
+            OutputTable.Visible = false;
+            SyntaxTable.Visible = false;
+            txtOutput.Text = "";
+
+            LexicalAnalyzer lexer = new LexicalAnalyzer();
+            List<TableLine> tokens = lexer.AnalyzeText(currentFilePath);
+            Parser parser = new Parser(tokens);
+            (List<ParseError>, AstNode, ParseError, List<TacInstruction>) result = parser.Parse();
+            List<ParseError> errors = result.Item1;
+            AstNode node = result.Item2;
+            ParseError semanticError = result.Item3;
+            List<TacInstruction> tacInstructions = result.Item4;
+
+            if ((errors == null || errors.Count == 0) && semanticError == null)
+            {
+                var optimizer = new TACOptimizer();
+                var finalOptimized = optimizer.Optimize(new List<TacInstruction>(tacInstructions));
+
+                // ===== 1. ОРИГИНАЛЬНЫЙ TAC =====
+               
+                txtOutput.Text += "Оригинальный TAC" + Environment.NewLine;
+                txtOutput.Text += Environment.NewLine;
+
+                for (int i = 0; i < tacInstructions.Count; i++)
+                {
+                    txtOutput.Text += $"{i + 1,3}  {tacInstructions[i].ToString()}" + Environment.NewLine;
+                }
+
+                txtOutput.Text += Environment.NewLine;
+                txtOutput.Text += new string('═', 60) + Environment.NewLine;
+                txtOutput.Text += Environment.NewLine;
+                txtOutput.Text += Environment.NewLine;
+
+                // ===== 2. TAC ПОСЛЕ ПЕРВОЙ ОПТИМИЗАЦИИ (Свертка констант) =====
+                txtOutput.Text += "TAC после первой оптимизации (свертка констант)" + Environment.NewLine;
+                txtOutput.Text += Environment.NewLine;
+
+                if (optimizer.AfterConstantFolding != null)
+                {
+                    for (int i = 0; i < optimizer.AfterConstantFolding.Count; i++)
+                    {
+                        string instruction = optimizer.AfterConstantFolding[i].ToString();
+                        string originalInstruction = i < tacInstructions.Count ? tacInstructions[i].ToString() : "";
+
+                        if (instruction != originalInstruction && optimizer.ConstantFoldingCount > 0)
+                        {
+                            txtOutput.Text += $"{i + 1,3}  ► {instruction}  ← ИЗМЕНЕНО" + Environment.NewLine;
+                        }
+                        else
+                        {
+                            txtOutput.Text += $"{i + 1,3}    {instruction}" + Environment.NewLine;
+                        }
+                    }
+
+                    txtOutput.Text += Environment.NewLine;
+                    txtOutput.Text += $"✓ Выполнено оптимизаций: {optimizer.ConstantFoldingCount}" + Environment.NewLine;
+                }
+
+                txtOutput.Text += Environment.NewLine;
+                txtOutput.Text += new string('═', 60) + Environment.NewLine;
+                txtOutput.Text += Environment.NewLine;
+                txtOutput.Text += Environment.NewLine;
+
+                // ===== 3. TAC ПОСЛЕ ВТОРОЙ ОПТИМИЗАЦИИ (Распространение копий) =====
+                txtOutput.Text += "TAC после второй оптимизации (распространение копий)" + Environment.NewLine;
+                txtOutput.Text += Environment.NewLine;
+
+                if (optimizer.AfterCopyPropagation != null)
+                {
+                    for (int i = 0; i < optimizer.AfterCopyPropagation.Count; i++)
+                    {
+                        string currentInstruction = optimizer.AfterCopyPropagation[i].ToString();
+                        string afterFirstInstruction = i < optimizer.AfterConstantFolding.Count ?
+                                                       optimizer.AfterConstantFolding[i].ToString() : "";
+
+                        if (currentInstruction != afterFirstInstruction && optimizer.CopyPropagationCount > 0)
+                        {
+                            txtOutput.Text += $"{i + 1,3}  ► {currentInstruction}  ← ИЗМЕНЕНО" + Environment.NewLine;
+                        }
+                        else
+                        {
+                            txtOutput.Text += $"{i + 1,3}    {currentInstruction}" + Environment.NewLine;
+                        }
+                    }
+
+                    txtOutput.Text += Environment.NewLine;
+                    txtOutput.Text += $"✓ Выполнено оптимизаций: {optimizer.CopyPropagationCount}" + Environment.NewLine;
+                }
+
+                txtOutput.Text += Environment.NewLine;
+                txtOutput.Text += new string('═', 60) + Environment.NewLine;
+                txtOutput.Text += Environment.NewLine;
+                txtOutput.Text += Environment.NewLine;
+            }
+            else
+            {
+                if (semanticError != null)
+                {
+                    List<ParseError> semanticErrors = new List<ParseError>();
+                    semanticErrors.Add(semanticError);
+                    parser.DisplayErrors(semanticErrors, SyntaxTable);
+                }
+                else
+                {
+                    parser.DisplayErrors(errors, SyntaxTable);
+                }
+
+                SyntaxTable.Visible = true;
+                txtOutput.Visible = false;
             }
         }
 
@@ -886,6 +1029,12 @@ namespace TFLC_sem6_lab1
             astItem.Click += StartAST;
             astItem.Tag = "AST";
             item.DropDownItems.Add(astItem);
+
+            ToolStripMenuItem tacItem = new ToolStripMenuItem();
+            tacItem.Text = "TAC";
+            tacItem.Click += StartOptimizedTAC;
+            tacItem.Tag = "TAC";
+            item.DropDownItems.Add(tacItem);
         }
 
     }
