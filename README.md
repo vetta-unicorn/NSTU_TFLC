@@ -113,45 +113,17 @@ O2
 *Тестовые примеры*
 
 do {
-    $x = 5 + 3;
     $x++;
-} while ($x < 10);
+} while (5 < 10);
 
-Оригинальный TAC:
+<img width="218" height="146" alt="изображение" src="https://github.com/user-attachments/assets/65bcb7d4-b369-45bf-8f79-08aaaab67dae" />
+<img width="264" height="63" alt="изображение" src="https://github.com/user-attachments/assets/d29c457e-a0db-4744-9436-738c3d8f4073" />
 
-1    L0:
+<img width="476" height="112" alt="изображение" src="https://github.com/user-attachments/assets/2856099b-4774-4bef-b8e9-2e9ca784aec3" />
+<img width="333" height="114" alt="изображение" src="https://github.com/user-attachments/assets/445e606e-d749-473e-846f-5b983bceff20" />
 
-2    t0 = 5 > 3
 
-3    flag = t0
 
-4    L1:
-
-5    t1 = flag == 1
-
-6    if t1 == 0 goto L2
-
-7    goto L0
-
-8    L2:
-
-TAC после свертки констант:
-
-1    L0:
-
-2    t0 = 1      
-
-3    flag = t0
-
-4    L1:
-
-5    t1 = flag == 1
-
-6    if t1 == 0 goto L2
-
-7    goto L0
-
-8    L2:
 
 **Распространение копий**
 
