@@ -27,10 +27,14 @@
 
 *AST*
 
+Команда: clang -Xclang -ast-dump -fsyntax-only main.c. Создание абстрактного синтаксического дерева исходной программы с помощью Clang
+
 <img width="974" height="515" alt="изображение" src="https://github.com/user-attachments/assets/bc1168fe-13f3-4ced-bcf9-32854a6c67fd" />
 <img width="974" height="419" alt="изображение" src="https://github.com/user-attachments/assets/6c00af78-cbd9-40b9-b94e-bf21a88b005a" />
 
 *LLVM IR*
+
+Преобразование AST в промежуточное представление, близкое к ассемблеру, но платформонезависимое. IR использует SSA-форму, виртуальные регистры и явные инструкции. Команда: clang -S -emit-llvm main.c -o main.ll.
 
 <img width="974" height="585" alt="изображение" src="https://github.com/user-attachments/assets/473f793a-8d70-4237-9852-677c29026ad0" />
 
@@ -38,9 +42,13 @@
 
 O0
 
+Отключение всех оптимизаций. Генерируется наивный код, где все переменные размещаются через alloca, много операций load/store, каждая функция вызывается явно. Команда: clang -O0 -S -emit-llvm main.c -o main_O0.ll.
+
 <img width="974" height="800" alt="изображение" src="https://github.com/user-attachments/assets/0601cbad-2186-4875-a664-2576c6433cfd" />
 
 O2
+
+Применение агрессивных оптимизаций: удаление alloca, переход к SSA-форме, инлайн коротких функций, свертка констант, удаление мёртвого кода и упрощение потока управления. Команда: clang -O2 -S -emit-llvm main.c -o main_O2.ll.
 
 <img width="974" height="544" alt="изображение" src="https://github.com/user-attachments/assets/ab73fab4-9649-4371-92e4-91e507acc548" />
 
@@ -50,6 +58,8 @@ O2
 
 Граф потока управления программой
 
+Построение CFG для каждой функции на основе оптимизированного IR. Команды: opt -dot-cfg -disable-output main.ll, затем dot -Tpng .main.dot -o cfg_main.png.
+
 <img width="361" height="157" alt="изображение" src="https://github.com/user-attachments/assets/4b2fd85b-24ee-4cc7-b8e7-3b639c733315" />
 
 <img width="738" height="161" alt="изображение" src="https://github.com/user-attachments/assets/22523347-bf85-4671-9df2-4fbb299694b7" />
@@ -58,10 +68,14 @@ O2
 
 *IR O0*
 
+Отключение всех оптимизаций. Генерируется наивный код, где все переменные размещаются через alloca, много операций load/store, каждая функция вызывается явно. Команда: clang -O0 -S -emit-llvm do_while.c -o do_while_O0.ll.
+
 <img width="843" height="639" alt="изображение" src="https://github.com/user-attachments/assets/120b13bf-cdbd-4cc1-9116-c95ab29148f0" />
 <img width="974" height="358" alt="изображение" src="https://github.com/user-attachments/assets/bfe1669c-3f0f-44f7-9faa-f78fdb5f2584" />
 
 *IR 02*
+
+Применение агрессивных оптимизаций: удаление alloca, переход к SSA-форме, инлайн коротких функций, свертка констант, удаление мёртвого кода и упрощение потока управления. Команда: clang -O2 -S -emit-llvm do_while.c -o do_while_O2.ll.
 
 <img width="974" height="521" alt="изображение" src="https://github.com/user-attachments/assets/a83c8fe3-4194-43ec-aa7f-1bf6f2b98d1d" />
 
@@ -72,11 +86,15 @@ O2
 
 *-loop-unroll*
 
+Оптимизация, которая разворачивает тело цикла, заменяя итерации последовательными копиями инструкций, уменьшает накладные расходы на проверку условия и переход, но увеличивает размер кода.
+
 <img width="752" height="493" alt="изображение" src="https://github.com/user-attachments/assets/b970ff8d-e006-49c5-98b1-38190f92ab71" />
 <img width="974" height="559" alt="изображение" src="https://github.com/user-attachments/assets/a2df8c42-1318-4e45-a344-702078912636" />
 
 
 *-loop-rotate*
+
+Преобразование цикла, которое переносит условие выхода в конец тела, превращая цикл с предусловием в цикл с постусловием.
 
 <img width="809" height="515" alt="изображение" src="https://github.com/user-attachments/assets/537f3725-4195-4e4e-8d82-fb9fded8345c" />
 <img width="974" height="550" alt="изображение" src="https://github.com/user-attachments/assets/28a03bbb-3a1b-4770-9a1f-10ef2a291ae7" />
